@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="signup.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Join Us</h1>
+        <form action="/index.php" class="form">
+
+           
+
+
+                <div class="names">
+
+                    <div class="first-name">
+                        <label for="firstName">First name</label>
+                        <input type="text" class="input" id="firstName" name="firstName" placeholder="firstName"
+                            required>
+                    </div>
+                    <div class="last-name">
+                        <label for="lastName">last name</label>
+                        <input type="text" name="lastName" id="lastName" class="input" placeholder="lastName" required>
+                    </div>
+                </div>
+                <div class="contacts">
+
+                    <div class="contact">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" name="phone" id="phone" class="input" placeholder="254712345678" required>
+                    </div>
+                    <div class="email">
+                        <label for="email">Email </label>
+                        <input type="email" class="email" placeholder="johndoe@gmail.com" required>
+                    </div>
+                </div>
+
+                <div class="security">
+                    <label for="password">password</label>
+                    <input type="password" class="password" required minlength="8"><br>
+                    <label for="comfirm">Comfirm Password</label>
+                    <input type="password">
+                    <button class="submit" id="submit">submit</button>
+                </div>
+
+        </form>
+    </div>
+</body>
+
+</html>
