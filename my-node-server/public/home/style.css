@@ -1,0 +1,144 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 10px;
+}
+
+:root{
+    --fontColor: #fff;
+    --background: #f44336;
+    --boxbackground: #fff3f3;
+}
+
+.header {
+  min-height: 100vh;
+  width: 100%;
+  background-image: linear-gradient(rgba(4, 9, 30, 0.7), rgba(4, 9, 30, 0.7)),
+url(/eduford_img/banner.png);
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  z-index: 1;
+}
+
+nav {
+  display: flex;
+  padding: 2% 6%;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.text-box {
+  width: 90%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: var(--fontColor);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.text-box h1 {
+  font-size: 6.2rem;
+
+}
+
+.text-box p {
+  font-size: 2rem;
+  color: var(--fontColor);
+  margin: 10px 0 40px;
+}
+
+ .hero-button{
+    display: inline-block;
+    text-decoration: none;
+    color: var(--fontColor);
+    border: 1px solid #fff;
+    padding: 12px;
+    font-size: 13px;
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+}
+
+.hero-button:hover{
+    border: 1px solid var(--background);
+    transition: 0.3s;
+}
+
+
+
+@media(max-width: 700px){
+    .text-box h1{
+        font-size: 3.1rem;
+    }
+    .text-box p{
+        font-size: 1.5rem;
+    }
+
+} 
+
+/* service section */
+
+.services{
+    width: 80%;
+    margin: auto;
+    padding-top: 5%;
+    text-align: center;
+}
+
+h1{
+    font-size: 3.6rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+p{
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 2.2rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+.row{
+    display: flex;
+    /* grid-template-rows: repeat(3 1fr); */
+    margin-top: 5%;
+}
+
+.service-col{
+    flex-basis: 31%;
+    background: var(--boxbackground);
+    border-radius: 1.2rem;
+    padding: 2rem 1.2rem;
+    gap: 1rem;
+    margin-bottom: 8%;
+    box-sizing: border-box;
+    margin-right: 2rem;
+    transition: ease-in-out 0.5s;
+}
+
+.service-col:hover{
+    box-shadow: 0 0 20px 0 rgba(0,0,0,0.3);
+}
+
+@media(max-width: 950px){
+
+    .services{
+        box-sizing: border-box;
+        width: 100%;
+    }
+    .row{
+        flex-wrap: wrap;
+        margin-left: 6rem;
+    }
+}
+
+@media(max-width: 940px){
+    .row{
+        flex-direction: column;
+    }
+  }
