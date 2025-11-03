@@ -8,12 +8,20 @@ const bcrypt = require("bcryptjs");
 
 const app = express();
 const port = 8000;
+const path = require("path");
 
 // Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cors());
 
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "../public")));
+
+// Explicit route for login page (for debugging)
+app.post('/logins/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/logins/login.html'));
+});
 
 // connect to mySQL database
 const db = mysql.createConnection({
@@ -24,25 +32,30 @@ const db = mysql.createConnection({
 });
 
 // db connection error
+let dbConnected = false;
 
 db.connect((err) => {
   if (err) {
-    console.error("Error connecting to the database:", err);
-    return;
+    console.error("Error connecting to the database:", err.message);
+    console.log("Server will start without database. Fix credentials and restart.");
+    dbConnected = false;
+  } else {
+    console.log("Connected to the MySQL database.");
+    dbConnected = true;
   }
-  console.log("Connected to the MySQL database.");
 });
 
 // Create signup route
 
 app.post("/api/signup", (req, res) => {
-  const { userName,
-     email,
-      phone, 
-      password } = req.body;
+  const { userName, email, phone, password } = req.body;
 
   if (!userName || !email || !phone || !password) {
     return res.status(400).send("All fields are required");
+  }
+
+  if (!dbConnected) {
+    return res.status(503).send("Database not connected. Please check server logs.");
   }
 
   // Hash password
@@ -54,14 +67,18 @@ app.post("/api/signup", (req, res) => {
 
     // Insert user into database
     const sql =
-      "INSERT INTO users (userName, email, password) VALUES(?,?,?)";
-    db.query(sql, [userName, email, hash], (err, result) => {
+      "INSERT INTO users (userName, email, phone, password) VALUES(?,?,?,?)";
+    db.query(sql, [userName, email, phone, hash], (err, result) => {
       if (err) {
-      console.error("Error inserting user:", err);
-      return res.status(500).send("Server error");
-    }
-    res.status(201).json({ success: true, message: "User registered successfully", redirect: "/login" });
-  });
+        console.error("Error inserting user:", err);
+        return res.status(500).json({ success: false, message: "Database error: " + err.message });
+      }
+      res.status(201).json({
+        success: true,
+        message: "User registered successfully!",
+        redirect: "/logins/login.html"
+      });
+    });
 
 });
 });

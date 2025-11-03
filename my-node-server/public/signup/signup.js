@@ -40,25 +40,21 @@ signupFormEl.addEventListener("submit", async (e) => {
       body: JSON.stringify({ userName, email, phone, password })
     });
     
-    const text = await res.text();
+    const data = await res.json();
     
-    if (res.ok) {
-      showMessage('Signup successful! ' + text, false);
+    if (res.ok && data.success) {
+      showMessage(data.message, false);
       signupFormEl.reset();
+
+      // Redirect to login page after 1 second
+      setTimeout(() => {
+        window.location.href = 'http://localhost:8000/logins/login.html';
+      }, 1000);
     } else {
-      showMessage('Signup failed: ' + text, true);
+      showMessage(data.message || 'Signup failed', true);
     }
   } catch (err) {
     console.error('Signup error:', err);
     showMessage('Network error. Please try again later.', true);
   }
-  const data = await res.json();
-  
-  if(data.success){
-    alert(data.message);
-    // redirect to login page or clear form
-    window.location.href = data.redirect;
-  }else{
-    alert(data.message || 'Signup failed');
-  };
 });
