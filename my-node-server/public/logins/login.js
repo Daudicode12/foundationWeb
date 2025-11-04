@@ -14,21 +14,36 @@ form.addEventListener('submit', async (e) => {
   }
 
   // Perform login logic here
-    try {
+  try {
     const res = await fetch('http://localhost:8000/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+    
     const data = await res.json();
+    
     if (data.success) {
-     alert(data.message);
-        // redirect to dashboard or another page
-        window.location.href = data.redirect;
+      messageEl.textContent = data.message;
+      messageEl.style.color = 'green';
+      
+      // Store user data in localStorage
+      localStorage.setItem('userData', JSON.stringify({
+        userName: data.userName || email.split('@')[0],
+        email: email
+      }));
+      
+      // Redirect to dashboard after short delay
+      setTimeout(() => {
+        window.location.href = 'http://localhost:8000/dashboard/dashboard.html';
+      }, 1000);
     } else {
-     alert('Login failed: ' + data.message);
+      messageEl.textContent = 'Login failed: ' + data.message;
+      messageEl.style.color = 'red';
     }
   } catch (error) {
-    alert('An error occurred. Please try again later.');
+    console.error('Login error:', error);
+    messageEl.textContent = 'An error occurred. Please try again later.';
+    messageEl.style.color = 'red';
   }
 });
