@@ -14,34 +14,34 @@ signupFormEl.addEventListener("submit", async (e) => {
   const phone = document.getElementById("phonenumber").value.trim();
   const password = document.getElementById("password").value.trim();
   const confirmPassword = document.getElementById("comfirmpassword").value.trim();
-  
+
   // Validate all fields
   if (!userName || !email || !phone || !password || !confirmPassword) {
     showMessage('Please fill in all fields.', true);
     return;
   }
-  
+
   if (password.length < 8) {
     showMessage('Password must be at least 8 characters.', true);
     return;
   }
-  
+
   if (password !== confirmPassword) {
     showMessage('Passwords do not match.', true);
     return;
   }
 
   showMessage('Sending signup request...', false);
-  
+
   try {
     const res = await fetch("http://localhost:8000/api/signup", {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userName, email, phone, password })
     });
-    
+
     const data = await res.json();
-    
+
     if (res.ok && data.success) {
       showMessage(data.message, false);
       signupFormEl.reset();

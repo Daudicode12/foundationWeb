@@ -22,7 +22,24 @@ app.use(cors());
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
 
+// Root route - serve the landing page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/home/index.html'));
+});
+
 // Explicit routes for pages
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/home/index.html'));
+});
+
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/about/about.html'));
+});
+
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/contact/contact.html'));
+});
+
 app.get('/logins/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/logins/login.html'));
 });
@@ -107,6 +124,26 @@ app.post("/api/login", (req, res) => {
         phone: user.phone
       });
     });
+  });
+});
+
+// Contact form submission
+app.post("/api/contact", (req, res) => {
+  const { name, email, phone, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res.status(400).json({ success: false, message: "All required fields must be filled" });
+  }
+
+  // You can store contact messages in database or send email
+  // For now, we'll just log and return success
+  console.log("Contact form submission:", { name, email, phone, subject, message });
+
+  // TODO: Store in database or send email notification
+  
+  res.json({ 
+    success: true, 
+    message: "Thank you for contacting us! We will get back to you soon." 
   });
 });
 
