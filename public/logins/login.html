@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./login.css">
+    <title>FCM login</title>
+</head>
+<body>
+    <form id="loginForm">
+        <h2>Login</h2>
+        <p style="text-align: center; margin-bottom: 20px;"><a href="/" style="color: #4CAF50; text-decoration: none;">← Back to Home</a></p>
+        <div class="input-group">
+            <input type="email" placeholder="Email" id="email" required>
+            <p></p>
+        </div>
+        <div class="input-group">
+            <input type="password" placeholder="Password" id="password" required>
+            <p></p>
+        </div>
+        <button type="submit">Login</button>
+        <div class="signup">
+            <p>Don't have an account? <a href="../signup/signup.html">Sign up</a></p>
+        </div>
+        <div id="message"></div>
+    </form>
+    <script src="login.js"></script>
+</body>
+</html>

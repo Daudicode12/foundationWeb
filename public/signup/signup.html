@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FOCM</title>
+    <link rel="stylesheet" href="./signup.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <p style="text-align: center; margin-bottom: 20px;"><a href="/" style="color: #4CAF50; text-decoration: none;">← Back to Home</a></p>
+        <form id="signupForm">
+            <div class="input-group">
+                <input type="text" placeholder="Full Name" id="userName" required>
+                <p></p>
+            </div>
+            <div class="input-group">
+                <input type="email" placeholder="email" id="email" required>
+                <p></p>
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="phone number" id="phonenumber" required>
+                <p></p>
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="password" id="password" required>
+
+                <p></p>
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="comfirm password" required id="comfirmpassword">
+                <p></p>
+            </div>
+
+            <button type="submit">Sign Up</button>
+        </form>
+        <div id="message"></div>
+
+        <script src="./signup.js"></script>
+    </div>
+</body>
+</html>

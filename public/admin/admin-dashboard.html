@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FOCM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../dashboard/dashboard.css">
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <button class="hamburger-menu" id="hamburgerMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <nav class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>FOCM Admin</h2>
+                <p>Administrator Portal</p>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#manage-events"><i class="fas fa-calendar-check"></i> Manage Events</a></li>
+                <li><a href="#manage-announcements"><i class="fas fa-megaphone"></i> Manage Announcements</a></li>
+                <li><a href="#view-members"><i class="fas fa-user-friends"></i> View Members</a></li>
+                <li><a href="#view-rsvps"><i class="fas fa-clipboard-list"></i> Event RSVPs</a></li>
+            </ul>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </nav>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Welcome, <span id="adminName">Admin</span>!</h1>
+                <p>Administrator Dashboard</p>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalEvents">0</h3>
+                        <p>Total Events</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalAnnouncements">0</h3>
+                        <p>Announcements</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-info">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalMembers">0</h3>
+                        <p>Members</p>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRSVPs">0</h3>
+                        <p>Total RSVPs</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div id="dashboard-section" class="content-section active">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="showSection('manage-events', true)">
+                        <span class="btn-icon"><i class="fas fa-calendar-plus"></i></span>
+                        Add New Event
+                    </button>
+                    <button class="action-btn" onclick="showSection('manage-announcements', true)">
+                        <span class="btn-icon"><i class="fas fa-bullhorn"></i></span>
+                        Add New Announcement
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manage Events Section -->
+            <div id="manage-events-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Events</h2>
+                    <button class="primary-btn" id="addEventBtn">
+                        <i class="fas fa-plus-circle"></i> Add New Event
+                    </button>
+                </div>
+                
+                <div class="events-table">
+                    <table id="eventsTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Location</th>
+                                <th>Attendees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <tr>
+                                <td colspan="7" class="loading">Loading events...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Manage Announcements Section -->
+            <div id="manage-announcements-section" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Announcements</h2>
+                    <button class="primary-btn" id="addAnnouncementBtn">
+                        <i class="fas fa-plus-circle"></i> Add New Announcement
+                    </button>
+                </div>
+                
+                <div class="announcements-table">
+                    <table id="announcementsTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Author</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="announcementsTableBody">
+                            <tr>
+                                <td colspan="5" class="loading">Loading announcements...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- View Members Section -->
+            <div id="view-members-section" class="content-section">
+                <div class="section-header">
+                    <h2>Church Members</h2>
+                    <div class="member-count">
+                        <i class="fas fa-users"></i> <span id="memberCount">0</span> Total Members
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Registered Date</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <tr>
+                                <td colspan="5" class="loading">Loading members...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- View RSVPs Section -->
+            <div id="view-rsvps-section" class="content-section">
+                <h2>Event RSVPs</h2>
+                <div class="filter-section">
+                    <label for="eventFilter">Filter by Event:</label>
+                    <select id="eventFilter">
+                        <option value="all">All Events</option>
+                    </select>
+                </div>
+                <div class="rsvps-table">
+                    <table id="rsvpsTable">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Member Name</th>
+                                <th>Email</th>
+                                <th>RSVP Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvpsTableBody">
+                            <tr>
+                                <td colspan="4" class="loading">Loading RSVPs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-modal">&times;</span>
+            <h2 id="eventModalTitle">Add New Event</h2>
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventTitle">Event Title *</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventCategory">Category *</label>
+                        <select id="eventCategory" required>
+                            <option value="service">Service</option>
+                            <option value="bible-study">Bible Study</option>
+                            <option value="youth">Youth</option>
+                            <option value="prayer">Prayer</option>
+                            <option value="community">Community</option>
+                            <option value="special">Special</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date *</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="eventTime">Time *</label>
+                        <input type="text" id="eventTime" placeholder="e.g., 9:00 AM - 11:30 AM" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location *</label>
+                    <input type="text" id="eventLocation" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description *</label>
+                    <textarea id="eventDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventAdditionalInfo">Additional Information</label>
+                    <textarea id="eventAdditionalInfo" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventImage">Image URL</label>
+                    <input type="url" id="eventImage" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeEventModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Announcement Modal -->
+    <div id="announcementModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="announcementModalTitle">Add New Announcement</h2>
+            <form id="announcementForm">
+                <input type="hidden" id="announcementId">
+                
+                <div class="form-group">
+                    <label for="announcementTitle">Title *</label>
+                    <input type="text" id="announcementTitle" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="announcementPriority">Priority *</label>
+                        <select id="announcementPriority" required>
+                            <option value="general">General</option>
+                            <option value="info">Info</option>
+                            <option value="important">Important</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="announcementDate">Date *</label>
+                        <input type="date" id="announcementDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="announcementAuthor">Author *</label>
+                    <input type="text" id="announcementAuthor" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="announcementContent">Content *</label>
+                    <textarea id="announcementContent" rows="6" required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeAnnouncementModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Save Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>
