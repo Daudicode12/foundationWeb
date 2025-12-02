@@ -7,7 +7,7 @@ const db = require('../src/db');
 const adminData = {
   userName: 'Admin User',
   email: 'admin@focm.church',
-  phone: '0000000000',
+  phone: '0727600414',
   password: 'Admin123!', // Change this password immediately after first login
   role: 'admin'
 };

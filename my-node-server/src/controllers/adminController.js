@@ -16,6 +16,14 @@ exports.listEvents = (req, res) => {
   });
 };
 
+exports.countEvents = (req, res) => {
+  const sql = 'SELECT COUNT(*) as count FROM events';
+  db.query(sql, (err, results) => {
+    if (err) return handleError(res, err, 'Error counting events');
+    res.json({ count: results[0].count });
+  });
+};
+
 exports.createEvent = (req, res) => {
   const { title, description, additionalInfo, category, date, time, location, image } = req.body;
   
@@ -81,6 +89,14 @@ exports.listAnnouncements = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) return handleError(res, err, 'Error fetching announcements');
     res.json({ success: true, data: results });
+  });
+};
+
+exports.countAnnouncements = (req, res) => {
+  const sql = 'SELECT COUNT(*) as count FROM announcements';
+  db.query(sql, (err, results) => {
+    if (err) return handleError(res, err, 'Error counting announcements');
+    res.json({ count: results[0].count });
   });
 };
 
@@ -210,5 +226,21 @@ exports.listMembers = (req, res) => {
   db.query(sql, (err, results) => {
     if (err) return handleError(res, err, 'Error fetching members');
     res.json({ success: true, data: results });
+  });
+};
+
+exports.countMembers = (req, res) => {
+  const sql = 'SELECT COUNT(*) as count FROM users';
+  db.query(sql, (err, results) => {
+    if (err) return handleError(res, err, 'Error counting members');
+    res.json({ count: results[0].count });
+  });
+};
+
+exports.countRSVPs = (req, res) => {
+  const sql = 'SELECT COUNT(*) as count FROM event_rsvps';
+  db.query(sql, (err, results) => {
+    if (err) return handleError(res, err, 'Error counting RSVPs');
+    res.json({ count: results[0].count });
   });
 };

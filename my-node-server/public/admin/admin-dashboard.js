@@ -226,6 +226,11 @@ async function loadMembers() {
                 <td>${member.phone || 'N/A'}</td>
                 <td>${member.created_at ? formatDate(member.created_at) : 'N/A'}</td>
                 <td><span class="role-badge ${member.role === 'admin' ? 'role-admin' : 'role-member'}">${member.role || 'member'}</span></td>
+                <td>
+                    <div class="table-actions">
+                        <button class="edit-btn" onclick="editMember('${member.email}')">Edit</button>
+                    </div>
+                </td>
             </tr>
         `).join('');
     } catch (error) {
@@ -300,6 +305,9 @@ function setupModals() {
     // Announcement modal
     document.getElementById('addAnnouncementBtn').addEventListener('click', openAnnouncementModal);
     document.getElementById('announcementForm').addEventListener('submit', handleAnnouncementSubmit);
+    
+    // Member modal
+    document.getElementById('memberForm').addEventListener('submit', handleMemberSubmit);
     
     // Close buttons
     document.querySelectorAll('.close-modal').forEach(btn => {
@@ -376,17 +384,17 @@ async function handleEventSubmit(e) {
         });
         
         if (response.ok) {
-            alert(eventId ? 'Event updated successfully!' : 'Event created successfully!');
+            showSuccessMessage(eventId ? 'Event updated successfully!' : 'Event created successfully!');
             closeEventModal();
             loadAllEvents();
             loadDashboardStats();
         } else {
             const error = await response.json();
-            alert('Error: ' + (error.message || 'Failed to save event'));
+            showErrorMessage('Error: ' + (error.message || 'Failed to save event'));
         }
     } catch (error) {
         console.error('Error saving event:', error);
-        alert('An error occurred. Please try again.');
+        showErrorMessage('An error occurred. Please try again.');
     }
 }
 
@@ -398,7 +406,7 @@ async function editEvent(eventId) {
         openEventModal(event);
     } catch (error) {
         console.error('Error loading event:', error);
-        alert('Unable to load event details');
+        showErrorMessage('Unable to load event details');
     }
 }
 
@@ -413,15 +421,15 @@ async function deleteEvent(eventId) {
         });
         
         if (response.ok) {
-            alert('Event deleted successfully!');
+            showSuccessMessage('Event deleted successfully!');
             loadAllEvents();
             loadDashboardStats();
         } else {
-            alert('Failed to delete event');
+            showErrorMessage('Failed to delete event');
         }
     } catch (error) {
         console.error('Error deleting event:', error);
-        alert('An error occurred. Please try again.');
+        showErrorMessage('An error occurred. Please try again.');
     }
 }
 
@@ -483,17 +491,17 @@ async function handleAnnouncementSubmit(e) {
         });
         
         if (response.ok) {
-            alert(announcementId ? 'Announcement updated successfully!' : 'Announcement created successfully!');
+            showSuccessMessage(announcementId ? 'Announcement updated successfully!' : 'Announcement created successfully!');
             closeAnnouncementModal();
             loadAllAnnouncements();
             loadDashboardStats();
         } else {
             const error = await response.json();
-            alert('Error: ' + (error.message || 'Failed to save announcement'));
+            showErrorMessage('Error: ' + (error.message || 'Failed to save announcement'));
         }
     } catch (error) {
         console.error('Error saving announcement:', error);
-        alert('An error occurred. Please try again.');
+        showErrorMessage('An error occurred. Please try again.');
     }
 }
 
@@ -505,7 +513,7 @@ async function editAnnouncement(announcementId) {
         openAnnouncementModal(announcement);
     } catch (error) {
         console.error('Error loading announcement:', error);
-        alert('Unable to load announcement details');
+        showErrorMessage('Unable to load announcement details');
     }
 }
 
@@ -520,15 +528,15 @@ async function deleteAnnouncement(announcementId) {
         });
         
         if (response.ok) {
-            alert('Announcement deleted successfully!');
+            showSuccessMessage('Announcement deleted successfully!');
             loadAllAnnouncements();
             loadDashboardStats();
         } else {
-            alert('Failed to delete announcement');
+            showErrorMessage('Failed to delete announcement');
         }
     } catch (error) {
         console.error('Error deleting announcement:', error);
-        alert('An error occurred. Please try again.');
+        showErrorMessage('An error occurred. Please try again.');
     }
 }
 
@@ -551,4 +559,130 @@ function formatDateTime(dateString) {
 
 function formatCategory(category) {
     return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+// Member Modal Functions
+async function editMember(email) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/profile?email=${encodeURIComponent(email)}`);
+        const result = await response.json();
+        
+        if (result.success && result.profile) {
+            openMemberModal(result.profile);
+        } else {
+            showErrorMessage('Unable to load member details');
+        }
+    } catch (error) {
+        console.error('Error loading member:', error);
+        showErrorMessage('Unable to load member details');
+    }
+}
+
+function openMemberModal(memberData) {
+    const modal = document.getElementById('memberModal');
+    const form = document.getElementById('memberForm');
+    
+    // Populate form with member data
+    document.getElementById('memberId').value = memberData.id || '';
+    document.getElementById('memberEmail').value = memberData.email;
+    document.getElementById('memberName').value = memberData.userName || '';
+    document.getElementById('memberPhone').value = memberData.phone || '';
+    document.getElementById('memberDateOfBirth').value = memberData.dateOfBirth || '';
+    document.getElementById('memberGender').value = memberData.gender || '';
+    document.getElementById('memberMaritalStatus').value = memberData.maritalStatus || '';
+    document.getElementById('memberRole').value = memberData.role || 'member';
+    document.getElementById('memberAddress').value = memberData.address || '';
+    document.getElementById('memberCity').value = memberData.city || '';
+    document.getElementById('memberState').value = memberData.state || '';
+    document.getElementById('memberZipCode').value = memberData.zipCode || '';
+    document.getElementById('memberCountry').value = memberData.country || '';
+    document.getElementById('memberSince').value = memberData.memberSince || '';
+    document.getElementById('memberMinistry').value = memberData.ministry || '';
+    document.getElementById('memberNotes').value = memberData.notes || '';
+    
+    modal.style.display = 'block';
+}
+
+function closeMemberModal() {
+    document.getElementById('memberModal').style.display = 'none';
+}
+
+async function handleMemberSubmit(e) {
+    e.preventDefault();
+    
+    const memberData = {
+        email: document.getElementById('memberEmail').value,
+        userName: document.getElementById('memberName').value,
+        phone: document.getElementById('memberPhone').value,
+        dateOfBirth: document.getElementById('memberDateOfBirth').value,
+        gender: document.getElementById('memberGender').value,
+        maritalStatus: document.getElementById('memberMaritalStatus').value,
+        role: document.getElementById('memberRole').value,
+        address: document.getElementById('memberAddress').value,
+        city: document.getElementById('memberCity').value,
+        state: document.getElementById('memberState').value,
+        zipCode: document.getElementById('memberZipCode').value,
+        country: document.getElementById('memberCountry').value,
+        memberSince: document.getElementById('memberSince').value,
+        ministry: document.getElementById('memberMinistry').value,
+        notes: document.getElementById('memberNotes').value
+    };
+    
+    try {
+        const response = await fetch('http://localhost:8000/api/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(memberData)
+        });
+        
+        if (response.ok) {
+            showSuccessMessage('Member updated successfully!');
+            closeMemberModal();
+            loadMembers();
+        } else {
+            const error = await response.json();
+            showErrorMessage('Error: ' + (error.message || 'Failed to update member'));
+        }
+    } catch (error) {
+        console.error('Error updating member:', error);
+        showErrorMessage('An error occurred. Please try again.');
+    }
+}
+
+// Notification Functions
+function showSuccessMessage(message) {
+    showNotification(message, 'success');
+}
+
+function showErrorMessage(message) {
+    showNotification(message, 'error');
+}
+
+function showNotification(message, type = 'success') {
+    // Remove existing notifications
+    const existing = document.querySelector('.notification-toast');
+    if (existing) existing.remove();
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }

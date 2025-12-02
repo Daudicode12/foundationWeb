@@ -8,6 +8,14 @@ module.exports = function adminAuth(req, res, next) {
   // In production, use JWT tokens or sessions
   const adminEmail = req.body?.adminEmail || req.query?.adminEmail;
   
+  console.log('Admin Auth Check:', {
+    body: req.body,
+    query: req.query,
+    adminEmail: adminEmail,
+    method: req.method,
+    path: req.path
+  });
+  
   if (!adminEmail) {
     return res.status(401).json({ 
       success: false, 
@@ -40,16 +48,15 @@ module.exports = function adminAuth(req, res, next) {
 };
 
 // Note: For production, implement JWT-based authentication:
-// 
 // const jwt = require('jsonwebtoken');
-// const secret = process.env.JWT_SECRET || 'your-secret-key';
-//
+// const secret = process.env.JWT_SECRET;
+// 
 // module.exports = function adminAuth(req, res, next) {
 //   const authHeader = req.headers.authorization;
 //   if (!authHeader) {
 //     return res.status(401).json({ success: false, message: 'No token provided' });
 //   }
-//
+// 
 //   const token = authHeader.split(' ')[1]; // Bearer <token>
 //   try {
 //     const decoded = jwt.verify(token, secret);

@@ -32,7 +32,7 @@ INSERT INTO users (userName, email, phone, password, role)
 VALUES (
     'Admin User', 
     'admin@focm.com', 
-    '555-0100',
+    '0741674473',
     '$2a$10$rOzJw5K5EHVJxH7YxXxCaO9rL4Z8.2vQN6FJPxYxGBE2wQJ5xGxK2',
     'admin'
 );

@@ -169,11 +169,12 @@
                                 <th>Phone</th>
                                 <th>Registered Date</th>
                                 <th>Role</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="membersTableBody">
                             <tr>
-                                <td colspan="5" class="loading">Loading members...</td>
+                                <td colspan="6" class="loading">Loading members...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -319,6 +320,119 @@
                 <div class="modal-actions">
                     <button type="button" class="cancel-btn" onclick="closeAnnouncementModal()">Cancel</button>
                     <button type="submit" class="submit-btn">Save Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Member Modal -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content large">
+            <span class="close-modal">&times;</span>
+            <h2 id="memberModalTitle">Edit Member</h2>
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
+                <input type="hidden" id="memberEmail">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberName">Full Name *</label>
+                        <input type="text" id="memberName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberPhone">Phone Number *</label>
+                        <input type="tel" id="memberPhone" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberDateOfBirth">Date of Birth</label>
+                        <input type="date" id="memberDateOfBirth">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberGender">Gender</label>
+                        <select id="memberGender">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberMaritalStatus">Marital Status</label>
+                        <select id="memberMaritalStatus">
+                            <option value="">Select...</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberRole">Role</label>
+                        <select id="memberRole">
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="memberAddress">Address</label>
+                    <input type="text" id="memberAddress">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberCity">City</label>
+                        <input type="text" id="memberCity">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberState">State</label>
+                        <input type="text" id="memberState">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberZipCode">Zip Code</label>
+                        <input type="text" id="memberZipCode">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberCountry">Country</label>
+                        <input type="text" id="memberCountry">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberSince">Member Since</label>
+                        <input type="date" id="memberSince">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="memberMinistry">Ministry</label>
+                        <input type="text" id="memberMinistry" placeholder="e.g., Choir, Youth">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="memberNotes">Notes</label>
+                    <textarea id="memberNotes" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeMemberModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Save Changes</button>
                 </div>
             </form>
         </div>

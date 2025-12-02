@@ -164,13 +164,16 @@ function createEventCard(event, isPast = false) {
     const rsvpText = userRSVP ? 'Registered ✓' : 'RSVP';
     const rsvpClass = userRSVP ? 'registered' : '';
     
+    // Format category for display
+    const categoryDisplay = formatCategory(event.category);
+    
     return `
         <div class="event-card" data-event-id="${event.id}">
             <img src="${event.image || 'https://via.placeholder.com/400x200?text=Church+Event'}" 
                  alt="${event.title}" 
                  class="event-image">
             <div class="event-content">
-                <span class="event-category">${event.category}</span>
+                <span class="event-category">${categoryDisplay}</span>
                 <h3 class="event-title">${event.title}</h3>
                 <div class="event-date">${formatDate(event.date)}</div>
                 <div class="event-time">${event.time}</div>
@@ -251,11 +254,12 @@ async function showEventDetails(eventId) {
         const userRSVP = checkUserRSVP(eventId);
         const rsvpText = userRSVP ? 'You are registered ✓' : 'RSVP for this event';
         const rsvpClass = userRSVP ? 'registered' : '';
+        const categoryDisplay = formatCategory(event.category);
         
         modalBody.innerHTML = `
             <h2 class="modal-event-title">${event.title}</h2>
             <div class="modal-event-details">
-                <div class="event-category">${event.category}</div>
+                <div class="event-category">${categoryDisplay}</div>
                 <div class="event-date">${formatDate(event.date)}</div>
                 <div class="event-time">${event.time}</div>
                 <div class="event-location">${event.location}</div>
@@ -398,7 +402,7 @@ function filterEvents(category) {
     const eventCards = document.querySelectorAll('#eventsGrid .event-card');
     
     eventCards.forEach(card => {
-        const eventCategory = card.querySelector('.event-category').textContent.toLowerCase();
+        const eventCategory = card.querySelector('.event-category').textContent.toLowerCase().replace(/\s+/g, '-');
         
         if (category === 'all' || eventCategory === category) {
             card.style.display = 'block';
@@ -413,6 +417,11 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+}
+
+function formatCategory(category) {
+    // Convert 'bible-study' to 'Bible Study'
+    return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
 function truncateText(text, maxLength) {
