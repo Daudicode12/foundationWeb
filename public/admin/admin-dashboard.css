@@ -706,14 +706,37 @@ td:has(.table-actions) {
 
 .modal-content {
     background: var(--white);
-    margin: 3% auto;
+    margin: 2% auto;
     padding: 2.5rem;
     border-radius: 1.25rem;
     max-width: 600px;
     position: relative;
     box-shadow: 0 20px 40px var(--shadow-lg);
     animation: slideDown 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 }
+
+.modal-content.large {
+    max-width: 700px;
+}
+
+.modal-actions{
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    justify-content: space-between;
+}
+ .modal-actions button{
+    padding: 10px 20px;
+    border-radius: 1rem;
+    border: none;
+    background-color: var(--primary);
+    color: #fff;
+    cursor: pointer;
+
+ }
 
 @keyframes slideDown {
     from {
@@ -758,7 +781,14 @@ td:has(.table-actions) {
 
 /* Form Styles */
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0;
 }
 
 .form-group label {
@@ -773,7 +803,7 @@ td:has(.table-actions) {
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
     border: 2px solid var(--border);
     border-radius: 0.75rem;
     font-size: 0.9375rem;
@@ -792,7 +822,7 @@ td:has(.table-actions) {
 
 .form-group textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 100px;
 }
 
 .form-actions {
@@ -953,8 +983,13 @@ td:has(.table-actions) {
     }
 
     .modal-content {
-        margin: 10% 1rem;
-        padding: 2rem;
+        margin: 2rem 1rem;
+        padding: 1.75rem;
+        max-height: calc(100vh - 4rem);
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
     }
 
     .section-header {
@@ -989,6 +1024,33 @@ td:has(.table-actions) {
         font-size: 1.5rem;
     }
 
+    .modal-content {
+        margin: 1rem;
+        padding: 1.5rem;
+        max-height: calc(100vh - 2rem);
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+    }
+    
+    .modal-actions button {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+
     .section-header h2 {
         font-size: 1.25rem;
     }
@@ -1018,5 +1080,61 @@ td:has(.table-actions) {
     tbody td {
         padding: 1rem;
         font-size: 0.875rem;
+    }
+}
+
+/* Notification Toast Styles */
+.notification-toast {
+    position: fixed;
+    top: 20px;
+    right: -400px;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    transition: right 0.3s ease-in-out;
+    font-weight: 500;
+}
+
+.notification-toast.show {
+    right: 20px;
+}
+
+.notification-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.notification-error {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.notification-content i {
+    font-size: 1.5rem;
+}
+
+.notification-content span {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .notification-toast {
+        top: 10px;
+        min-width: calc(100% - 40px);
+        max-width: calc(100% - 40px);
+        right: -100%;
+    }
+    
+    .notification-toast.show {
+        right: 20px;
     }
 }

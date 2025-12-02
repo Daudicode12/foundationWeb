@@ -6,6 +6,12 @@ const adminAuth = require('../middleware/adminAuth');
 // Dashboard stats (protected)
 router.get('/stats', adminAuth, adminController.getDashboardStats);
 
+// Count endpoints for dashboard
+router.get('/events/count', adminAuth, adminController.countEvents);
+router.get('/announcements/count', adminAuth, adminController.countAnnouncements);
+router.get('/members/count', adminAuth, adminController.countMembers);
+router.get('/rsvps/count', adminAuth, adminController.countRSVPs);
+
 // Events management routes (all protected)
 router.get('/events', adminAuth, adminController.listEvents);
 router.post('/events', adminAuth, adminController.createEvent);
