@@ -335,7 +335,9 @@ function openEventModal(eventData = null) {
         document.getElementById('eventId').value = eventData.id;
         document.getElementById('eventTitle').value = eventData.title;
         document.getElementById('eventCategory').value = eventData.category;
-        document.getElementById('eventDate').value = eventData.date;
+        // Format date properly for input field
+        const dateValue = eventData.date ? eventData.date.split('T')[0] : '';
+        document.getElementById('eventDate').value = dateValue;
         document.getElementById('eventTime').value = eventData.time;
         document.getElementById('eventLocation').value = eventData.location;
         document.getElementById('eventDescription').value = eventData.description;
@@ -444,7 +446,9 @@ function openAnnouncementModal(announcementData = null) {
         document.getElementById('announcementId').value = announcementData.id;
         document.getElementById('announcementTitle').value = announcementData.title;
         document.getElementById('announcementPriority').value = announcementData.priority;
-        document.getElementById('announcementDate').value = announcementData.date;
+        // Format date properly for input field
+        const dateValue = announcementData.date ? announcementData.date.split('T')[0] : '';
+        document.getElementById('announcementDate').value = dateValue;
         document.getElementById('announcementAuthor').value = announcementData.author;
         document.getElementById('announcementContent').value = announcementData.content;
     } else {
