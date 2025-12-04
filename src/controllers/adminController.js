@@ -132,13 +132,18 @@ exports.getAnnouncement = (req, res) => {
 exports.updateAnnouncement = (req, res) => {
   const { title, content, priority, author, date } = req.body;
   
+  // Validate required fields
+  if (!title || !content || !author || !date) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+  
   const sql = `
     UPDATE announcements 
     SET title = ?, content = ?, priority = ?, author = ?, date = ?
     WHERE id = ?
   `;
   
-  db.query(sql, [title, content, priority, author, date, req.params.id], (err, result) => {
+  db.query(sql, [title, content, priority || 'general', author, date, req.params.id], (err, result) => {
     if (err) return handleError(res, err, 'Error updating announcement');
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: 'Announcement not found' });
