@@ -251,12 +251,21 @@ async function loadMembers() {
     const memberCountEl = document.getElementById('memberCount');
     
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/members?adminEmail=${encodeURIComponent(adminData.email)}`);
+        const response = await fetch(`/api/admin/members?adminEmail=${encodeURIComponent(adminData.email)}`);
         const result = await response.json();
-        const members = result.data || result; // Handle both response formats
         
-        if (!members || members.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="loading">No registered members found</td></tr>';
+        console.log('Members response:', result);
+        
+        if (!result.success) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="loading">Error: ' + (result.message || 'Failed to load members') + '</td></tr>';
+            if (memberCountEl) memberCountEl.textContent = '0';
+            return;
+        }
+        
+        const members = result.data || [];
+        
+        if (members.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6" class="loading">No registered members found</td></tr>';
             if (memberCountEl) memberCountEl.textContent = '0';
             return;
         }
@@ -281,7 +290,7 @@ async function loadMembers() {
         `).join('');
     } catch (error) {
         console.error('Error loading members:', error);
-        tableBody.innerHTML = '<tr><td colspan="5" class="loading">Error loading members</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" class="loading">Error loading members</td></tr>';
         if (memberCountEl) memberCountEl.textContent = '0';
     }
 }
