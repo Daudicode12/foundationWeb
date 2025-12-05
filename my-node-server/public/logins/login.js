@@ -3,9 +3,32 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const messageEl = document.getElementById('message');
 
+// Check if already logged in
+document.addEventListener('DOMContentLoaded', () => {
+  const token = localStorage.getItem('memberToken');
+  if (token) {
+    // Verify token is still valid
+    fetch('/api/verify-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.valid) {
+        window.location.href = '/dashboard/dashboard.html';
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('memberToken');
+      localStorage.removeItem('userData');
+    });
+  }
+});
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-    const email = emailInput.value.trim();
+  const email = emailInput.value.trim();
   const password = passwordInput.value.trim();
 
   if (!email || !password) {
@@ -27,15 +50,18 @@ form.addEventListener('submit', async (e) => {
       messageEl.textContent = data.message;
       messageEl.style.color = 'green';
       
-      // Store user data in localStorage
+      // Store token and user data
+      localStorage.setItem('memberToken', data.token);
       localStorage.setItem('userData', JSON.stringify({
         userName: data.userName || email.split('@')[0],
-        email: email
+        email: email,
+        phone: data.phone,
+        role: data.role || 'member'
       }));
       
       // Redirect to dashboard after short delay
       setTimeout(() => {
-        window.location.href = 'http://localhost:8000/dashboard/dashboard.html';
+        window.location.href = '/dashboard/dashboard.html';
       }, 1000);
     } else {
       messageEl.textContent = 'Login failed: ' + data.message;
