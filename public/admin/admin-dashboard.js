@@ -1,14 +1,59 @@
-// Check if admin is logged in
+// Check if admin is logged in with valid token
+const adminToken = localStorage.getItem('adminToken');
 const adminData = JSON.parse(localStorage.getItem('adminData'));
-if (!adminData || !adminData.email) {
+
+if (!adminToken || !adminData || !adminData.email) {
     window.location.href = '/admin/admin-login.html';
 }
+
+// Verify token on page load
+async function verifyAdminSession() {
+    try {
+        const response = await fetch('http://localhost:8000/api/verify-token', {
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await response.json();
+        
+        if (!data.success || data.user.role !== 'admin') {
+            handleSessionExpired();
+        }
+    } catch (error) {
+        console.error('Session verification failed:', error);
+        handleSessionExpired();
+    }
+}
+
+// Handle expired session
+function handleSessionExpired() {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
+    alert('Your session has expired. Please log in again.');
+    window.location.href = '/admin/admin-login.html';
+}
+
+// Refresh token periodically (every 20 minutes)
+setInterval(async () => {
+    try {
+        const response = await fetch('http://localhost:8000/api/refresh-token', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+        });
+        const data = await response.json();
+        
+        if (data.success && data.token) {
+            localStorage.setItem('adminToken', data.token);
+        }
+    } catch (error) {
+        console.error('Token refresh failed:', error);
+    }
+}, 20 * 60 * 1000);
 
 // Display admin name
 document.getElementById('adminName').textContent = adminData.userName || 'Admin';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    verifyAdminSession();
     initHamburgerMenu();
     loadDashboardStats();
     setupNavigation();
@@ -68,6 +113,7 @@ function setupNavigation() {
     
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('adminToken');
         localStorage.removeItem('adminData');
         window.location.href = '/admin/admin-login.html';
     });

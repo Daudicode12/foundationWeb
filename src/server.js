@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const path = require("path");
 
 // Import database connection
@@ -13,6 +14,10 @@ const adminRouter = require("./routes/admin");
 
 const app = express();
 const port = 8000;
+
+// JWT Configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
+const JWT_EXPIRES_IN = '24h'; // Token expires in 24 hours
 
 // Middleware
 app.use(morgan("dev"));
@@ -115,13 +120,28 @@ app.post("/api/login", (req, res) => {
         return res.status(401).json({ success: false, message: "Invalid email or password" });
       }
 
+      // Generate JWT token for member
+      const token = jwt.sign(
+        { 
+          id: user.id, 
+          email: user.email, 
+          userName: user.userName,
+          role: user.role || 'member'
+        },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+      );
+
       res.status(200).json({ 
         success: true, 
         message: "Login successful", 
         redirect: "/dashboard/dashboard.html",
+        token: token,
         userName: user.userName,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        role: user.role || 'member',
+        expiresIn: JWT_EXPIRES_IN
       });
     });
   });
@@ -425,15 +445,109 @@ app.post("/api/admin/login", (req, res) => {
         return res.status(401).json({ success: false, message: "Invalid admin credentials" });
       }
 
+      // Generate JWT token for admin
+      const token = jwt.sign(
+        { 
+          id: admin.id, 
+          email: admin.email, 
+          userName: admin.userName,
+          role: 'admin'
+        },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+      );
+
       res.json({
         success: true,
         message: "Admin login successful",
+        token: token,
         email: admin.email,
         userName: admin.userName,
-        role: admin.role
+        role: admin.role,
+        expiresIn: JWT_EXPIRES_IN
       });
     });
   });
+});
+
+// Verify token endpoint - for session validation
+app.post("/api/verify-token", (req, res) => {
+  // Accept token from body or header
+  let token = req.body.token;
+  
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+  
+  if (!token) {
+    return res.status(401).json({ valid: false, message: "No token provided" });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ 
+      valid: true,
+      success: true, 
+      user: {
+        id: decoded.id,
+        email: decoded.email,
+        userName: decoded.userName,
+        role: decoded.role
+      }
+    });
+  } catch (err) {
+    res.status(401).json({ valid: false, message: "Invalid or expired token" });
+  }
+});
+
+// Refresh token endpoint
+app.post("/api/refresh-token", (req, res) => {
+  // Accept token from body or header
+  let token = req.body.token;
+  
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: "No token provided" });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration: true });
+    
+    // Check if token is not too old (e.g., within 7 days)
+    const tokenAge = Date.now() / 1000 - decoded.iat;
+    if (tokenAge > 7 * 24 * 60 * 60) {
+      return res.status(401).json({ success: false, message: "Token too old, please login again" });
+    }
+    
+    // Generate new token
+    const newToken = jwt.sign(
+      { 
+        id: decoded.id, 
+        email: decoded.email, 
+        userName: decoded.userName,
+        role: decoded.role
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+    
+    res.json({ 
+      success: true, 
+      token: newToken,
+      expiresIn: JWT_EXPIRES_IN
+    });
+  } catch (err) {
+    res.status(401).json({ success: false, message: "Invalid token" });
+  }
 });
 
 // start server 
