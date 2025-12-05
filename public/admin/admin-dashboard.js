@@ -300,12 +300,20 @@ async function loadRSVPs() {
     const tableBody = document.getElementById('rsvpsTableBody');
     
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/rsvps?adminEmail=${encodeURIComponent(adminData.email)}`);
+        const response = await fetch(`/api/admin/rsvps?adminEmail=${encodeURIComponent(adminData.email)}`);
         const result = await response.json();
-        const rsvps = result.data || result; // Handle both response formats
         
-        if (!rsvps || rsvps.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="4" class="loading">No RSVPs found</td></tr>';
+        console.log('RSVPs response:', result);
+        
+        if (!result.success) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="loading">Error loading RSVPs</td></tr>';
+            return;
+        }
+        
+        const rsvps = result.data || [];
+        
+        if (rsvps.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="loading">No RSVPs found. Members can RSVP from the Events page.</td></tr>';
             return;
         }
         
@@ -326,7 +334,7 @@ async function loadRSVPs() {
 // Load Events for Filter
 async function loadEventsForFilter() {
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/events?adminEmail=${encodeURIComponent(adminData.email)}`);
+        const response = await fetch(`/api/admin/events?adminEmail=${encodeURIComponent(adminData.email)}`);
         const result = await response.json();
         const events = result.data || result; // Handle both response formats
         
@@ -384,10 +392,14 @@ function openEventModal(eventData = null) {
     const modal = document.getElementById('eventModal');
     const form = document.getElementById('eventForm');
     const title = document.getElementById('eventModalTitle');
+    const idField = document.getElementById('eventId');
     
-    if (eventData) {
+    // Always clear the ID field first
+    idField.value = '';
+    
+    if (eventData && eventData.id) {
         title.textContent = 'Edit Event';
-        document.getElementById('eventId').value = eventData.id;
+        idField.value = eventData.id;
         document.getElementById('eventTitle').value = eventData.title;
         document.getElementById('eventCategory').value = eventData.category;
         // Format date properly for input field
@@ -401,7 +413,7 @@ function openEventModal(eventData = null) {
     } else {
         title.textContent = 'Add New Event';
         form.reset();
-        document.getElementById('eventId').value = '';
+        idField.value = ''; // Ensure ID is empty after reset
     }
     
     modal.style.display = 'block';
@@ -427,27 +439,35 @@ async function handleEventSubmit(e) {
         image: document.getElementById('eventImage').value
     };
     
+    console.log('Event ID:', eventId, 'Is valid:', eventId && eventId.trim() !== '' && eventId !== 'undefined');
+    
     try {
-        const url = eventId 
-            ? `http://localhost:8000/api/admin/events/${eventId}`
-            : 'http://localhost:8000/api/admin/events';
+        // Check if it's a valid ID (not empty, not 'undefined', and is a number)
+        const isUpdate = eventId && eventId.trim() !== '' && eventId !== 'undefined' && !isNaN(eventId);
+        const url = isUpdate 
+            ? `/api/admin/events/${eventId}`
+            : '/api/admin/events';
+        
+        console.log('Request URL:', url, 'Method:', isUpdate ? 'PUT' : 'POST');
         
         const response = await fetch(url, {
-            method: eventId ? 'PUT' : 'POST',
+            method: isUpdate ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(eventData)
         });
         
+        const result = await response.json();
+        console.log('Response:', result);
+        
         if (response.ok) {
-            showSuccessMessage(eventId ? 'Event updated successfully!' : 'Event created successfully!');
+            showSuccessMessage(isUpdate ? 'Event updated successfully!' : 'Event created successfully!');
             closeEventModal();
             loadAllEvents();
             loadDashboardStats();
         } else {
-            const error = await response.json();
-            showErrorMessage('Error: ' + (error.message || 'Failed to save event'));
+            showErrorMessage('Error: ' + (result.message || 'Failed to save event'));
         }
     } catch (error) {
         console.error('Error saving event:', error);
@@ -457,10 +477,14 @@ async function handleEventSubmit(e) {
 
 async function editEvent(eventId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/events/${eventId}?adminEmail=${encodeURIComponent(adminData.email)}`);
+        const response = await fetch(`/api/admin/events/${eventId}?adminEmail=${encodeURIComponent(adminData.email)}`);
         const result = await response.json();
-        const event = result.data || result; // Handle both response formats
-        openEventModal(event);
+        
+        if (result.success && result.data) {
+            openEventModal(result.data);
+        } else {
+            showErrorMessage('Unable to load event details');
+        }
     } catch (error) {
         console.error('Error loading event:', error);
         showErrorMessage('Unable to load event details');
@@ -473,7 +497,7 @@ async function deleteEvent(eventId) {
     }
     
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/events/${eventId}?adminEmail=${encodeURIComponent(adminData.email)}`, {
+        const response = await fetch(`/api/admin/events/${eventId}?adminEmail=${encodeURIComponent(adminData.email)}`, {
             method: 'DELETE'
         });
         
