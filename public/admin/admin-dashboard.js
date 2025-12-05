@@ -495,10 +495,14 @@ function openAnnouncementModal(announcementData = null) {
     const modal = document.getElementById('announcementModal');
     const form = document.getElementById('announcementForm');
     const title = document.getElementById('announcementModalTitle');
+    const idField = document.getElementById('announcementId');
+    
+    // Always clear the ID field first
+    idField.value = '';
     
     if (announcementData) {
         title.textContent = 'Edit Announcement';
-        document.getElementById('announcementId').value = announcementData.id;
+        idField.value = announcementData.id;
         document.getElementById('announcementTitle').value = announcementData.title;
         document.getElementById('announcementPriority').value = announcementData.priority;
         // Format date properly for input field
@@ -509,7 +513,7 @@ function openAnnouncementModal(announcementData = null) {
     } else {
         title.textContent = 'Add New Announcement';
         form.reset();
-        document.getElementById('announcementId').value = '';
+        idField.value = ''; // Ensure ID is empty after reset
         // Set default author to current admin
         document.getElementById('announcementAuthor').value = adminData.userName || 'Admin';
         // Set default date to today
@@ -536,27 +540,36 @@ async function handleAnnouncementSubmit(e) {
         content: document.getElementById('announcementContent').value
     };
     
+    console.log('Announcement ID:', announcementId, 'Is empty:', !announcementId);
+    console.log('Announcement Data:', announcementData);
+    
     try {
-        const url = announcementId 
-            ? `http://localhost:8000/api/admin/announcements/${announcementId}`
-            : 'http://localhost:8000/api/admin/announcements';
+        // Check if it's a valid ID (not empty, not 'undefined', and is a number)
+        const isUpdate = announcementId && announcementId.trim() !== '' && announcementId !== 'undefined' && !isNaN(announcementId);
+        const url = isUpdate 
+            ? `/api/admin/announcements/${announcementId}`
+            : '/api/admin/announcements';
+        
+        console.log('Request URL:', url, 'Method:', isUpdate ? 'PUT' : 'POST');
         
         const response = await fetch(url, {
-            method: announcementId ? 'PUT' : 'POST',
+            method: isUpdate ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(announcementData)
         });
         
+        const result = await response.json();
+        console.log('Response:', result);
+        
         if (response.ok) {
-            showSuccessMessage(announcementId ? 'Announcement updated successfully!' : 'Announcement created successfully!');
+            showSuccessMessage(isUpdate ? 'Announcement updated successfully!' : 'Announcement created successfully!');
             closeAnnouncementModal();
             loadAllAnnouncements();
             loadDashboardStats();
         } else {
-            const error = await response.json();
-            showErrorMessage('Error: ' + (error.message || 'Failed to save announcement'));
+            showErrorMessage('Error: ' + (result.message || 'Failed to save announcement'));
         }
     } catch (error) {
         console.error('Error saving announcement:', error);
@@ -566,10 +579,14 @@ async function handleAnnouncementSubmit(e) {
 
 async function editAnnouncement(announcementId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/admin/announcements/${announcementId}?adminEmail=${encodeURIComponent(adminData.email)}`);
+        const response = await fetch(`/api/admin/announcements/${announcementId}?adminEmail=${encodeURIComponent(adminData.email)}`);
         const result = await response.json();
-        const announcement = result.data || result; // Handle both response formats
-        openAnnouncementModal(announcement);
+        
+        if (result.success && result.data) {
+            openAnnouncementModal(result.data);
+        } else {
+            showErrorMessage('Unable to load announcement details');
+        }
     } catch (error) {
         console.error('Error loading announcement:', error);
         showErrorMessage('Unable to load announcement details');
