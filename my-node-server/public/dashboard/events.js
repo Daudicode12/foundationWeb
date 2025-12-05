@@ -161,8 +161,10 @@ async function loadEvents() {
     const eventsGrid = document.getElementById('eventsGrid');
     
     try {
-        const response = await fetch('http://localhost:8000/api/events/upcoming');
+        const response = await fetch('/api/events/upcoming');
         const events = await response.json();
+        
+        console.log('Events loaded:', events);
         
         if (events.length === 0) {
             eventsGrid.innerHTML = `
@@ -377,7 +379,7 @@ async function handleRSVP(eventId, button) {
         // Cancel RSVP
         if (confirm('Do you want to cancel your registration?')) {
             try {
-                const response = await fetch('http://localhost:8000/api/events/rsvp', {
+                const response = await fetch('/api/events/rsvp', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
@@ -403,7 +405,7 @@ async function handleRSVP(eventId, button) {
     } else {
         // Register for event
         try {
-            const response = await fetch('http://localhost:8000/api/events/rsvp', {
+            const response = await fetch('/api/events/rsvp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
