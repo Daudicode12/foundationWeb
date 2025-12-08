@@ -4,11 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         // Verify token is still valid
         fetch('http://localhost:8000/api/verify-token', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success && data.user.role === 'admin') {
+            if (data.valid && data.user.role === 'admin') {
                 window.location.href = '/admin/admin-dashboard.html';
             }
         })
