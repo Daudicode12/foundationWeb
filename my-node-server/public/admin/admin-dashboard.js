@@ -10,11 +10,13 @@ if (!adminToken || !adminData || !adminData.email) {
 async function verifyAdminSession() {
     try {
         const response = await fetch('http://localhost:8000/api/verify-token', {
-            headers: { 'Authorization': `Bearer ${adminToken}` }
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: adminToken })
         });
         const data = await response.json();
         
-        if (!data.success || data.user.role !== 'admin') {
+        if (!data.valid || data.user.role !== 'admin') {
             handleSessionExpired();
         }
     } catch (error) {
@@ -36,11 +38,12 @@ setInterval(async () => {
     try {
         const response = await fetch('http://localhost:8000/api/refresh-token', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: localStorage.getItem('adminToken') })
         });
         const data = await response.json();
         
-        if (data.success && data.token) {
+        if (data.valid && data.token) {
             localStorage.setItem('adminToken', data.token);
         }
     } catch (error) {

@@ -17,6 +17,7 @@
 
 body {
   overflow-x: hidden;
+  padding-top: 60px;
 }
 
 .header {
@@ -28,7 +29,7 @@ body {
   background-size: cover;
   background-attachment: fixed;
   position: relative;
-  z-index: 1;
+  z-index: 0;
   overflow: hidden;
 }
 
