@@ -260,7 +260,7 @@ app.get("/api/events/upcoming", (req, res) => {
       console.error("Error fetching events:", err);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json(results);
+    res.json({ success: true, events: results });
   });
 });
 
@@ -282,7 +282,7 @@ app.get("/api/events/past", (req, res) => {
       console.error("Error fetching past events:", err);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json(results);
+    res.json({ success: true, events: results });
   });
 });
 
