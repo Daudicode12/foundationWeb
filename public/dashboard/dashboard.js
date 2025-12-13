@@ -107,6 +107,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize hamburger menu
     initHamburgerMenu();
     
+    // Load upcoming events
+    loadUpcomingEvents();
+    
     // Set up token refresh interval (every 20 minutes)
     setInterval(refreshMemberToken, 20 * 60 * 1000);
 });
@@ -145,6 +148,59 @@ function initHamburgerMenu() {
             }
         });
     });
+}
+
+// Load Upcoming Events
+async function loadUpcomingEvents() {
+    const eventsList = document.getElementById('upcomingEventsList');
+    
+    try {
+        const response = await fetch('/api/events/upcoming');
+        const data = await response.json();
+        
+        console.log('Upcoming events response:', data);
+        
+        if (data.success && data.events && data.events.length > 0) {
+            const totalEvents = data.events.length;
+            // Display first 3 upcoming events
+            const upcomingEvents = data.events.slice(0, 3);
+            
+            eventsList.innerHTML = upcomingEvents.map(event => {
+                // Combine date and time
+                const eventDateTime = new Date(`${event.date}T${event.time}`);
+                const dateOptions = { weekday: 'long', month: 'short', day: 'numeric' };
+                const formattedDate = eventDateTime.toLocaleDateString('en-US', dateOptions);
+                
+                // Format time
+                const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+                const eventTime = eventDateTime.toLocaleTimeString('en-US', timeOptions);
+                
+                return `
+                    <div class="event-item">
+                        <p class="event-date">${formattedDate}</p>
+                        <p class="event-title">${event.title}</p>
+                        <p class="event-time">${eventTime}</p>
+                        ${event.location ? `<p class="event-location">📍 ${event.location}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event count and view button if there are more events
+            if (totalEvents > 3) {
+                eventsList.innerHTML += `
+                    <div class="events-summary">
+                        <p class="event-count">+${totalEvents - 3} more event${totalEvents - 3 > 1 ? 's' : ''}</p>
+                        <button class="view-events-btn" onclick="window.location.href='events.html'">View All Events</button>
+                    </div>
+                `;
+            }
+        } else {
+            eventsList.innerHTML = '<p class="no-events">No upcoming events at this time.</p>';
+        }
+    } catch (error) {
+        console.error('Error loading upcoming events:', error);
+        eventsList.innerHTML = '<p class="error-message">Unable to load events. Please try again later.</p>';
+    }
 }
 
 // Logout functionality

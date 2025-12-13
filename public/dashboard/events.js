@@ -162,11 +162,13 @@ async function loadEvents() {
     
     try {
         const response = await fetch('/api/events/upcoming');
-        const events = await response.json();
+        const data = await response.json();
         
-        console.log('Events loaded:', events);
+        console.log('Events loaded:', data);
         
-        if (events.length === 0) {
+        const events = data.success ? data.events : [];
+        
+        if (!events || events.length === 0) {
             eventsGrid.innerHTML = `
                 <div class="no-events">
                     <h3>No Upcoming Events</h3>
@@ -218,9 +220,11 @@ async function loadPastEvents() {
     
     try {
         const response = await fetch('http://localhost:8000/api/events/past');
-        const events = await response.json();
+        const data = await response.json();
         
-        if (events.length === 0) {
+        const events = data.success ? data.events : [];
+        
+        if (!events || events.length === 0) {
             pastEventsGrid.innerHTML = `
                 <div class="no-events">
                     <h3>No Past Events</h3>
