@@ -1,3 +1,4 @@
+// importing required modules
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
@@ -5,6 +6,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const rateLimit = require("express-rate-limit");
 
 // Import database connection
 const db = require("./db");
@@ -24,6 +26,14 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(cors());
 
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // this sets a 15 minute window
+  max: 4, //limit each IP to 10 requests per windows
+  message: {
+    error: "Too many login attempts from this account, please try again after 15 minutes"
+  }
+})
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -159,7 +169,7 @@ app.post("/api/contact", (req, res) => {
   // For now, we'll just log and return success
   console.log("Contact form submission:", { name, email, phone, subject, message });
 
-  // TODO: Store in database or send email notification
+  // Store in database or send email notification
   
   res.json({ 
     success: true, 
@@ -413,7 +423,7 @@ app.get("/api/announcements", (req, res) => {
 });
 
 // Mount admin routes - all admin endpoints now handled by admin router
-app.use("/api/admin", adminRouter);
+app.use("/api/admin", apiLimiter, adminRouter);
 
 // Admin login route (not protected, allows admin authentication)
 app.post("/api/admin/login", (req, res) => {
@@ -524,7 +534,7 @@ app.post("/api/refresh-token", (req, res) => {
     
     // Check if token is not too old (e.g., within 7 days)
     const tokenAge = Date.now() / 1000 - decoded.iat;
-    if (tokenAge > 7 * 24 * 60 * 60) {
+    if (tokenAge > 7 * 24 * 60 * 60) { //the token is older than 7days
       return res.status(401).json({ success: false, message: "Token too old, please login again" });
     }
     
