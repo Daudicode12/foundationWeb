@@ -24,12 +24,15 @@ const JWT_EXPIRES_IN = '24h'; // Token expires in 24 hours
 // Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: '*', // Adjust this in production to restrict origins
+  credentials: true
+}));
 
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // this sets a 15 minute window
-  max: 4, //limit each IP to 10 requests per windows
+  max: 5, //limit each IP to 5 requests per window
   message: {
     error: "Too many login attempts from this account, please try again after 15 minutes"
   }
@@ -561,7 +564,7 @@ app.post("/api/refresh-token", (req, res) => {
 });
 
 // start server 
-app.listen(port, ()=>{
+app.listen(port, "0.0.0.0", ()=>{
     console.log(`Server Running on Port Http://localhost:${port}`);
     
 });
