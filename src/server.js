@@ -32,39 +32,17 @@ app.use(cors({
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // this sets a 15 minute window
-  max: 5, //limit each IP to 5 requests per window
+  max: 100, //limit each IP to 100 requests per window
   message: {
-    error: "Too many login attempts from this account, please try again after 15 minutes"
+    error: "Too many requests from this IP, please try again after 15 minutes"
   }
 })
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, "../public")));
 
-// Root route - serve the landing page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/home/index.html'));
-});
+// Serve static files from React build directory
+app.use(express.static(path.join(__dirname, "../client/build")));
 
-// Explicit routes for pages
-app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/home/index.html'));
-});
-
-app.get('/about', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/about/about.html'));
-});
-
-app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/contact/contact.html'));
-});
-
-app.get('/logins/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/logins/login.html'));
-});
-
-app.get('/dashboard/dashboard.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/dashboard/dashboard.html'));
-});
+// Also serve images from public/eduford_img for backward compatibility
+app.use('/eduford_img', express.static(path.join(__dirname, "../public/eduford_img")));
 
 // Database connection check
 let dbConnected = true; // db.js handles connection
@@ -255,6 +233,26 @@ app.put("/api/profile", (req, res) => {
 });
 
 // Events API Routes
+
+// Get all events
+app.get("/api/events", (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ success: false, message: "Database not connected" });
+  }
+
+  const sql = `
+    SELECT * FROM events 
+    ORDER BY date DESC, time DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching events:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+    res.json({ success: true, events: results });
+  });
+});
 
 // Get upcoming events
 app.get("/api/events/upcoming", (req, res) => {
@@ -561,6 +559,11 @@ app.post("/api/refresh-token", (req, res) => {
   } catch (err) {
     res.status(401).json({ success: false, message: "Invalid token" });
   }
+});
+
+// Catch-all route - serve React app for all non-API routes
+app.get('/{*path}', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
 // start server 

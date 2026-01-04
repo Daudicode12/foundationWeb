@@ -1,53 +1,47 @@
-// Simple admin authentication middleware
-// Checks if user is logged in and has admin role
+// Admin authentication middleware
+// Checks if user has a valid JWT token and has admin role
 
-const db = require('../db');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_here';
 
 module.exports = function adminAuth(req, res, next) {
-  // Get email from request body or query (simple auth for now)
-  // In production, use JWT tokens or sessions
-  const adminEmail = req.body?.adminEmail || req.query?.adminEmail;
+  // Get token from Authorization header
+  const authHeader = req.headers.authorization;
   
-  console.log('Admin Auth Check:', {
-    body: req.body,
-    query: req.query,
-    adminEmail: adminEmail,
-    method: req.method,
-    path: req.path
-  });
-  
-  if (!adminEmail) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ 
       success: false, 
       message: 'Admin authentication required' 
     });
   }
 
-  // Verify user is admin
-  const sql = 'SELECT role FROM users WHERE email = ?';
-  db.query(sql, [adminEmail], (err, results) => {
-    if (err) {
-      console.error('Error checking admin status:', err);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Authentication error' 
-      });
-    }
-
-    if (results.length === 0 || results[0].role !== 'admin') {
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Check if user has admin role
+    if (decoded.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
         message: 'Admin access required' 
       });
     }
 
-    // User is admin, proceed
-    req.adminEmail = adminEmail;
+    // User is authenticated admin, proceed
+    req.adminEmail = decoded.email;
+    req.adminId = decoded.id;
+    req.adminRole = decoded.role;
     next();
-  });
+  } catch (err) {
+    console.error('Token verification failed:', err.message);
+    return res.status(401).json({ 
+      success: false, 
+      message: 'Invalid or expired token' 
+    });
+  }
 };
-
-// Note: For production, implement JWT-based authentication:
 // const jwt = require('jsonwebtoken');
 // const secret = process.env.JWT_SECRET;
 // 
