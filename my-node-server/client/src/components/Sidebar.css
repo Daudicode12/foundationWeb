@@ -1,0 +1,281 @@
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.sidebar .logo {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .logo h2 {
+  color: #4CAF50;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.sidebar .logo p {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.nav-menu li {
+  margin-bottom: 5px;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  color: #ccc;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.nav-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  color: #ccc;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.nav-link-btn:hover,
+.nav-link-btn.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.nav-menu a i,
+.nav-link-btn i {
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-link {
+  display: block;
+  text-align: center;
+  color: #888;
+  text-decoration: none;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.admin-link:hover {
+  color: #4CAF50;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background: #c82333;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  width: 40px;
+  height: 40px;
+  background: #1a1a2e;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+}
+
+.hamburger-menu span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #4CAF50;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.overlay.active {
+  display: block;
+}
+
+/* Tablet and Mobile Styles */
+@media (max-width: 768px) {
+  .hamburger-menu {
+    display: flex;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 480px) {
+  .hamburger-menu {
+    top: 15px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+    padding: 8px;
+  }
+
+  .hamburger-menu span {
+    height: 2px;
+  }
+
+  .sidebar {
+    width: 240px;
+    padding: 20px 15px;
+  }
+
+  .sidebar .logo {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+  }
+
+  .sidebar .logo h2 {
+    font-size: 1.3rem;
+  }
+
+  .sidebar .logo p {
+    font-size: 0.8rem;
+  }
+
+  .nav-menu a {
+    padding: 10px 12px;
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+
+  .nav-menu a i {
+    font-size: 0.9rem;
+  }
+
+  .sidebar-footer {
+    padding-top: 15px;
+  }
+
+  .admin-link {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .logout-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 360px) {
+  .hamburger-menu {
+    top: 12px;
+    left: 8px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .sidebar {
+    width: 220px;
+    padding: 15px 12px;
+  }
+
+  .sidebar .logo h2 {
+    font-size: 1.2rem;
+  }
+
+  .nav-menu a {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  .logout-btn {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}
