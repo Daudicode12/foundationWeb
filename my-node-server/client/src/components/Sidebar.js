@@ -48,6 +48,7 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '#prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
     { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },
     { path: '#resources', label: 'Resources', icon: 'fas fa-folder' },
+    { path: '#offerings', label: 'offerings', icon: 'fas fa-hands'},
   ];
 
   const adminLinks = [
