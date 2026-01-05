@@ -57,6 +57,8 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '/admin/dashboard', section: 'announcements', label: 'Announcements', icon: 'fas fa-bullhorn' },
     { path: '/admin/dashboard', section: 'members', label: 'View Members', icon: 'fas fa-user-friends' },
     { path: '/admin/dashboard', section: 'rsvps', label: 'Event RSVPs', icon: 'fas fa-clipboard-list' },
+    { path: '/admin/dashboard', section: 'offerings', label: 'Manage Offerings', icon: 'fas fa-hands' },
+    { path: '/admin/dashboard', section: 'sermons', label: 'Manage Sermons', icon: 'fas fa-book' },
   ];
 
   const links = isAdmin ? adminLinks : memberLinks;
