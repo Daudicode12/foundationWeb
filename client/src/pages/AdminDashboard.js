@@ -349,6 +349,9 @@ const AdminDashboard = () => {
                     <th>Email</th>
                     <th>RSVP Date</th>
                     <th>Status</th>
+                    <th>Sermons</th>
+                    <th>Offering</th>
+
                   </tr>
                 </thead>
                 <tbody>
