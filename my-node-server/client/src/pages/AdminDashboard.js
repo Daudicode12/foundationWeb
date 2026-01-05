@@ -364,6 +364,68 @@ const AdminDashboard = () => {
           </section>
         )}
 
+         {/* offering section */}
+        {activeSection === 'offerings' && (
+          <section className="content-section">
+            <div className="section-header">
+              <h2>Offerings</h2>
+            </div>
+            
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Member</th>
+                    <th>Email</th>
+                    <th>RSVP Date</th>
+                    <th>Status</th>
+                    <th>Sermons</th>
+                    <th>Offering</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan="5" className="no-data">No Offerings recorded yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+         {/* Sermons section */}
+        {activeSection === 'sermons' && (
+          <section className="content-section">
+            <div className="section-header">
+              <h2>Sermons</h2>
+            </div>
+            
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Member</th>
+                    <th>Email</th>
+                    <th>RSVP Date</th>
+                    <th>Status</th>
+                    <th>Sermons</th>
+                    <th>Offering</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan="5" className="no-data">No Sermons recorded yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
         {/* Navigation Tabs */}
         <div className="admin-tabs">
           <button 
