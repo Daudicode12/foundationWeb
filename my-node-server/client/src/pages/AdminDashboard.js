@@ -396,6 +396,18 @@ const AdminDashboard = () => {
           >
             RSVPs
           </button>
+                    <button 
+            className={activeSection === 'offerings' ? 'active' : ''}
+            onClick={() => showSection('offerings')}
+          >
+            offerings
+          </button>
+                    <button 
+            className={activeSection === 'sermons' ? 'active' : ''}
+            onClick={() => showSection('sermons')}
+          >
+            sermons
+          </button>
         </div>
       </main>
 
