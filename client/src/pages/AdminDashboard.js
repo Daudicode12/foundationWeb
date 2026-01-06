@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -14,6 +14,7 @@ const AdminDashboard = () => {
   });
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
+  const [rsvps, setRsvps] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -48,7 +49,13 @@ const AdminDashboard = () => {
       // Load members
       const membersData = await adminMembersService.getAll();
       if (membersData.success) {
-        setMembers(membersData.members || []);
+        setMembers(membersData.members || membersData.data || []);
+      }
+
+      // Load RSVPs
+      const rsvpsData = await adminRsvpsService.getAll();
+      if (rsvpsData.success) {
+        setRsvps(rsvpsData.data || []);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -347,17 +354,26 @@ const AdminDashboard = () => {
                     <th>Event</th>
                     <th>Member</th>
                     <th>Email</th>
+                    <th>Event Date</th>
                     <th>RSVP Date</th>
-                    <th>Status</th>
-                    <th>Sermons</th>
-                    <th>Offering</th>
-
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan="5" className="no-data">No RSVPs recorded yet</td>
-                  </tr>
+                  {rsvps.length > 0 ? (
+                    rsvps.map((rsvp, index) => (
+                      <tr key={index}>
+                        <td>{rsvp.eventTitle || 'N/A'}</td>
+                        <td>{rsvp.userName || 'N/A'}</td>
+                        <td>{rsvp.email}</td>
+                        <td>{rsvp.eventDate ? formatDate(rsvp.eventDate) : 'N/A'}</td>
+                        <td>{rsvp.rsvp_date ? formatDate(rsvp.rsvp_date) : 'N/A'}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="no-data">No RSVPs recorded yet</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

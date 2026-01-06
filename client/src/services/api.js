@@ -136,6 +136,14 @@ export const adminMembersService = {
   },
 };
 
+// Admin RSVPs Services
+export const adminRsvpsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/rsvps');
+    return response.data;
+  },
+};
+
 // Contact Services
 export const contactService = {
   sendMessage: async (contactData) => {
