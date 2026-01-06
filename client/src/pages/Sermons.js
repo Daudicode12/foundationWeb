@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../components/Sidebar';
 import { sermonsService } from '../services/api';
 import './Sermons.css';
@@ -9,11 +9,7 @@ const Sermons = () => {
   const [selectedDayType, setSelectedDayType] = useState('all');
   const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' or 'all'
 
-  useEffect(() => {
-    loadSermons();
-  }, [viewMode]);
-
-  const loadSermons = async () => {
+  const loadSermons = useCallback(async () => {
     setIsLoading(true);
     try {
       let data;
@@ -24,14 +20,19 @@ const Sermons = () => {
       }
       
       if (data.success) {
-        setSermons(data.sermons || []);
+        // Backend returns 'data' property, not 'sermons'
+        setSermons(data.data || data.sermons || []);
       }
     } catch (error) {
       console.error('Error loading sermons:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [viewMode]);
+
+  useEffect(() => {
+    loadSermons();
+  }, [loadSermons]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
