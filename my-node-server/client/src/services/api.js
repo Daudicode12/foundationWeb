@@ -144,6 +144,29 @@ export const adminRsvpsService = {
   },
 };
 
+// Admin Announcements Services
+export const adminAnnouncementsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/announcements');
+    return response.data;
+  },
+  
+  create: async (announcementData) => {
+    const response = await adminApi.post('/api/admin/announcements', announcementData);
+    return response.data;
+  },
+  
+  update: async (announcementId, announcementData) => {
+    const response = await adminApi.put(`/api/admin/announcements/${announcementId}`, announcementData);
+    return response.data;
+  },
+  
+  delete: async (announcementId) => {
+    const response = await adminApi.delete(`/api/admin/announcements/${announcementId}`);
+    return response.data;
+  },
+};
+
 // Contact Services
 export const contactService = {
   sendMessage: async (contactData) => {

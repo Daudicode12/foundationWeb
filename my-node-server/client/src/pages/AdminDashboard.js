@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService, adminRsvpsService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -15,8 +15,10 @@ const AdminDashboard = () => {
   const [events, setEvents] = useState([]);
   const [members, setMembers] = useState([]);
   const [rsvps, setRsvps] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -25,6 +27,13 @@ const AdminDashboard = () => {
     time: '',
     location: '',
     category: 'service'
+  });
+  const [announcementForm, setAnnouncementForm] = useState({
+    title: '',
+    content: '',
+    priority: 'general',
+    author: '',
+    date: ''
   });
   const navigate = useNavigate();
 
@@ -56,6 +65,12 @@ const AdminDashboard = () => {
       const rsvpsData = await adminRsvpsService.getAll();
       if (rsvpsData.success) {
         setRsvps(rsvpsData.data || []);
+      }
+
+      // Load Announcements
+      const announcementsData = await adminAnnouncementsService.getAll();
+      if (announcementsData.success) {
+        setAnnouncements(announcementsData.data || []);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -111,6 +126,49 @@ const AdminDashboard = () => {
         loadDashboardData();
       } catch (error) {
         console.error('Error deleting event:', error);
+      }
+    }
+  };
+
+  // Announcement handlers
+  const handleAnnouncementFormChange = (e) => {
+    setAnnouncementForm({
+      ...announcementForm,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleAnnouncementSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await adminAnnouncementsService.create(announcementForm);
+      if (response.success) {
+        setShowAnnouncementModal(false);
+        setAnnouncementForm({
+          title: '',
+          content: '',
+          priority: 'general',
+          author: '',
+          date: ''
+        });
+        setSuccessMessage('Announcement added successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error creating announcement:', error);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (announcementId) => {
+    if (window.confirm('Are you sure you want to delete this announcement?')) {
+      try {
+        await adminAnnouncementsService.delete(announcementId);
+        setSuccessMessage('Announcement deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error deleting announcement:', error);
       }
     }
   };
@@ -315,7 +373,7 @@ const AdminDashboard = () => {
           <section className="content-section">
             <div className="section-header">
               <h2>Manage Announcements</h2>
-              <button className="primary-btn">
+              <button className="primary-btn" onClick={() => setShowAnnouncementModal(true)}>
                 <i className="fas fa-plus"></i> New Announcement
               </button>
             </div>
@@ -325,15 +383,35 @@ const AdminDashboard = () => {
                 <thead>
                   <tr>
                     <th>Title</th>
+                    <th>Author</th>
                     <th>Date</th>
-                    <th>Status</th>
+                    <th>Priority</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan="4" className="no-data">No announcements yet. Create your first announcement!</td>
-                  </tr>
+                  {announcements.length > 0 ? (
+                    announcements.map(announcement => (
+                      <tr key={announcement.id}>
+                        <td>{announcement.title}</td>
+                        <td>{announcement.author}</td>
+                        <td>{formatDate(announcement.date)}</td>
+                        <td><span className={`badge ${announcement.priority}`}>{announcement.priority}</span></td>
+                        <td>
+                          <button 
+                            className="delete-btn"
+                            onClick={() => handleDeleteAnnouncement(announcement.id)}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="no-data">No announcements yet. Create your first announcement!</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -569,6 +647,84 @@ const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="submit-btn">
                   Create Event
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Announcement Modal */}
+      {showAnnouncementModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Add New Announcement</h3>
+              <button className="close-btn" onClick={() => setShowAnnouncementModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleAnnouncementSubmit}>
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={announcementForm.title}
+                  onChange={handleAnnouncementFormChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Content</label>
+                <textarea
+                  name="content"
+                  value={announcementForm.content}
+                  onChange={handleAnnouncementFormChange}
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={announcementForm.date}
+                    onChange={handleAnnouncementFormChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Priority</label>
+                  <select
+                    name="priority"
+                    value={announcementForm.priority}
+                    onChange={handleAnnouncementFormChange}
+                  >
+                    <option value="general">General</option>
+                    <option value="important">Important</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Author</label>
+                <input
+                  type="text"
+                  name="author"
+                  value={announcementForm.author}
+                  onChange={handleAnnouncementFormChange}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowAnnouncementModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  Create Announcement
                 </button>
               </div>
             </form>
