@@ -167,6 +167,52 @@ export const adminAnnouncementsService = {
   },
 };
 
+// Admin Sermons Services
+export const adminSermonsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/sermons');
+    return response.data;
+  },
+  
+  getUpcoming: async () => {
+    const response = await adminApi.get('/api/admin/sermons/upcoming');
+    return response.data;
+  },
+  
+  create: async (sermonData) => {
+    const response = await adminApi.post('/api/admin/sermons', sermonData);
+    return response.data;
+  },
+  
+  update: async (sermonId, sermonData) => {
+    const response = await adminApi.put(`/api/admin/sermons/${sermonId}`, sermonData);
+    return response.data;
+  },
+  
+  delete: async (sermonId) => {
+    const response = await adminApi.delete(`/api/admin/sermons/${sermonId}`);
+    return response.data;
+  },
+};
+
+// Public Sermons Services (for members)
+export const sermonsService = {
+  getAll: async () => {
+    const response = await api.get('/api/sermons');
+    return response.data;
+  },
+  
+  getUpcoming: async () => {
+    const response = await api.get('/api/sermons/upcoming');
+    return response.data;
+  },
+  
+  getById: async (sermonId) => {
+    const response = await api.get(`/api/sermons/${sermonId}`);
+    return response.data;
+  },
+};
+
 // Contact Services
 export const contactService = {
   sendMessage: async (contactData) => {

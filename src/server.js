@@ -423,6 +423,98 @@ app.get("/api/announcements", (req, res) => {
   });
 });
 
+// Sermons API Routes (Public)
+
+// Get all sermons
+app.get("/api/sermons", (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ success: false, message: "Database not connected" });
+  }
+
+  const sql = `
+    SELECT * FROM sermons 
+    ORDER BY date DESC, time DESC
+    LIMIT 50
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching sermons:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+    res.json({ success: true, data: results });
+  });
+});
+
+// Get upcoming sermons
+app.get("/api/sermons/upcoming", (req, res) => {
+  if (!dbConnected) {
+    return res.status(503).json({ success: false, message: "Database not connected" });
+  }
+
+  const sql = `
+    SELECT * FROM sermons 
+    WHERE date >= CURDATE() 
+    ORDER BY date ASC, time ASC
+    LIMIT 10
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching upcoming sermons:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+    res.json({ success: true, data: results });
+  });
+});
+
+// Get single sermon details
+app.get("/api/sermons/:id", (req, res) => {
+  const { id } = req.params;
+
+  if (!dbConnected) {
+    return res.status(503).json({ success: false, message: "Database not connected" });
+  }
+
+  const sql = "SELECT * FROM sermons WHERE id = ?";
+  db.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching sermon:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: "Sermon not found" });
+    }
+
+    res.json({ success: true, data: results[0] });
+  });
+});
+
+// Get sermons by day type
+app.get("/api/sermons/day-type/:dayType", (req, res) => {
+  const { dayType } = req.params;
+
+  if (!dbConnected) {
+    return res.status(503).json({ success: false, message: "Database not connected" });
+  }
+
+  const sql = `
+    SELECT * FROM sermons 
+    WHERE day_type = ?
+    ORDER BY date DESC, time DESC
+    LIMIT 20
+  `;
+
+  db.query(sql, [dayType], (err, results) => {
+    if (err) {
+      console.error("Error fetching sermons by day type:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+    res.json({ success: true, data: results });
+  });
+});
+
 // Mount admin routes - all admin endpoints now handled by admin router
 app.use("/api/admin", apiLimiter, adminRouter);
 

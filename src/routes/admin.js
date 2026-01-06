@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const sermonController = require('../controllers/sermonController');
 const adminAuth = require('../middleware/adminAuth');
 
 // Dashboard stats (protected)
@@ -25,6 +26,15 @@ router.post('/announcements', adminAuth, adminController.createAnnouncement);
 router.get('/announcements/:id', adminAuth, adminController.getAnnouncement);
 router.put('/announcements/:id', adminAuth, adminController.updateAnnouncement);
 router.delete('/announcements/:id', adminAuth, adminController.deleteAnnouncement);
+
+// Sermons management routes (all protected)
+router.get('/sermons', adminAuth, sermonController.listSermons);
+router.get('/sermons/upcoming', adminAuth, sermonController.getUpcomingSermons);
+router.post('/sermons', adminAuth, sermonController.createSermon);
+router.get('/sermons/:id', adminAuth, sermonController.getSermon);
+router.put('/sermons/:id', adminAuth, sermonController.updateSermon);
+router.delete('/sermons/:id', adminAuth, sermonController.deleteSermon);
+router.get('/sermons/day-type/:dayType', adminAuth, sermonController.getSermonsByDayType);
 
 // RSVPs and Members routes (all protected)
 router.get('/rsvps', adminAuth, adminController.listRSVPs);
