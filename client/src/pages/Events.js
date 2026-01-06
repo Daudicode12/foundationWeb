@@ -8,6 +8,7 @@ const Events = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [rsvpStatus, setRsvpStatus] = useState({});
+  const [rsvpLoading, setRsvpLoading] = useState({});
 
   useEffect(() => {
     loadEvents();
@@ -33,18 +34,42 @@ const Events = () => {
   };
 
   const handleRsvp = async (eventId) => {
+    // Prevent multiple clicks
+    if (rsvpLoading[eventId]) return;
+    
+    setRsvpLoading({ ...rsvpLoading, [eventId]: true });
+    
     try {
       const isRsvped = rsvpStatus[eventId];
       
       if (isRsvped) {
-        await eventsService.cancelRsvp(eventId);
-        setRsvpStatus({ ...rsvpStatus, [eventId]: false });
+        const response = await eventsService.cancelRsvp(eventId);
+        if (response.success) {
+          setRsvpStatus({ ...rsvpStatus, [eventId]: false });
+          // Update attendee count locally
+          setEvents(events.map(event => 
+            event.id === eventId 
+              ? { ...event, attendees: Math.max((event.attendees || 1) - 1, 0) }
+              : event
+          ));
+        }
       } else {
-        await eventsService.rsvp(eventId);
-        setRsvpStatus({ ...rsvpStatus, [eventId]: true });
+        const response = await eventsService.rsvp(eventId);
+        if (response.success) {
+          setRsvpStatus({ ...rsvpStatus, [eventId]: true });
+          // Update attendee count locally
+          setEvents(events.map(event => 
+            event.id === eventId 
+              ? { ...event, attendees: (event.attendees || 0) + 1 }
+              : event
+          ));
+        }
       }
     } catch (error) {
       console.error('RSVP error:', error);
+      alert(error.response?.data?.message || 'Failed to process RSVP. Please try again.');
+    } finally {
+      setRsvpLoading({ ...rsvpLoading, [eventId]: false });
     }
   };
 
@@ -126,8 +151,11 @@ const Events = () => {
                   <button 
                     className={`rsvp-btn ${rsvpStatus[event.id] ? 'rsvped' : ''}`}
                     onClick={() => handleRsvp(event.id)}
+                    disabled={rsvpLoading[event.id]}
                   >
-                    {rsvpStatus[event.id] ? 'Cancel RSVP' : 'RSVP'}
+                    {rsvpLoading[event.id] 
+                      ? 'Processing...' 
+                      : (rsvpStatus[event.id] ? 'Cancel RSVP' : 'RSVP')}
                   </button>
                 </div>
               </div>

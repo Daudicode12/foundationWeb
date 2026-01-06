@@ -85,14 +85,17 @@ export const eventsService = {
   },
   
   rsvp: async (eventId) => {
-    const token = localStorage.getItem('memberToken');
-    const response = await api.post('/api/events/rsvp', { eventId, token });
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const email = userData.email;
+    const userName = userData.userName;
+    const response = await api.post('/api/events/rsvp', { eventId, email, userName });
     return response.data;
   },
   
   cancelRsvp: async (eventId) => {
-    const token = localStorage.getItem('memberToken');
-    const response = await api.post('/api/events/cancel-rsvp', { eventId, token });
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const email = userData.email;
+    const response = await api.delete('/api/events/rsvp', { data: { eventId, email } });
     return response.data;
   },
 };
