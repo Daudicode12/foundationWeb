@@ -20,7 +20,7 @@ const Sermons = () => {
       }
       
       if (data.success) {
-        // Backend returns 'data' property, not 'sermons'
+        // Backend returns 'data' property
         setSermons(data.data || data.sermons || []);
       }
     } catch (error) {
