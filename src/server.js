@@ -48,7 +48,6 @@ app.use('/eduford_img', express.static(path.join(__dirname, "../public/eduford_i
 let dbConnected = true; // db.js handles connection
 
 // Create signup route
-
 app.post("/api/signup", (req, res) => {
   const { userName, email, phone, password } = req.body;
 
@@ -151,7 +150,20 @@ app.post("/api/contact", (req, res) => {
   console.log("Contact form submission:", { name, email, phone, subject, message });
 
   // Store in database or send email notification
-  
+  const sql = 'INSERT INTO contact(name, email, phone, subject, message) VALUES (?,?,?,?,?)'
+  db.query(sql, [name, email, phone, subject, message],(err, result)=>{
+    if(err){
+      console.error("Error saving contact message:",
+        err
+      )
+      return res.status(500).json({
+        success: false,
+        message: "Server error"
+      });
+    }
+  }
+    
+  )
   res.json({ 
     success: true, 
     message: "Thank you for contacting us! We will get back to you soon." 
