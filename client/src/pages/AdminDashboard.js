@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService, adminOfferingsService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -17,10 +17,14 @@ const AdminDashboard = () => {
   const [rsvps, setRsvps] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [sermons, setSermons] = useState([]);
+  const [offerings, setOfferings] = useState([]);
+  const [offeringsSummary, setOfferingsSummary] = useState([]);
+  const [totalOfferings, setTotalOfferings] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [showSermonModal, setShowSermonModal] = useState(false);
+  const [showOfferingModal, setShowOfferingModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -48,6 +52,18 @@ const AdminDashboard = () => {
     series_name: '',
     video_url: '',
     audio_url: ''
+  });
+  const [offeringForm, setOfferingForm] = useState({
+    member_name: '',
+    email: '',
+    phone: '',
+    amount: '',
+    offering_type: 'offering',
+    payment_method: 'cash',
+    reference_number: '',
+    date: '',
+    notes: '',
+    is_anonymous: false
   });
   const navigate = useNavigate();
 
@@ -91,6 +107,24 @@ const AdminDashboard = () => {
       const sermonsData = await adminSermonsService.getAll();
       if (sermonsData.success) {
         setSermons(sermonsData.data || []);
+      }
+
+      // Load Offerings
+      const offeringsData = await adminOfferingsService.getAll();
+      if (offeringsData.success) {
+        setOfferings(offeringsData.data || []);
+      }
+
+      // Load Offerings Summary
+      const summaryData = await adminOfferingsService.getSummary();
+      if (summaryData.success) {
+        setOfferingsSummary(summaryData.data || []);
+      }
+
+      // Load Total Offerings
+      const totalData = await adminOfferingsService.getTotal();
+      if (totalData.success) {
+        setTotalOfferings(totalData.total || 0);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -239,6 +273,62 @@ const AdminDashboard = () => {
         console.error('Error deleting sermon:', error);
       }
     }
+  };
+
+  // Offering handlers
+  const handleOfferingFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setOfferingForm({
+      ...offeringForm,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleOfferingSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await adminOfferingsService.create(offeringForm);
+      if (response.success) {
+        setShowOfferingModal(false);
+        setOfferingForm({
+          member_name: '',
+          email: '',
+          phone: '',
+          amount: '',
+          offering_type: 'offering',
+          payment_method: 'cash',
+          reference_number: '',
+          date: '',
+          notes: '',
+          is_anonymous: false
+        });
+        setSuccessMessage('Offering recorded successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error creating offering:', error);
+    }
+  };
+
+  const handleDeleteOffering = async (offeringId) => {
+    if (window.confirm('Are you sure you want to delete this offering record?')) {
+      try {
+        await adminOfferingsService.delete(offeringId);
+        setSuccessMessage('Offering deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error deleting offering:', error);
+      }
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'KES'
+    }).format(amount);
   };
 
   const formatDate = (dateString) => {
@@ -530,27 +620,65 @@ const AdminDashboard = () => {
         {activeSection === 'offerings' && (
           <section className="content-section">
             <div className="section-header">
-              <h2>Offerings</h2>
+              <h2>Manage Offerings</h2>
+              <button className="primary-btn" onClick={() => setShowOfferingModal(true)}>
+                <i className="fas fa-plus"></i> Record New Offering
+              </button>
+            </div>
+
+            {/* Offerings Summary Cards */}
+            <div className="offerings-summary">
+              <div className="summary-card total">
+                <h4>Total Offerings</h4>
+                <p className="amount">{formatCurrency(totalOfferings)}</p>
+              </div>
+              {offeringsSummary.map((item, index) => (
+                <div key={index} className="summary-card">
+                  <h4>{item.offering_type.charAt(0).toUpperCase() + item.offering_type.slice(1)}</h4>
+                  <p className="amount">{formatCurrency(item.total)}</p>
+                  <p className="count">{item.count} records</p>
+                </div>
+              ))}
             </div>
             
             <div className="data-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Event</th>
+                    <th>Date</th>
                     <th>Member</th>
-                    <th>Email</th>
-                    <th>RSVP Date</th>
-                    <th>Status</th>
-                    <th>Sermons</th>
-                    <th>Offering</th>
-
+                    <th>Amount</th>
+                    <th>Type</th>
+                    <th>Payment Method</th>
+                    <th>Reference</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan="5" className="no-data">No Offerings recorded yet</td>
-                  </tr>
+                  {offerings.length > 0 ? (
+                    offerings.map(offering => (
+                      <tr key={offering.id}>
+                        <td>{formatDate(offering.date)}</td>
+                        <td>{offering.is_anonymous ? 'Anonymous' : offering.member_name}</td>
+                        <td className="amount-cell">{formatCurrency(offering.amount)}</td>
+                        <td><span className={`badge ${offering.offering_type}`}>{offering.offering_type}</span></td>
+                        <td>{offering.payment_method}</td>
+                        <td>{offering.reference_number || '-'}</td>
+                        <td>
+                          <button 
+                            className="delete-btn"
+                            onClick={() => handleDeleteOffering(offering.id)}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="no-data">No offerings recorded yet. Record your first offering!</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -954,6 +1082,155 @@ const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="submit-btn">
                   Create Sermon
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Offering Modal */}
+      {showOfferingModal && (
+        <div className="modal-overlay">
+          <div className="modal modal-large">
+            <div className="modal-header">
+              <h3>Record New Offering</h3>
+              <button className="close-btn" onClick={() => setShowOfferingModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleOfferingSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Member Name *</label>
+                  <input
+                    type="text"
+                    name="member_name"
+                    value={offeringForm.member_name}
+                    onChange={handleOfferingFormChange}
+                    placeholder="Full name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Amount (KES) *</label>
+                  <input
+                    type="number"
+                    name="amount"
+                    value={offeringForm.amount}
+                    onChange={handleOfferingFormChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={offeringForm.email}
+                    onChange={handleOfferingFormChange}
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={offeringForm.phone}
+                    onChange={handleOfferingFormChange}
+                    placeholder="+254..."
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Offering Type *</label>
+                  <select
+                    name="offering_type"
+                    value={offeringForm.offering_type}
+                    onChange={handleOfferingFormChange}
+                    required
+                  >
+                    <option value="tithe">Tithe</option>
+                    <option value="offering">Offering</option>
+                    <option value="donation">Donation</option>
+                    <option value="special">Special Offering</option>
+                    <option value="building_fund">Building Fund</option>
+                    <option value="missions">Missions</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Payment Method *</label>
+                  <select
+                    name="payment_method"
+                    value={offeringForm.payment_method}
+                    onChange={handleOfferingFormChange}
+                    required
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="check">Check</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="mobile_money">Mobile Money (M-Pesa)</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date *</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={offeringForm.date}
+                    onChange={handleOfferingFormChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Reference Number</label>
+                  <input
+                    type="text"
+                    name="reference_number"
+                    value={offeringForm.reference_number}
+                    onChange={handleOfferingFormChange}
+                    placeholder="Transaction ID or Check #"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  name="notes"
+                  value={offeringForm.notes}
+                  onChange={handleOfferingFormChange}
+                  rows="2"
+                  placeholder="Any additional notes..."
+                ></textarea>
+              </div>
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="is_anonymous"
+                    checked={offeringForm.is_anonymous}
+                    onChange={handleOfferingFormChange}
+                  />
+                  <span>Record as Anonymous</span>
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowOfferingModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  Record Offering
                 </button>
               </div>
             </form>

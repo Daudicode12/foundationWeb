@@ -295,4 +295,57 @@ export const adminPrayerRequestService = {
   },
 };
 
+// Admin Offerings Services
+export const adminOfferingsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/offerings');
+    return response.data;
+  },
+  
+  getById: async (offeringId) => {
+    const response = await adminApi.get(`/api/admin/offerings/${offeringId}`);
+    return response.data;
+  },
+  
+  create: async (offeringData) => {
+    const response = await adminApi.post('/api/admin/offerings', offeringData);
+    return response.data;
+  },
+  
+  update: async (offeringId, offeringData) => {
+    const response = await adminApi.put(`/api/admin/offerings/${offeringId}`, offeringData);
+    return response.data;
+  },
+  
+  delete: async (offeringId) => {
+    const response = await adminApi.delete(`/api/admin/offerings/${offeringId}`);
+    return response.data;
+  },
+  
+  getCount: async () => {
+    const response = await adminApi.get('/api/admin/offerings/count');
+    return response.data;
+  },
+  
+  getTotal: async () => {
+    const response = await adminApi.get('/api/admin/offerings/total');
+    return response.data;
+  },
+  
+  getSummary: async () => {
+    const response = await adminApi.get('/api/admin/offerings/summary');
+    return response.data;
+  },
+  
+  getByDateRange: async (startDate, endDate) => {
+    const response = await adminApi.get(`/api/admin/offerings/date-range?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
+  },
+  
+  getMonthlyReport: async (year, month) => {
+    const response = await adminApi.get(`/api/admin/offerings/report/${year}/${month}`);
+    return response.data;
+  },
+};
+
 export default api;

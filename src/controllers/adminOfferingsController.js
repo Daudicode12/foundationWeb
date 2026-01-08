@@ -26,15 +26,15 @@ exports.countOfferings = (req, res) => {
 
 // Get total offerings amount
 exports.getTotalAmount = (req, res) => {
-  const sql = 'SELECT COALESCE(SUM(amount), 0) as total FROM offerings';
+  const sql = 'SELECT SUM(amount) as total FROM offerings';
   db.query(sql, (err, results) => {
     if (err) return handleError(res, err, 'Error calculating total offerings');
-    res.json({ success: true, total: results[0].total });
+    res.json({ success: true, total: results[0].total || 0 });
   });
 };
 
 // Get offerings summary by type
-exports.getSummaryByType = (req, res) => {
+exports.getOfferingsSummary = (req, res) => {
   const sql = `
     SELECT 
       offering_type,
@@ -51,14 +51,18 @@ exports.getSummaryByType = (req, res) => {
 };
 
 // Get offerings by date range
-exports.getByDateRange = (req, res) => {
+exports.getOfferingsByDateRange = (req, res) => {
   const { startDate, endDate } = req.query;
   
   if (!startDate || !endDate) {
     return res.status(400).json({ success: false, message: 'Start date and end date are required' });
   }
-  
-  const sql = 'SELECT * FROM offerings WHERE date BETWEEN ? AND ? ORDER BY date DESC';
+
+  const sql = `
+    SELECT * FROM offerings 
+    WHERE date BETWEEN ? AND ?
+    ORDER BY date DESC
+  `;
   db.query(sql, [startDate, endDate], (err, results) => {
     if (err) return handleError(res, err, 'Error fetching offerings by date range');
     res.json({ success: true, data: results });
@@ -67,25 +71,37 @@ exports.getByDateRange = (req, res) => {
 
 // Create new offering
 exports.createOffering = (req, res) => {
-  const { member_name, email, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous } = req.body;
+  const { 
+    member_name, 
+    email, 
+    phone, 
+    amount, 
+    offering_type, 
+    payment_method, 
+    reference_number, 
+    date, 
+    notes,
+    is_anonymous 
+  } = req.body;
   
   if (!member_name || !amount || !date) {
     return res.status(400).json({ success: false, message: 'Member name, amount, and date are required' });
   }
 
   const sql = `
-    INSERT INTO offerings (member_name, email, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO offerings (member_name, email, phone, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   
   db.query(sql, [
-    member_name,
-    email || null,
-    amount,
-    offering_type || 'offering',
-    payment_method || 'cash',
-    reference_number || null,
-    date,
+    member_name, 
+    email || null, 
+    phone || null, 
+    amount, 
+    offering_type || 'offering', 
+    payment_method || 'cash', 
+    reference_number || null, 
+    date, 
     notes || null,
     is_anonymous || false
   ], (err, result) => {
@@ -108,7 +124,18 @@ exports.getOffering = (req, res) => {
 
 // Update offering
 exports.updateOffering = (req, res) => {
-  const { member_name, email, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous } = req.body;
+  const { 
+    member_name, 
+    email, 
+    phone, 
+    amount, 
+    offering_type, 
+    payment_method, 
+    reference_number, 
+    date, 
+    notes,
+    is_anonymous 
+  } = req.body;
   
   if (!member_name || !amount || !date) {
     return res.status(400).json({ success: false, message: 'Member name, amount, and date are required' });
@@ -116,19 +143,20 @@ exports.updateOffering = (req, res) => {
   
   const sql = `
     UPDATE offerings 
-    SET member_name = ?, email = ?, amount = ?, offering_type = ?, payment_method = ?, 
-        reference_number = ?, date = ?, notes = ?, is_anonymous = ?
+    SET member_name = ?, email = ?, phone = ?, amount = ?, offering_type = ?, 
+        payment_method = ?, reference_number = ?, date = ?, notes = ?, is_anonymous = ?
     WHERE id = ?
   `;
   
   db.query(sql, [
-    member_name,
-    email || null,
-    amount,
-    offering_type || 'offering',
-    payment_method || 'cash',
-    reference_number || null,
-    date,
+    member_name, 
+    email || null, 
+    phone || null, 
+    amount, 
+    offering_type || 'offering', 
+    payment_method || 'cash', 
+    reference_number || null, 
+    date, 
     notes || null,
     is_anonymous || false,
     req.params.id
@@ -153,20 +181,24 @@ exports.deleteOffering = (req, res) => {
   });
 };
 
-// Get monthly summary
-exports.getMonthlySummary = (req, res) => {
+// Get monthly report
+exports.getMonthlyReport = (req, res) => {
+  const { year, month } = req.params;
+  
   const sql = `
     SELECT 
-      DATE_FORMAT(date, '%Y-%m') as month,
+      DATE(date) as offering_date,
+      offering_type,
       COUNT(*) as count,
       SUM(amount) as total
     FROM offerings
-    GROUP BY DATE_FORMAT(date, '%Y-%m')
-    ORDER BY month DESC
-    LIMIT 12
+    WHERE YEAR(date) = ? AND MONTH(date) = ?
+    GROUP BY DATE(date), offering_type
+    ORDER BY offering_date DESC
   `;
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching monthly summary');
+  
+  db.query(sql, [year, month], (err, results) => {
+    if (err) return handleError(res, err, 'Error fetching monthly report');
     res.json({ success: true, data: results });
   });
 };
