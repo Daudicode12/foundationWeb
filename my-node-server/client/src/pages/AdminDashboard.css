@@ -306,6 +306,36 @@
   box-sizing: border-box;
 }
 
+.modal.modal-large {
+  max-width: 700px;
+}
+
+/* Day type badges */
+.badge.sunday {
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: #fff;
+}
+
+.badge.weekday {
+  background: linear-gradient(45deg, #11998e, #38ef7d);
+  color: #fff;
+}
+
+.badge.wednesday {
+  background: linear-gradient(45deg, #f093fb, #f5576c);
+  color: #fff;
+}
+
+.badge.friday {
+  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  color: #fff;
+}
+
+.badge.special {
+  background: linear-gradient(45deg, #fa709a, #fee140);
+  color: #fff;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;

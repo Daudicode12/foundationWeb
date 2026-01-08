@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -16,9 +16,11 @@ const AdminDashboard = () => {
   const [members, setMembers] = useState([]);
   const [rsvps, setRsvps] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [sermons, setSermons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [showSermonModal, setShowSermonModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [eventForm, setEventForm] = useState({
     title: '',
@@ -34,6 +36,18 @@ const AdminDashboard = () => {
     priority: 'general',
     author: '',
     date: ''
+  });
+  const [sermonForm, setSermonForm] = useState({
+    title: '',
+    preacher: '',
+    description: '',
+    scripture_reference: '',
+    date: '',
+    time: '',
+    day_type: 'sunday',
+    series_name: '',
+    video_url: '',
+    audio_url: ''
   });
   const navigate = useNavigate();
 
@@ -71,6 +85,12 @@ const AdminDashboard = () => {
       const announcementsData = await adminAnnouncementsService.getAll();
       if (announcementsData.success) {
         setAnnouncements(announcementsData.data || []);
+      }
+
+      // Load Sermons
+      const sermonsData = await adminSermonsService.getAll();
+      if (sermonsData.success) {
+        setSermons(sermonsData.data || []);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -169,6 +189,54 @@ const AdminDashboard = () => {
         loadDashboardData();
       } catch (error) {
         console.error('Error deleting announcement:', error);
+      }
+    }
+  };
+
+  // Sermon handlers
+  const handleSermonFormChange = (e) => {
+    setSermonForm({
+      ...sermonForm,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSermonSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await adminSermonsService.create(sermonForm);
+      if (response.success) {
+        setShowSermonModal(false);
+        setSermonForm({
+          title: '',
+          preacher: '',
+          description: '',
+          scripture_reference: '',
+          date: '',
+          time: '',
+          day_type: 'sunday',
+          series_name: '',
+          video_url: '',
+          audio_url: ''
+        });
+        setSuccessMessage('Sermon added successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error creating sermon:', error);
+    }
+  };
+
+  const handleDeleteSermon = async (sermonId) => {
+    if (window.confirm('Are you sure you want to delete this sermon?')) {
+      try {
+        await adminSermonsService.delete(sermonId);
+        setSuccessMessage('Sermon deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error deleting sermon:', error);
       }
     }
   };
@@ -493,27 +561,50 @@ const AdminDashboard = () => {
         {activeSection === 'sermons' && (
           <section className="content-section">
             <div className="section-header">
-              <h2>Sermons</h2>
+              <h2>Manage Sermons</h2>
+              <button className="primary-btn" onClick={() => setShowSermonModal(true)}>
+                <i className="fas fa-plus"></i> Add New Sermon
+              </button>
             </div>
             
             <div className="data-table">
               <table>
                 <thead>
                   <tr>
-                    <th>Event</th>
-                    <th>Member</th>
-                    <th>Email</th>
-                    <th>RSVP Date</th>
-                    <th>Status</th>
-                    <th>Sermons</th>
-                    <th>Offering</th>
-
+                    <th>Title</th>
+                    <th>Preacher</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Day Type</th>
+                    <th>Scripture</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td colSpan="5" className="no-data">No Sermons recorded yet</td>
-                  </tr>
+                  {sermons.length > 0 ? (
+                    sermons.map(sermon => (
+                      <tr key={sermon.id}>
+                        <td>{sermon.title}</td>
+                        <td>{sermon.preacher}</td>
+                        <td>{formatDate(sermon.date)}</td>
+                        <td>{sermon.time}</td>
+                        <td><span className={`badge ${sermon.day_type}`}>{sermon.day_type === 'sunday' ? 'Sunday Service' : 'Weekday Service'}</span></td>
+                        <td>{sermon.scripture_reference}</td>
+                        <td>
+                          <button 
+                            className="delete-btn"
+                            onClick={() => handleDeleteSermon(sermon.id)}
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="no-data">No sermons scheduled yet. Add your first sermon!</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -725,6 +816,144 @@ const AdminDashboard = () => {
                 </button>
                 <button type="submit" className="submit-btn">
                   Create Announcement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Sermon Modal */}
+      {showSermonModal && (
+        <div className="modal-overlay">
+          <div className="modal modal-large">
+            <div className="modal-header">
+              <h3>Add New Sermon</h3>
+              <button className="close-btn" onClick={() => setShowSermonModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleSermonSubmit}>
+              <div className="form-group">
+                <label>Sermon Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={sermonForm.title}
+                  onChange={handleSermonFormChange}
+                  placeholder="e.g., Walking in Faith"
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Preacher</label>
+                  <input
+                    type="text"
+                    name="preacher"
+                    value={sermonForm.preacher}
+                    onChange={handleSermonFormChange}
+                    placeholder="Pastor's name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Scripture Reference</label>
+                  <input
+                    type="text"
+                    name="scripture_reference"
+                    value={sermonForm.scripture_reference}
+                    onChange={handleSermonFormChange}
+                    placeholder="e.g., John 3:16-21"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={sermonForm.description}
+                  onChange={handleSermonFormChange}
+                  rows="3"
+                  placeholder="Brief description of the sermon"
+                ></textarea>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={sermonForm.date}
+                    onChange={handleSermonFormChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Time</label>
+                  <input
+                    type="time"
+                    name="time"
+                    value={sermonForm.time}
+                    onChange={handleSermonFormChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Service Day</label>
+                  <select
+                    name="day_type"
+                    value={sermonForm.day_type}
+                    onChange={handleSermonFormChange}
+                  >
+                    <option value="sunday">Sunday Service</option>
+                    <option value="weekday">Weekday Service</option>
+                    <option value="wednesday">Wednesday Bible Study</option>
+                    <option value="friday">Friday Prayer Meeting</option>
+                    <option value="special">Special Service</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Series Name (Optional)</label>
+                  <input
+                    type="text"
+                    name="series_name"
+                    value={sermonForm.series_name}
+                    onChange={handleSermonFormChange}
+                    placeholder="e.g., Faith Series"
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Video URL (Optional)</label>
+                  <input
+                    type="url"
+                    name="video_url"
+                    value={sermonForm.video_url}
+                    onChange={handleSermonFormChange}
+                    placeholder="YouTube or video link"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Audio URL (Optional)</label>
+                  <input
+                    type="url"
+                    name="audio_url"
+                    value={sermonForm.audio_url}
+                    onChange={handleSermonFormChange}
+                    placeholder="Audio recording link"
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowSermonModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  Create Sermon
                 </button>
               </div>
             </form>

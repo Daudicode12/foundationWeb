@@ -43,7 +43,7 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '/dashboard', label: 'Dashboard', icon: 'fas fa-home' },
     { path: '/profile', label: 'My Profile', icon: 'fas fa-user' },
     { path: '/events', label: 'Events', icon: 'fas fa-calendar' },
-    { path: '#sermons', label: 'Sermons', icon: 'fas fa-book' },
+    { path: '/sermons', label: 'Sermons', icon: 'fas fa-book' },
     { path: '#giving', label: 'Giving', icon: 'fas fa-heart' },
     { path: '#prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
     { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },

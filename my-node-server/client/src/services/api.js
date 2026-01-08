@@ -167,10 +167,130 @@ export const adminAnnouncementsService = {
   },
 };
 
+// Admin Sermons Services
+export const adminSermonsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/sermons');
+    return response.data;
+  },
+  
+  getUpcoming: async () => {
+    const response = await adminApi.get('/api/admin/sermons/upcoming');
+    return response.data;
+  },
+  
+  create: async (sermonData) => {
+    const response = await adminApi.post('/api/admin/sermons', sermonData);
+    return response.data;
+  },
+  
+  update: async (sermonId, sermonData) => {
+    const response = await adminApi.put(`/api/admin/sermons/${sermonId}`, sermonData);
+    return response.data;
+  },
+  
+  delete: async (sermonId) => {
+    const response = await adminApi.delete(`/api/admin/sermons/${sermonId}`);
+    return response.data;
+  },
+};
+
+// Public Sermons Services (for members)
+export const sermonsService = {
+  getAll: async () => {
+    const response = await api.get('/api/sermons');
+    return response.data;
+  },
+  
+  getUpcoming: async () => {
+    const response = await api.get('/api/sermons/upcoming');
+    return response.data;
+  },
+  
+  getById: async (sermonId) => {
+    const response = await api.get(`/api/sermons/${sermonId}`);
+    return response.data;
+  },
+};
+
 // Contact Services
 export const contactService = {
   sendMessage: async (contactData) => {
     const response = await api.post('/api/contact', contactData);
+    return response.data;
+  },
+};
+
+// Prayer Request Services (for members)
+export const prayerRequestService = {
+  submit: async (prayerData) => {
+    const response = await api.post('/api/prayer-requests', prayerData);
+    return response.data;
+  },
+  
+  getMyRequests: async (email) => {
+    const response = await api.get(`/api/prayer-requests?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+};
+
+// Admin Contact Services
+export const adminContactService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/contacts');
+    return response.data;
+  },
+  
+  getById: async (contactId) => {
+    const response = await adminApi.get(`/api/admin/contacts/${contactId}`);
+    return response.data;
+  },
+  
+  markAsRead: async (contactId) => {
+    const response = await adminApi.put(`/api/admin/contacts/${contactId}/read`);
+    return response.data;
+  },
+  
+  delete: async (contactId) => {
+    const response = await adminApi.delete(`/api/admin/contacts/${contactId}`);
+    return response.data;
+  },
+  
+  getUnreadCount: async () => {
+    const response = await adminApi.get('/api/admin/contacts/count');
+    return response.data;
+  },
+};
+
+// Admin Prayer Request Services
+export const adminPrayerRequestService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/prayer-requests');
+    return response.data;
+  },
+  
+  getById: async (prayerId) => {
+    const response = await adminApi.get(`/api/admin/prayer-requests/${prayerId}`);
+    return response.data;
+  },
+  
+  markAsRead: async (prayerId) => {
+    const response = await adminApi.put(`/api/admin/prayer-requests/${prayerId}/read`);
+    return response.data;
+  },
+  
+  updateStatus: async (prayerId, status) => {
+    const response = await adminApi.put(`/api/admin/prayer-requests/${prayerId}/status`, { status });
+    return response.data;
+  },
+  
+  delete: async (prayerId) => {
+    const response = await adminApi.delete(`/api/admin/prayer-requests/${prayerId}`);
+    return response.data;
+  },
+  
+  getUnreadCount: async () => {
+    const response = await adminApi.get('/api/admin/prayer-requests/count');
     return response.data;
   },
 };
