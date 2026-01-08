@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { authService, eventsService, prayerRequestService } from '../services/api';
+import { authService, eventsService, prayerRequestService, myOfferingsService } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -9,6 +9,10 @@ const Dashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showPrayerModal, setShowPrayerModal] = useState(false);
+  const [showOfferingsModal, setShowOfferingsModal] = useState(false);
+  const [myOfferings, setMyOfferings] = useState([]);
+  const [offeringsTotal, setOfferingsTotal] = useState(0);
+  const [offeringsSummary, setOfferingsSummary] = useState([]);
   const [prayerForm, setPrayerForm] = useState({ title: '', request: '', isAnonymous: false });
   const [prayerStatus, setPrayerStatus] = useState({ message: '', isError: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +59,28 @@ const Dashboard = () => {
         console.error('Error loading events:', error);
       }
 
+      // Load user's offerings
+      if (storedUserData.email) {
+        try {
+          const offeringsData = await myOfferingsService.getMyOfferings(storedUserData.email);
+          if (offeringsData.success) {
+            setMyOfferings(offeringsData.data || []);
+          }
+
+          const totalData = await myOfferingsService.getMyTotal(storedUserData.email);
+          if (totalData.success) {
+            setOfferingsTotal(totalData.total || 0);
+          }
+
+          const summaryData = await myOfferingsService.getMySummary(storedUserData.email);
+          if (summaryData.success) {
+            setOfferingsSummary(summaryData.data || []);
+          }
+        } catch (error) {
+          console.error('Error loading offerings:', error);
+        }
+      }
+
       setIsLoading(false);
     };
 
@@ -89,6 +115,13 @@ const Dashboard = () => {
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES'
+    }).format(amount);
   };
 
   const handlePrayerInputChange = (e) => {
