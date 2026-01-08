@@ -234,6 +234,29 @@ export const prayerRequestService = {
   },
 };
 
+// Member Offerings Services (view own offerings)
+export const myOfferingsService = {
+  getMyOfferings: async (email) => {
+    const response = await api.get(`/api/my-offerings?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+  
+  getMyOfferingsByPhone: async (phone) => {
+    const response = await api.get(`/api/my-offerings/by-phone?phone=${encodeURIComponent(phone)}`);
+    return response.data;
+  },
+  
+  getMyTotal: async (email) => {
+    const response = await api.get(`/api/my-offerings/total?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+  
+  getMySummary: async (email) => {
+    const response = await api.get(`/api/my-offerings/summary?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+};
+
 // Admin Contact Services
 export const adminContactService = {
   getAll: async () => {
