@@ -224,8 +224,9 @@ const Dashboard = () => {
 
           <div className="card">
             <h3><i className="fas fa-hand-holding-heart"></i> My Giving</h3>
-            <p className="giving-total">Total This Year: <strong>$0.00</strong></p>
-            <button className="btn-primary">Make a Donation</button>
+            <p className="giving-total">Total Giving: <strong>{formatCurrency(offeringsTotal)}</strong></p>
+            <p className="giving-count">{myOfferings.length} contribution{myOfferings.length !== 1 ? 's' : ''} recorded</p>
+            <button className="btn-primary" onClick={() => setShowOfferingsModal(true)}>View My Offerings</button>
           </div>
 
           <div className="card">
@@ -304,6 +305,63 @@ const Dashboard = () => {
                 {prayerStatus.message}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* My Offerings Modal */}
+      {showOfferingsModal && (
+        <div className="modal-overlay" onClick={() => setShowOfferingsModal(false)}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowOfferingsModal(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+            <h2><i className="fas fa-hand-holding-heart"></i> My Offering History</h2>
+            <p className="modal-subtitle">View your giving records</p>
+            
+            {/* Summary Cards */}
+            <div className="offerings-summary-grid">
+              <div className="summary-item total">
+                <span className="summary-label">Total Giving</span>
+                <span className="summary-value">{formatCurrency(offeringsTotal)}</span>
+              </div>
+              {offeringsSummary.map((item, index) => (
+                <div key={index} className="summary-item">
+                  <span className="summary-label">{item.offering_type}</span>
+                  <span className="summary-value">{formatCurrency(item.total)}</span>
+                  <span className="summary-count">{item.count} record{item.count !== 1 ? 's' : ''}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Offerings List */}
+            <div className="offerings-list">
+              <h4>Recent Offerings</h4>
+              {myOfferings.length > 0 ? (
+                <table className="offerings-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Method</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {myOfferings.map(offering => (
+                      <tr key={offering.id}>
+                        <td>{formatDate(offering.date)}</td>
+                        <td><span className={`badge ${offering.offering_type}`}>{offering.offering_type}</span></td>
+                        <td className="amount">{formatCurrency(offering.amount)}</td>
+                        <td>{offering.payment_method}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="no-offerings">No offering records found for your account.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
