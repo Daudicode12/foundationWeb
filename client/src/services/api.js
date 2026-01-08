@@ -221,6 +221,19 @@ export const contactService = {
   },
 };
 
+// Prayer Request Services (for members)
+export const prayerRequestService = {
+  submit: async (prayerData) => {
+    const response = await api.post('/api/prayer-requests', prayerData);
+    return response.data;
+  },
+  
+  getMyRequests: async (email) => {
+    const response = await api.get(`/api/prayer-requests?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+};
+
 // Admin Contact Services
 export const adminContactService = {
   getAll: async () => {
@@ -245,6 +258,39 @@ export const adminContactService = {
   
   getUnreadCount: async () => {
     const response = await adminApi.get('/api/admin/contacts/count');
+    return response.data;
+  },
+};
+
+// Admin Prayer Request Services
+export const adminPrayerRequestService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/prayer-requests');
+    return response.data;
+  },
+  
+  getById: async (prayerId) => {
+    const response = await adminApi.get(`/api/admin/prayer-requests/${prayerId}`);
+    return response.data;
+  },
+  
+  markAsRead: async (prayerId) => {
+    const response = await adminApi.put(`/api/admin/prayer-requests/${prayerId}/read`);
+    return response.data;
+  },
+  
+  updateStatus: async (prayerId, status) => {
+    const response = await adminApi.put(`/api/admin/prayer-requests/${prayerId}/status`, { status });
+    return response.data;
+  },
+  
+  delete: async (prayerId) => {
+    const response = await adminApi.delete(`/api/admin/prayer-requests/${prayerId}`);
+    return response.data;
+  },
+  
+  getUnreadCount: async () => {
+    const response = await adminApi.get('/api/admin/prayer-requests/count');
     return response.data;
   },
 };

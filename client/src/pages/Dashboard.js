@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { authService, eventsService } from '../services/api';
+import { authService, eventsService, prayerRequestService } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const [userData, setUserData] = useState({});
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showPrayerModal, setShowPrayerModal] = useState(false);
+  const [prayerForm, setPrayerForm] = useState({ title: '', request: '', isAnonymous: false });
+  const [prayerStatus, setPrayerStatus] = useState({ message: '', isError: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSessionExpired = useCallback(() => {
@@ -87,6 +91,46 @@ const Dashboard = () => {
     });
   };
 
+  const handlePrayerInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPrayerForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handlePrayerSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setPrayerStatus({ message: '', isError: false });
+
+    try {
+      const response = await prayerRequestService.submit({
+        userId: userData.id,
+        userName: userData.userName,
+        userEmail: userData.email,
+        title: prayerForm.title,
+        request: prayerForm.request,
+        isAnonymous: prayerForm.isAnonymous
+      });
+
+      if (response.success) {
+        setPrayerStatus({ message: response.message, isError: false });
+        setPrayerForm({ title: '', request: '', isAnonymous: false });
+        setTimeout(() => {
+          setShowPrayerModal(false);
+          setPrayerStatus({ message: '', isError: false });
+        }, 2000);
+      } else {
+        setPrayerStatus({ message: response.message || 'Failed to submit prayer request', isError: true });
+      }
+    } catch (error) {
+      setPrayerStatus({ message: 'An error occurred. Please try again.', isError: true });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="dashboard-loading">
@@ -142,7 +186,7 @@ const Dashboard = () => {
           <div className="card">
             <h3><i className="fas fa-praying-hands"></i> Prayer Requests</h3>
             <p>Submit your prayer requests and pray for others in the community.</p>
-            <button className="btn-primary">Submit Prayer Request</button>
+            <button className="btn-primary" onClick={() => setShowPrayerModal(true)}>Submit Prayer Request</button>
           </div>
 
           <div className="card">
@@ -167,6 +211,69 @@ const Dashboard = () => {
           </div>
         </section>
       </main>
+
+      {/* Prayer Request Modal */}
+      {showPrayerModal && (
+        <div className="modal-overlay" onClick={() => setShowPrayerModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowPrayerModal(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+            <h2><i className="fas fa-praying-hands"></i> Submit Prayer Request</h2>
+            <p className="modal-subtitle">Share your prayer needs with our church family</p>
+            
+            <form onSubmit={handlePrayerSubmit}>
+              <div className="form-group">
+                <label htmlFor="title">Prayer Title</label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={prayerForm.title}
+                  onChange={handlePrayerInputChange}
+                  placeholder="Brief title for your prayer request"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="request">Your Prayer Request</label>
+                <textarea
+                  id="request"
+                  name="request"
+                  value={prayerForm.request}
+                  onChange={handlePrayerInputChange}
+                  placeholder="Share your prayer request here..."
+                  rows="5"
+                  required
+                ></textarea>
+              </div>
+              
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="isAnonymous"
+                    checked={prayerForm.isAnonymous}
+                    onChange={handlePrayerInputChange}
+                  />
+                  <span>Submit anonymously</span>
+                </label>
+              </div>
+              
+              <button type="submit" className="btn-primary btn-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Submit Prayer Request'}
+              </button>
+            </form>
+            
+            {prayerStatus.message && (
+              <div className={`status-message ${prayerStatus.isError ? 'error' : 'success'}`}>
+                {prayerStatus.message}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
