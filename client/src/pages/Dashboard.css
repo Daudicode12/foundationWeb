@@ -376,3 +376,167 @@ body {
   background: #f8d7da;
   color: #721c24;
 }
+
+/* My Offerings Modal Styles */
+.modal-large {
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.offerings-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.summary-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.summary-item.total {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  text-transform: capitalize;
+  margin-bottom: 5px;
+}
+
+.summary-item.total .summary-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.summary-item.total .summary-value {
+  color: #fff;
+}
+
+.summary-count {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 3px;
+}
+
+.offerings-list {
+  margin-top: 20px;
+}
+
+.offerings-list h4 {
+  color: #1a1a2e;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.offerings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.offerings-table th,
+.offerings-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.offerings-table th {
+  background: #f8f9fa;
+  color: #666;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.offerings-table td {
+  color: #333;
+}
+
+.offerings-table .amount {
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.offerings-table .badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.badge.tithe {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge.offering {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge.donation {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.badge.special {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+.badge.building_fund {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.badge.missions {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+.no-offerings {
+  text-align: center;
+  color: #888;
+  padding: 30px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.giving-count {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Responsive for offerings modal */
+@media (max-width: 600px) {
+  .modal-large {
+    max-width: 95%;
+    padding: 20px;
+  }
+
+  .offerings-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .offerings-table th,
+  .offerings-table td {
+    padding: 8px 6px;
+    font-size: 0.85rem;
+  }
+}
