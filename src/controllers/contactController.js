@@ -1,5 +1,33 @@
 const db = require('../db');
 
+// Submit contact message (public)
+const submitContact = (req, res) => {
+  const { name, email, phone, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res.status(400).json({ success: false, message: "All required fields must be filled" });
+  }
+
+  console.log("Contact form submission:", { name, email, phone, subject, message });
+
+  const sql = 'INSERT INTO contacts(name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [name, email, phone || null, subject, message], (err, result) => {
+    if (err) {
+      console.error("Error saving contact message:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to save your message. Please try again later."
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Thank you for contacting us! We will get back to you soon.",
+      contactId: result.insertId
+    });
+  });
+};
+
 // Get all contact messages (admin)
 const listContacts = (req, res) => {
   const sql = 'SELECT * FROM contacts ORDER BY created_at DESC';
@@ -73,6 +101,7 @@ const countUnread = (req, res) => {
 };
 
 module.exports = {
+  submitContact,
   listContacts,
   getContact,
   markAsRead,

@@ -1,5 +1,49 @@
 const db = require('../db');
 
+// Submit a prayer request (member/public)
+const submitPrayerRequest = (req, res) => {
+  const { userId, userName, userEmail, title, request, isAnonymous } = req.body;
+
+  if (!userName || !userEmail || !title || !request) {
+    return res.status(400).json({ success: false, message: "All required fields must be filled" });
+  }
+
+  const sql = 'INSERT INTO prayer_requests (user_id, user_name, user_email, title, request, is_anonymous) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(sql, [userId || null, userName, userEmail, title, request, isAnonymous || false], (err, result) => {
+    if (err) {
+      console.error("Error saving prayer request:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to submit your prayer request. Please try again later."
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Your prayer request has been submitted. Our team will be praying for you.",
+      prayerRequestId: result.insertId
+    });
+  });
+};
+
+// Get user's prayer requests (member)
+const getUserPrayerRequests = (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email is required' });
+  }
+
+  const sql = 'SELECT * FROM prayer_requests WHERE user_email = ? ORDER BY created_at DESC';
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error('Error fetching user prayer requests:', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+    res.json({ success: true, prayerRequests: results });
+  });
+};
+
 // Get all prayer requests (admin)
 const listPrayerRequests = (req, res) => {
   const sql = `SELECT * FROM prayer_requests ORDER BY created_at DESC`;
@@ -94,30 +138,13 @@ const countUnread = (req, res) => {
   });
 };
 
-// Get prayer requests by user email (member)
-const getUserPrayerRequests = (req, res) => {
-  const { email } = req.query;
-  
-  if (!email) {
-    return res.status(400).json({ success: false, message: 'Email is required' });
-  }
-  
-  const sql = 'SELECT * FROM prayer_requests WHERE user_email = ? ORDER BY created_at DESC';
-  db.query(sql, [email], (err, results) => {
-    if (err) {
-      console.error('Error fetching user prayer requests:', err);
-      return res.status(500).json({ success: false, message: 'Server error' });
-    }
-    res.json({ success: true, prayerRequests: results });
-  });
-};
-
 module.exports = {
+  submitPrayerRequest,
+  getUserPrayerRequests,
   listPrayerRequests,
   getPrayerRequest,
   markAsRead,
   updateStatus,
   deletePrayerRequest,
-  countUnread,
-  getUserPrayerRequests
+  countUnread
 };
