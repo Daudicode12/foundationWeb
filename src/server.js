@@ -145,28 +145,24 @@ app.post("/api/contact", (req, res) => {
     return res.status(400).json({ success: false, message: "All required fields must be filled" });
   }
 
-  // You can store contact messages in database or send email
-  // For now, we'll just log and return success
   console.log("Contact form submission:", { name, email, phone, subject, message });
 
-  // Store in database or send email notification
-  const sql = 'INSERT INTO contact(name, email, phone, subject, message) VALUES (?,?,?,?,?)'
-  db.query(sql, [name, email, phone, subject, message],(err, result)=>{
-    if(err){
-      console.error("Error saving contact message:",
-        err
-      )
+  // Store contact message in database
+  const sql = 'INSERT INTO contacts(name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [name, email, phone || null, subject, message], (err, result) => {
+    if (err) {
+      console.error("Error saving contact message:", err);
       return res.status(500).json({
         success: false,
-        message: "Server error"
+        message: "Failed to save your message. Please try again later."
       });
     }
-  }
     
-  )
-  res.json({ 
-    success: true, 
-    message: "Thank you for contacting us! We will get back to you soon." 
+    res.json({ 
+      success: true, 
+      message: "Thank you for contacting us! We will get back to you soon.",
+      contactId: result.insertId
+    });
   });
 });
 

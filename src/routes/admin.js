@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const sermonController = require('../controllers/sermonController');
+const contactController = require('../controllers/contactController');
 const adminAuth = require('../middleware/adminAuth');
 
 // Dashboard stats (protected)
@@ -12,6 +13,7 @@ router.get('/events/count', adminAuth, adminController.countEvents);
 router.get('/announcements/count', adminAuth, adminController.countAnnouncements);
 router.get('/members/count', adminAuth, adminController.countMembers);
 router.get('/rsvps/count', adminAuth, adminController.countRSVPs);
+router.get('/contacts/count', adminAuth, contactController.countUnread);
 
 // Events management routes (all protected)
 router.get('/events', adminAuth, adminController.listEvents);
@@ -39,5 +41,11 @@ router.get('/sermons/day-type/:dayType', adminAuth, sermonController.getSermonsB
 // RSVPs and Members routes (all protected)
 router.get('/rsvps', adminAuth, adminController.listRSVPs);
 router.get('/members', adminAuth, adminController.listMembers);
+
+// Contact messages management routes (all protected)
+router.get('/contacts', adminAuth, contactController.listContacts);
+router.get('/contacts/:id', adminAuth, contactController.getContact);
+router.put('/contacts/:id/read', adminAuth, contactController.markAsRead);
+router.delete('/contacts/:id', adminAuth, contactController.deleteContact);
 
 module.exports = router;

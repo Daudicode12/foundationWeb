@@ -221,4 +221,32 @@ export const contactService = {
   },
 };
 
+// Admin Contact Services
+export const adminContactService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/contacts');
+    return response.data;
+  },
+  
+  getById: async (contactId) => {
+    const response = await adminApi.get(`/api/admin/contacts/${contactId}`);
+    return response.data;
+  },
+  
+  markAsRead: async (contactId) => {
+    const response = await adminApi.put(`/api/admin/contacts/${contactId}/read`);
+    return response.data;
+  },
+  
+  delete: async (contactId) => {
+    const response = await adminApi.delete(`/api/admin/contacts/${contactId}`);
+    return response.data;
+  },
+  
+  getUnreadCount: async () => {
+    const response = await adminApi.get('/api/admin/contacts/count');
+    return response.data;
+  },
+};
+
 export default api;
