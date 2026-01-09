@@ -1645,3 +1645,112 @@ body {
     font-size: 0.8rem;
   }
 }
+
+/* ============================================
+   MAKE OFFERING STYLES
+   ============================================ */
+
+/* Modal Header with Action Button */
+.modal-header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.modal-header-with-action h2 {
+  margin-bottom: 5px;
+}
+
+.modal-header-with-action .modal-subtitle {
+  margin-bottom: 0;
+}
+
+/* Make Offering Button */
+.btn-make-offering {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-make-offering:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-make-offering i {
+  font-size: 0.85rem;
+}
+
+/* Form Row for side-by-side inputs */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Offering Scripture Quote */
+.offering-scripture {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+  border-left: 4px solid #4CAF50;
+}
+
+.offering-scripture i {
+  color: #4CAF50;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.offering-scripture p {
+  color: #2c3e50;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.offering-scripture span {
+  color: #666;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  margin-top: 5px;
+}
+
+/* Responsive Make Offering */
+@media (max-width: 768px) {
+  .modal-header-with-action {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .btn-make-offering {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

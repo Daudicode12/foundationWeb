@@ -236,6 +236,11 @@ export const prayerRequestService = {
 
 // Member Offerings Services (view own offerings)
 export const myOfferingsService = {
+  create: async (offeringData) => {
+    const response = await api.post('/api/my-offerings', offeringData);
+    return response.data;
+  },
+
   getMyOfferings: async (email) => {
     const response = await api.get(`/api/my-offerings?email=${encodeURIComponent(email)}`);
     return response.data;

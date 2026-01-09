@@ -10,9 +10,20 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showPrayerModal, setShowPrayerModal] = useState(false);
   const [showOfferingsModal, setShowOfferingsModal] = useState(false);
+  const [showMakeOfferingModal, setShowMakeOfferingModal] = useState(false);
   const [myOfferings, setMyOfferings] = useState([]);
   const [offeringsTotal, setOfferingsTotal] = useState(0);
   const [offeringsSummary, setOfferingsSummary] = useState([]);
+  const [offeringForm, setOfferingForm] = useState({
+    amount: '',
+    offering_type: 'tithe',
+    payment_method: 'mobile_money',
+    reference_number: '',
+    date: new Date().toISOString().split('T')[0],
+    notes: '',
+    is_anonymous: false
+  });
+  const [offeringStatus, setOfferingStatus] = useState({ message: '', isError: false });
   const [prayerForm, setPrayerForm] = useState({ title: '', request: '', isAnonymous: false });
   const [prayerStatus, setPrayerStatus] = useState({ message: '', isError: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,6 +159,81 @@ const Dashboard = () => {
       style: 'currency',
       currency: 'KES'
     }).format(amount);
+  };
+
+  // Offering handlers
+  const handleOfferingInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setOfferingForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleOfferingSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setOfferingStatus({ message: '', isError: false });
+
+    try {
+      const offeringData = {
+        member_name: userData.userName || userData.name || 'Member',
+        email: userData.email,
+        phone: userData.phone || null,
+        amount: parseFloat(offeringForm.amount),
+        offering_type: offeringForm.offering_type,
+        payment_method: offeringForm.payment_method,
+        reference_number: offeringForm.reference_number || null,
+        date: offeringForm.date,
+        notes: offeringForm.notes || null,
+        is_anonymous: offeringForm.is_anonymous
+      };
+
+      const response = await myOfferingsService.create(offeringData);
+      
+      if (response.success) {
+        setOfferingStatus({ message: 'Offering recorded successfully! God bless you.', isError: false });
+        setOfferingForm({
+          amount: '',
+          offering_type: 'tithe',
+          payment_method: 'mobile_money',
+          reference_number: '',
+          date: new Date().toISOString().split('T')[0],
+          notes: '',
+          is_anonymous: false
+        });
+        
+        // Refresh offerings data
+        if (userData.email) {
+          const offeringsData = await myOfferingsService.getMyOfferings(userData.email);
+          if (offeringsData.success) {
+            setMyOfferings(offeringsData.data || []);
+          }
+          const totalData = await myOfferingsService.getMyTotal(userData.email);
+          if (totalData.success) {
+            setOfferingsTotal(totalData.total || 0);
+          }
+          const summaryData = await myOfferingsService.getMySummary(userData.email);
+          if (summaryData.success) {
+            setOfferingsSummary(summaryData.data || []);
+          }
+        }
+        
+        // Close make offering modal and show history after delay
+        setTimeout(() => {
+          setShowMakeOfferingModal(false);
+          setOfferingStatus({ message: '', isError: false });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error submitting offering:', error);
+      setOfferingStatus({ 
+        message: error.response?.data?.message || 'Failed to record offering. Please try again.', 
+        isError: true 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handlePrayerInputChange = (e) => {
@@ -448,8 +534,18 @@ const Dashboard = () => {
             <button className="modal-close" onClick={() => setShowOfferingsModal(false)}>
               <i className="fas fa-times"></i>
             </button>
-            <h2><i className="fas fa-hand-holding-heart"></i> My Offering History</h2>
-            <p className="modal-subtitle">View your giving records</p>
+            <div className="modal-header-with-action">
+              <div>
+                <h2><i className="fas fa-hand-holding-heart"></i> My Giving</h2>
+                <p className="modal-subtitle">View your giving records and make new offerings</p>
+              </div>
+              <button 
+                className="btn-make-offering" 
+                onClick={() => { setShowOfferingsModal(false); setShowMakeOfferingModal(true); }}
+              >
+                <i className="fas fa-plus"></i> Make Offering
+              </button>
+            </div>
             
             {/* Summary Cards */}
             <div className="offerings-summary-grid">
@@ -493,6 +589,138 @@ const Dashboard = () => {
               ) : (
                 <p className="no-offerings">No offering records found for your account.</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Make Offering Modal */}
+      {showMakeOfferingModal && (
+        <div className="modal-overlay" onClick={() => setShowMakeOfferingModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowMakeOfferingModal(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+            <h2><i className="fas fa-donate"></i> Make an Offering</h2>
+            <p className="modal-subtitle">Record your giving to the Lord</p>
+            
+            <form onSubmit={handleOfferingSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="amount">Amount (KES) *</label>
+                  <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    value={offeringForm.amount}
+                    onChange={handleOfferingInputChange}
+                    placeholder="Enter amount"
+                    min="1"
+                    step="0.01"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="offering_type">Offering Type *</label>
+                  <select
+                    id="offering_type"
+                    name="offering_type"
+                    value={offeringForm.offering_type}
+                    onChange={handleOfferingInputChange}
+                    required
+                  >
+                    <option value="tithe">Tithe</option>
+                    <option value="offering">Offering</option>
+                    <option value="donation">Donation</option>
+                    <option value="special">Special Offering</option>
+                    <option value="building_fund">Building Fund</option>
+                    <option value="missions">Missions</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="payment_method">Payment Method *</label>
+                  <select
+                    id="payment_method"
+                    name="payment_method"
+                    value={offeringForm.payment_method}
+                    onChange={handleOfferingInputChange}
+                    required
+                  >
+                    <option value="mobile_money">Mobile Money (M-Pesa)</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="check">Check</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="date">Date *</label>
+                  <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value={offeringForm.date}
+                    onChange={handleOfferingInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="reference_number">Reference/Transaction Number</label>
+                <input
+                  type="text"
+                  id="reference_number"
+                  name="reference_number"
+                  value={offeringForm.reference_number}
+                  onChange={handleOfferingInputChange}
+                  placeholder="e.g., M-Pesa code, Bank reference"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="notes">Notes (Optional)</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  value={offeringForm.notes}
+                  onChange={handleOfferingInputChange}
+                  placeholder="Any additional notes..."
+                  rows="2"
+                ></textarea>
+              </div>
+
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="is_anonymous"
+                    checked={offeringForm.is_anonymous}
+                    onChange={handleOfferingInputChange}
+                  />
+                  <span>Give anonymously (your name won't be displayed)</span>
+                </label>
+              </div>
+              
+              <button type="submit" className="btn-primary btn-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Recording...' : 'Record Offering'}
+              </button>
+            </form>
+            
+            {offeringStatus.message && (
+              <div className={`status-message ${offeringStatus.isError ? 'error' : 'success'}`}>
+                {offeringStatus.message}
+              </div>
+            )}
+
+            <div className="offering-scripture">
+              <i className="fas fa-quote-left"></i>
+              <p>"Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver."</p>
+              <span>- 2 Corinthians 9:7</span>
             </div>
           </div>
         </div>

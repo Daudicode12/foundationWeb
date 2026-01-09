@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const publicOfferingsController = require('../controllers/publicOfferingsController');
 
+// Create a new offering (member submission)
+router.post('/', publicOfferingsController.createOffering);
+
 // Get my offerings (by email query param)
 router.get('/', publicOfferingsController.getMyOfferings);
 

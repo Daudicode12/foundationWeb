@@ -6,6 +6,53 @@ function handleError(res, err, message = 'Server error') {
   return res.status(500).json({ success: false, message });
 }
 
+// Create a new offering (member submission)
+exports.createOffering = (req, res) => {
+  const { member_name, email, phone, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous } = req.body;
+
+  // Validation
+  if (!member_name || !amount || !offering_type || !date) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Member name, amount, offering type, and date are required' 
+    });
+  }
+
+  if (!email && !phone) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Either email or phone number is required' 
+    });
+  }
+
+  const sql = `
+    INSERT INTO offerings (member_name, email, phone, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    member_name,
+    email || null,
+    phone || null,
+    amount,
+    offering_type,
+    payment_method || 'cash',
+    reference_number || null,
+    date,
+    notes || null,
+    is_anonymous || false
+  ];
+
+  db.query(sql, values, (err, result) => {
+    if (err) return handleError(res, err, 'Error creating offering');
+    res.status(201).json({ 
+      success: true, 
+      message: 'Offering recorded successfully',
+      offeringId: result.insertId 
+    });
+  });
+};
+
 // Get user's offerings by email
 exports.getMyOfferings = (req, res) => {
   const { email } = req.query;
