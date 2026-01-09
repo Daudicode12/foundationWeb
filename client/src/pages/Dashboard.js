@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { authService, eventsService, prayerRequestService, myOfferingsService } from '../services/api';
+import { authService, eventsService, prayerRequestService, myOfferingsService, resourceService } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -19,6 +19,9 @@ const Dashboard = () => {
   const [myPrayerRequests, setMyPrayerRequests] = useState([]);
   const [showMyPrayersModal, setShowMyPrayersModal] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState(null);
+  const [resources, setResources] = useState([]);
+  const [showResourcesModal, setShowResourcesModal] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
   const navigate = useNavigate();
 
   const handleSessionExpired = useCallback(() => {
@@ -92,6 +95,16 @@ const Dashboard = () => {
         } catch (error) {
           console.error('Error loading prayer requests:', error);
         }
+      }
+
+      // Load resources (public - available to all members)
+      try {
+        const resourcesData = await resourceService.getAll();
+        if (resourcesData.success) {
+          setResources(resourcesData.resources || []);
+        }
+      } catch (error) {
+        console.error('Error loading resources:', error);
       }
 
       setIsLoading(false);
@@ -196,6 +209,7 @@ const Dashboard = () => {
       <Sidebar 
         onGivingClick={() => setShowOfferingsModal(true)}
         onPrayerClick={() => { setSelectedPrayer(null); setShowMyPrayersModal(true); }}
+        onResourcesClick={() => { setSelectedResource(null); setShowResourcesModal(true); }}
       />
       
       <main className="main-content">
@@ -304,6 +318,46 @@ const Dashboard = () => {
             )}
             <div className="giving-footer">
               <span className="view-link"><i className="fas fa-eye"></i> Click to view all offerings</span>
+            </div>
+          </div>
+
+          <div className="card resources-card" onClick={() => { setSelectedResource(null); setShowResourcesModal(true); }}>
+            <h3><i className="fas fa-book-open"></i> Church Resources</h3>
+            <div className="resources-summary">
+              <p className="resources-count">{resources.length} resource{resources.length !== 1 ? 's' : ''} available</p>
+              {resources.length > 0 && (
+                <div className="resources-type-summary">
+                  <span className="type-count bible">
+                    <i className="fas fa-bible"></i> {resources.filter(r => r.category === 'bible_verse').length}
+                  </span>
+                  <span className="type-count teaching">
+                    <i className="fas fa-chalkboard-teacher"></i> {resources.filter(r => r.category === 'teaching').length}
+                  </span>
+                  <span className="type-count devotional">
+                    <i className="fas fa-pray"></i> {resources.filter(r => r.category === 'devotional').length}
+                  </span>
+                </div>
+              )}
+            </div>
+            {resources.filter(r => r.is_featured).length > 0 && (
+              <div className="featured-resources">
+                <span className="featured-label"><i className="fas fa-star"></i> Featured</span>
+                {resources.filter(r => r.is_featured).slice(0, 2).map(resource => (
+                  <div 
+                    key={resource.id} 
+                    className="featured-item"
+                    onClick={(e) => { e.stopPropagation(); setSelectedResource(resource); setShowResourcesModal(true); }}
+                  >
+                    <span className="resource-title">{resource.title}</span>
+                    {resource.scripture_reference && (
+                      <span className="resource-scripture">{resource.scripture_reference}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="resources-footer">
+              <span className="view-link"><i className="fas fa-eye"></i> Click to browse all resources</span>
             </div>
           </div>
 
@@ -562,6 +616,157 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Resources Modal */}
+      {showResourcesModal && (
+        <div className="modal-overlay" onClick={() => { setShowResourcesModal(false); setSelectedResource(null); }}>
+          <div className="resources-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => { setShowResourcesModal(false); setSelectedResource(null); }}>
+              <i className="fas fa-times"></i>
+            </button>
+            
+            {selectedResource ? (
+              // Single Resource Detail View
+              <div className="resource-detail-view">
+                <button className="back-to-list" onClick={() => setSelectedResource(null)}>
+                  <i className="fas fa-arrow-left"></i> Back to Resources
+                </button>
+                
+                <div className="resource-detail-header">
+                  <span className={`category-tag ${selectedResource.category}`}>
+                    {selectedResource.category === 'bible_verse' && <><i className="fas fa-bible"></i> Bible Verse</>}
+                    {selectedResource.category === 'teaching' && <><i className="fas fa-chalkboard-teacher"></i> Teaching</>}
+                    {selectedResource.category === 'devotional' && <><i className="fas fa-pray"></i> Devotional</>}
+                    {selectedResource.category === 'sermon_notes' && <><i className="fas fa-scroll"></i> Sermon Notes</>}
+                    {selectedResource.category === 'testimony' && <><i className="fas fa-heart"></i> Testimony</>}
+                    {selectedResource.category === 'announcement' && <><i className="fas fa-bullhorn"></i> Announcement</>}
+                  </span>
+                  {selectedResource.is_featured && (
+                    <span className="featured-badge"><i className="fas fa-star"></i> Featured</span>
+                  )}
+                </div>
+
+                <h2 className="resource-detail-title">{selectedResource.title}</h2>
+                
+                {selectedResource.scripture_reference && (
+                  <div className="resource-scripture-box">
+                    <i className="fas fa-bookmark"></i>
+                    <span>{selectedResource.scripture_reference}</span>
+                  </div>
+                )}
+
+                <div className="resource-content-box">
+                  <p>{selectedResource.content}</p>
+                </div>
+
+                <div className="resource-meta">
+                  {selectedResource.author && (
+                    <span className="meta-item">
+                      <i className="fas fa-user"></i> {selectedResource.author}
+                    </span>
+                  )}
+                  {selectedResource.date_shared && (
+                    <span className="meta-item">
+                      <i className="fas fa-calendar-alt"></i> {formatDate(selectedResource.date_shared)}
+                    </span>
+                  )}
+                </div>
+
+                {selectedResource.tags && (
+                  <div className="resource-tags">
+                    {selectedResource.tags.split(',').map((tag, idx) => (
+                      <span key={idx} className="resource-tag">{tag.trim()}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Resources List View
+              <>
+                <h2><i className="fas fa-book-open"></i> Church Resources</h2>
+                <p className="modal-subtitle">Browse Bible verses, teachings, and devotionals shared by our church</p>
+
+                {resources.length > 0 ? (
+                  <div className="resources-list">
+                    {/* Featured Resources Section */}
+                    {resources.filter(r => r.is_featured).length > 0 && (
+                      <div className="featured-section">
+                        <h4><i className="fas fa-star"></i> Featured Resources</h4>
+                        <div className="resources-grid">
+                          {resources.filter(r => r.is_featured).map(resource => (
+                            <div 
+                              key={resource.id} 
+                              className={`resource-card ${resource.category}`}
+                              onClick={() => setSelectedResource(resource)}
+                            >
+                              <div className="resource-card-header">
+                                <span className={`category-icon ${resource.category}`}>
+                                  {resource.category === 'bible_verse' && <i className="fas fa-bible"></i>}
+                                  {resource.category === 'teaching' && <i className="fas fa-chalkboard-teacher"></i>}
+                                  {resource.category === 'devotional' && <i className="fas fa-pray"></i>}
+                                  {resource.category === 'sermon_notes' && <i className="fas fa-scroll"></i>}
+                                  {resource.category === 'testimony' && <i className="fas fa-heart"></i>}
+                                  {resource.category === 'announcement' && <i className="fas fa-bullhorn"></i>}
+                                </span>
+                                <span className="featured-star"><i className="fas fa-star"></i></span>
+                              </div>
+                              <h5 className="resource-card-title">{resource.title}</h5>
+                              {resource.scripture_reference && (
+                                <span className="resource-ref">{resource.scripture_reference}</span>
+                              )}
+                              <p className="resource-preview">
+                                {resource.content.length > 80 ? `${resource.content.substring(0, 80)}...` : resource.content}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* All Resources Section */}
+                    <div className="all-resources-section">
+                      <h4><i className="fas fa-list"></i> All Resources</h4>
+                      <div className="resources-grid">
+                        {resources.filter(r => !r.is_featured).map(resource => (
+                          <div 
+                            key={resource.id} 
+                            className={`resource-card ${resource.category}`}
+                            onClick={() => setSelectedResource(resource)}
+                          >
+                            <div className="resource-card-header">
+                              <span className={`category-icon ${resource.category}`}>
+                                {resource.category === 'bible_verse' && <i className="fas fa-bible"></i>}
+                                {resource.category === 'teaching' && <i className="fas fa-chalkboard-teacher"></i>}
+                                {resource.category === 'devotional' && <i className="fas fa-pray"></i>}
+                                {resource.category === 'sermon_notes' && <i className="fas fa-scroll"></i>}
+                                {resource.category === 'testimony' && <i className="fas fa-heart"></i>}
+                                {resource.category === 'announcement' && <i className="fas fa-bullhorn"></i>}
+                              </span>
+                            </div>
+                            <h5 className="resource-card-title">{resource.title}</h5>
+                            {resource.scripture_reference && (
+                              <span className="resource-ref">{resource.scripture_reference}</span>
+                            )}
+                            <p className="resource-preview">
+                              {resource.content.length > 80 ? `${resource.content.substring(0, 80)}...` : resource.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="no-resources">
+                    <i className="fas fa-book"></i>
+                    <p>No resources available yet.</p>
+                    <p className="no-resources-sub">Check back soon for Bible verses, teachings, and devotionals!</p>
+                  </div>
+                )}
               </>
             )}
           </div>

@@ -11,6 +11,7 @@ const adminOfferingsController = require('../controllers/adminOfferingsControlle
 const sermonController = require('../controllers/sermonController');
 const contactController = require('../controllers/contactController');
 const prayerController = require('../controllers/prayerController');
+const resourceController = require('../controllers/resourceController');
 const adminAuth = require('../middleware/adminAuth');
 
 // Dashboard stats (protected)
@@ -81,5 +82,14 @@ router.post('/offerings', adminAuth, adminOfferingsController.createOffering);
 router.get('/offerings/:id', adminAuth, adminOfferingsController.getOffering);
 router.put('/offerings/:id', adminAuth, adminOfferingsController.updateOffering);
 router.delete('/offerings/:id', adminAuth, adminOfferingsController.deleteOffering);
+
+// Resources management routes (all protected)
+router.get('/resources', adminAuth, resourceController.listResources);
+router.get('/resources/count', adminAuth, resourceController.countResources);
+router.post('/resources', adminAuth, resourceController.createResource);
+router.get('/resources/:id', adminAuth, resourceController.getResource);
+router.put('/resources/:id', adminAuth, resourceController.updateResource);
+router.put('/resources/:id/toggle-featured', adminAuth, resourceController.toggleFeatured);
+router.delete('/resources/:id', adminAuth, resourceController.deleteResource);
 
 module.exports = router;

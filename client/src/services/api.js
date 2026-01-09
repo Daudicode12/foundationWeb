@@ -371,4 +371,65 @@ export const adminOfferingsService = {
   },
 };
 
+// Resource Services (for members - public)
+export const resourceService = {
+  getAll: async (category = null, featured = null) => {
+    let url = '/api/resources';
+    const params = [];
+    if (category) params.push(`category=${category}`);
+    if (featured) params.push(`featured=${featured}`);
+    if (params.length > 0) url += '?' + params.join('&');
+    const response = await api.get(url);
+    return response.data;
+  },
+  
+  getById: async (resourceId) => {
+    const response = await api.get(`/api/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  getFeatured: async () => {
+    const response = await api.get('/api/resources?featured=true');
+    return response.data;
+  },
+};
+
+// Admin Resource Services
+export const adminResourceService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/resources');
+    return response.data;
+  },
+  
+  getById: async (resourceId) => {
+    const response = await adminApi.get(`/api/admin/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  create: async (resourceData) => {
+    const response = await adminApi.post('/api/admin/resources', resourceData);
+    return response.data;
+  },
+  
+  update: async (resourceId, resourceData) => {
+    const response = await adminApi.put(`/api/admin/resources/${resourceId}`, resourceData);
+    return response.data;
+  },
+  
+  delete: async (resourceId) => {
+    const response = await adminApi.delete(`/api/admin/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  getCount: async () => {
+    const response = await adminApi.get('/api/admin/resources/count');
+    return response.data;
+  },
+  
+  toggleFeatured: async (resourceId) => {
+    const response = await adminApi.put(`/api/admin/resources/${resourceId}/toggle-featured`);
+    return response.data;
+  },
+};
+
 export default api;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService, adminOfferingsService, adminPrayerRequestService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService, adminOfferingsService, adminPrayerRequestService, adminResourceService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -23,6 +23,8 @@ const AdminDashboard = () => {
   const [prayerRequests, setPrayerRequests] = useState([]);
   const [selectedPrayerRequest, setSelectedPrayerRequest] = useState(null);
   const [showPrayerDetailModal, setShowPrayerDetailModal] = useState(false);
+  const [resources, setResources] = useState([]);
+  const [showResourceModal, setShowResourceModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
@@ -67,6 +69,16 @@ const AdminDashboard = () => {
     date: '',
     notes: '',
     is_anonymous: false
+  });
+  const [resourceForm, setResourceForm] = useState({
+    title: '',
+    category: 'bible_verse',
+    scripture_reference: '',
+    content: '',
+    author: '',
+    date_shared: '',
+    tags: '',
+    is_featured: false
   });
   const navigate = useNavigate();
 
@@ -134,6 +146,12 @@ const AdminDashboard = () => {
       const prayerData = await adminPrayerRequestService.getAll();
       if (prayerData.success) {
         setPrayerRequests(prayerData.prayerRequests || []);
+      }
+
+      // Load Resources
+      const resourcesData = await adminResourceService.getAll();
+      if (resourcesData.success) {
+        setResources(resourcesData.resources || []);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -374,6 +392,81 @@ const AdminDashboard = () => {
       } catch (error) {
         console.error('Error deleting prayer request:', error);
       }
+    }
+  };
+
+  // Resource Handlers
+  const handleResourceFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setResourceForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleResourceSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (resourceForm.id) {
+        await adminResourceService.update(resourceForm.id, resourceForm);
+        setSuccessMessage('Resource updated successfully!');
+      } else {
+        await adminResourceService.create(resourceForm);
+        setSuccessMessage('Resource created successfully!');
+      }
+      setTimeout(() => setSuccessMessage(''), 3000);
+      setShowResourceModal(false);
+      setResourceForm({
+        title: '',
+        category: 'bible_verse',
+        scripture_reference: '',
+        content: '',
+        author: '',
+        date_shared: '',
+        tags: '',
+        is_featured: false
+      });
+      loadDashboardData();
+    } catch (error) {
+      console.error('Error saving resource:', error);
+      alert('Error saving resource. Please try again.');
+    }
+  };
+
+  const handleEditResource = (resource) => {
+    setResourceForm({
+      id: resource.id,
+      title: resource.title || '',
+      category: resource.category || 'bible_verse',
+      scripture_reference: resource.scripture_reference || '',
+      content: resource.content || '',
+      author: resource.author || '',
+      date_shared: resource.date_shared ? resource.date_shared.split('T')[0] : '',
+      tags: resource.tags || '',
+      is_featured: resource.is_featured || false
+    });
+    setShowResourceModal(true);
+  };
+
+  const handleDeleteResource = async (resourceId) => {
+    if (window.confirm('Are you sure you want to delete this resource?')) {
+      try {
+        await adminResourceService.delete(resourceId);
+        setSuccessMessage('Resource deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error deleting resource:', error);
+      }
+    }
+  };
+
+  const handleToggleFeatured = async (resourceId) => {
+    try {
+      await adminResourceService.toggleFeatured(resourceId);
+      loadDashboardData();
+    } catch (error) {
+      console.error('Error toggling featured status:', error);
     }
   };
 
@@ -873,6 +966,131 @@ const AdminDashboard = () => {
           </section>
         )}
 
+        {/* Resources Section */}
+        {activeSection === 'resources' && (
+          <section className="admin-section resources-section">
+            <div className="section-header">
+              <h2><i className="fas fa-book-open"></i> Manage Resources</h2>
+              <button className="add-btn" onClick={() => {
+                setResourceForm({
+                  title: '',
+                  category: 'bible_verse',
+                  scripture_reference: '',
+                  content: '',
+                  author: '',
+                  date_shared: '',
+                  tags: '',
+                  is_featured: false
+                });
+                setShowResourceModal(true);
+              }}>
+                <i className="fas fa-plus"></i> Add Resource
+              </button>
+            </div>
+            
+            <div className="resources-stats">
+              <div className="resource-stat-card">
+                <i className="fas fa-bible"></i>
+                <div className="stat-info">
+                  <span className="stat-number">{resources.filter(r => r.category === 'bible_verse').length}</span>
+                  <span className="stat-label">Bible Verses</span>
+                </div>
+              </div>
+              <div className="resource-stat-card">
+                <i className="fas fa-chalkboard-teacher"></i>
+                <div className="stat-info">
+                  <span className="stat-number">{resources.filter(r => r.category === 'teaching').length}</span>
+                  <span className="stat-label">Teachings</span>
+                </div>
+              </div>
+              <div className="resource-stat-card">
+                <i className="fas fa-pray"></i>
+                <div className="stat-info">
+                  <span className="stat-number">{resources.filter(r => r.category === 'devotional').length}</span>
+                  <span className="stat-label">Devotionals</span>
+                </div>
+              </div>
+              <div className="resource-stat-card">
+                <i className="fas fa-star"></i>
+                <div className="stat-info">
+                  <span className="stat-number">{resources.filter(r => r.is_featured).length}</span>
+                  <span className="stat-label">Featured</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Scripture</th>
+                    <th>Author</th>
+                    <th>Date Shared</th>
+                    <th>Featured</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resources.length > 0 ? (
+                    resources.map(resource => (
+                      <tr key={resource.id}>
+                        <td>
+                          <div className="resource-title">
+                            <strong>{resource.title}</strong>
+                            {resource.tags && (
+                              <div className="resource-tags">
+                                {resource.tags.split(',').slice(0, 2).map((tag, idx) => (
+                                  <span key={idx} className="resource-tag">{tag.trim()}</span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`category-badge ${resource.category}`}>
+                            {resource.category === 'bible_verse' && <><i className="fas fa-bible"></i> Bible Verse</>}
+                            {resource.category === 'teaching' && <><i className="fas fa-chalkboard-teacher"></i> Teaching</>}
+                            {resource.category === 'devotional' && <><i className="fas fa-pray"></i> Devotional</>}
+                            {resource.category === 'sermon_notes' && <><i className="fas fa-scroll"></i> Sermon Notes</>}
+                            {resource.category === 'testimony' && <><i className="fas fa-heart"></i> Testimony</>}
+                            {resource.category === 'announcement' && <><i className="fas fa-bullhorn"></i> Announcement</>}
+                          </span>
+                        </td>
+                        <td className="scripture-ref">{resource.scripture_reference || '-'}</td>
+                        <td>{resource.author || '-'}</td>
+                        <td>{resource.date_shared ? formatDate(resource.date_shared) : '-'}</td>
+                        <td>
+                          <button 
+                            className={`featured-toggle ${resource.is_featured ? 'featured' : ''}`}
+                            onClick={() => handleToggleFeatured(resource.id)}
+                            title={resource.is_featured ? 'Remove from featured' : 'Add to featured'}
+                          >
+                            <i className={`fas fa-star ${resource.is_featured ? '' : 'far'}`}></i>
+                          </button>
+                        </td>
+                        <td className="actions">
+                          <button className="action-btn edit" onClick={() => handleEditResource(resource)}>
+                            <i className="fas fa-edit"></i>
+                          </button>
+                          <button className="action-btn delete" onClick={() => handleDeleteResource(resource.id)}>
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="no-data">No resources added yet. Click "Add Resource" to get started.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
         {/* Navigation Tabs */}
         <div className="admin-tabs">
           <button 
@@ -922,6 +1140,12 @@ const AdminDashboard = () => {
             onClick={() => showSection('prayer-requests')}
           >
             Prayer Requests
+          </button>
+          <button 
+            className={activeSection === 'resources' ? 'active' : ''}
+            onClick={() => showSection('resources')}
+          >
+            Resources
           </button>
         </div>
       </main>
@@ -1448,6 +1672,130 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resource Modal */}
+      {showResourceModal && (
+        <div className="modal-overlay">
+          <div className="modal resource-modal">
+            <div className="modal-header">
+              <h3><i className="fas fa-book-open"></i> {resourceForm.id ? 'Edit Resource' : 'Add New Resource'}</h3>
+              <button className="close-btn" onClick={() => setShowResourceModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleResourceSubmit}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Title *</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={resourceForm.title}
+                    onChange={handleResourceFormChange}
+                    placeholder="e.g., Sunday Service - Walking in Faith"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category *</label>
+                  <select
+                    name="category"
+                    value={resourceForm.category}
+                    onChange={handleResourceFormChange}
+                    required
+                  >
+                    <option value="bible_verse">Bible Verse</option>
+                    <option value="teaching">Teaching</option>
+                    <option value="devotional">Devotional</option>
+                    <option value="sermon_notes">Sermon Notes</option>
+                    <option value="testimony">Testimony</option>
+                    <option value="announcement">Announcement</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Scripture Reference</label>
+                  <input
+                    type="text"
+                    name="scripture_reference"
+                    value={resourceForm.scripture_reference}
+                    onChange={handleResourceFormChange}
+                    placeholder="e.g., John 3:16, Romans 8:28"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author/Speaker</label>
+                  <input
+                    type="text"
+                    name="author"
+                    value={resourceForm.author}
+                    onChange={handleResourceFormChange}
+                    placeholder="e.g., Pastor John"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Content *</label>
+                <textarea
+                  name="content"
+                  value={resourceForm.content}
+                  onChange={handleResourceFormChange}
+                  rows="6"
+                  placeholder="Enter the Bible verse text, teaching content, or devotional message..."
+                  required
+                ></textarea>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date Shared</label>
+                  <input
+                    type="date"
+                    name="date_shared"
+                    value={resourceForm.date_shared}
+                    onChange={handleResourceFormChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={resourceForm.tags}
+                    onChange={handleResourceFormChange}
+                    placeholder="e.g., faith, hope, love, sunday service"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    name="is_featured"
+                    checked={resourceForm.is_featured}
+                    onChange={handleResourceFormChange}
+                  />
+                  <span className="checkmark"></span>
+                  Mark as Featured Resource
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="cancel-btn" onClick={() => setShowResourceModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="submit-btn">
+                  <i className="fas fa-save"></i> {resourceForm.id ? 'Update Resource' : 'Save Resource'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

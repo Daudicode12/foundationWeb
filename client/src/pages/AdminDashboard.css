@@ -1080,3 +1080,318 @@
     justify-content: center;
   }
 }
+
+/* ============================================
+   RESOURCES SECTION STYLES
+   ============================================ */
+
+/* Resources Stats Cards */
+.resources-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.resource-stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.resource-stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+}
+
+.resource-stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+}
+
+.resource-stat-card:nth-child(4) {
+  background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.resource-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.resource-stat-card i {
+  font-size: 2.5rem;
+  opacity: 0.9;
+}
+
+.resource-stat-card .stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-stat-card .stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.resource-stat-card .stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* Resource Title in Table */
+.resource-title {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.resource-title strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.resource-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.resource-tag {
+  background: #e8f4f8;
+  color: #0984e3;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Category Badges */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.category-badge.bible_verse {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.category-badge.teaching {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #fff;
+}
+
+.category-badge.devotional {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: #fff;
+}
+
+.category-badge.sermon_notes {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: #fff;
+}
+
+.category-badge.testimony {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #d63031;
+}
+
+.category-badge.announcement {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #e17055;
+}
+
+/* Scripture Reference */
+.scripture-ref {
+  font-style: italic;
+  color: #6c5ce7;
+  font-weight: 500;
+}
+
+/* Featured Toggle Button */
+.featured-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #ddd;
+  transition: all 0.3s;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.featured-toggle:hover {
+  transform: scale(1.2);
+  color: #f1c40f;
+}
+
+.featured-toggle.featured {
+  color: #f1c40f;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+.featured-toggle.featured i {
+  animation: starPulse 2s infinite;
+}
+
+@keyframes starPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Resource Modal */
+.resource-modal {
+  max-width: 700px;
+  width: 95%;
+}
+
+.resource-modal .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.resource-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.resource-modal label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.resource-modal input[type="text"],
+.resource-modal input[type="date"],
+.resource-modal select,
+.resource-modal textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.resource-modal input:focus,
+.resource-modal select:focus,
+.resource-modal textarea:focus {
+  border-color: #667eea;
+  background: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.resource-modal textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.resource-modal select {
+  cursor: pointer;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  margin-top: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+/* Resource Modal Actions */
+.resource-modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e8ed;
+}
+
+.resource-modal .cancel-btn {
+  background: #f1f2f6;
+  color: #636e72;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.resource-modal .cancel-btn:hover {
+  background: #dfe6e9;
+}
+
+.resource-modal .submit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.resource-modal .submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive Resources */
+@media (max-width: 1200px) {
+  .resources-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .resources-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .resource-modal .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .category-badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+}

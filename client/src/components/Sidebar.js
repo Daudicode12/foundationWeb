@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick }) => {
+const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick, onResourcesClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,8 +46,8 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClic
     { path: '/sermons', label: 'Sermons', icon: 'fas fa-book' },
     { action: 'giving', label: 'My Giving', icon: 'fas fa-heart' },
     { action: 'prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { action: 'resources', label: 'Resources', icon: 'fas fa-book-open' },
     { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },
-    { path: '#resources', label: 'Resources', icon: 'fas fa-folder' },
   ];
 
   const adminLinks = [
@@ -58,6 +58,8 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClic
     { path: '/admin/dashboard', section: 'rsvps', label: 'Event RSVPs', icon: 'fas fa-clipboard-list' },
     { path: '/admin/dashboard', section: 'offerings', label: 'Manage Offerings', icon: 'fas fa-hands' },
     { path: '/admin/dashboard', section: 'sermons', label: 'Manage Sermons', icon: 'fas fa-book' },
+    { path: '/admin/dashboard', section: 'prayer-requests', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { path: '/admin/dashboard', section: 'resources', label: 'Manage Resources', icon: 'fas fa-book-open' },
   ];
 
   const links = isAdmin ? adminLinks : memberLinks;
@@ -97,6 +99,8 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClic
                       onGivingClick();
                     } else if (link.action === 'prayer' && onPrayerClick) {
                       onPrayerClick();
+                    } else if (link.action === 'resources' && onResourcesClick) {
+                      onResourcesClick();
                     }
                   }}
                 >
