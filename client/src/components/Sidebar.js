@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
+const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,11 +44,10 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '/profile', label: 'My Profile', icon: 'fas fa-user' },
     { path: '/events', label: 'Events', icon: 'fas fa-calendar' },
     { path: '/sermons', label: 'Sermons', icon: 'fas fa-book' },
-    { path: '#giving', label: 'Giving', icon: 'fas fa-heart' },
-    { path: '#prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { action: 'giving', label: 'My Giving', icon: 'fas fa-heart' },
+    { action: 'prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
     { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },
     { path: '#resources', label: 'Resources', icon: 'fas fa-folder' },
-    { path: '#offerings', label: 'offerings', icon: 'fas fa-hands'},
   ];
 
   const adminLinks = [
@@ -81,11 +80,25 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
 
         <ul className="nav-menu">
           {links.map((link, index) => (
-            <li key={`${link.path}-${index}`}>
+            <li key={`${link.path || link.action}-${index}`}>
               {link.section ? (
                 <button
                   className={`nav-link-btn ${activeSection === link.section ? 'active' : ''}`}
                   onClick={() => handleLinkClick(link)}
+                >
+                  <i className={link.icon}></i> {link.label}
+                </button>
+              ) : link.action ? (
+                <button
+                  className="nav-link-btn"
+                  onClick={() => {
+                    closeSidebar();
+                    if (link.action === 'giving' && onGivingClick) {
+                      onGivingClick();
+                    } else if (link.action === 'prayer' && onPrayerClick) {
+                      onPrayerClick();
+                    }
+                  }}
                 >
                   <i className={link.icon}></i> {link.label}
                 </button>

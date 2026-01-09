@@ -193,7 +193,10 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Sidebar />
+      <Sidebar 
+        onGivingClick={() => setShowOfferingsModal(true)}
+        onPrayerClick={() => { setSelectedPrayer(null); setShowMyPrayersModal(true); }}
+      />
       
       <main className="main-content">
         <header className="dashboard-header">
@@ -280,11 +283,28 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card giving-card" onClick={() => setShowOfferingsModal(true)}>
             <h3><i className="fas fa-hand-holding-heart"></i> My Giving</h3>
-            <p className="giving-total">Total Giving: <strong>{formatCurrency(offeringsTotal)}</strong></p>
-            <p className="giving-count">{myOfferings.length} contribution{myOfferings.length !== 1 ? 's' : ''} recorded</p>
-            <button className="btn-primary" onClick={() => setShowOfferingsModal(true)}>View My Offerings</button>
+            <div className="giving-summary">
+              <div className="giving-total-box">
+                <span className="total-label">Total Giving</span>
+                <span className="total-amount">{formatCurrency(offeringsTotal)}</span>
+              </div>
+              <p className="giving-count">{myOfferings.length} contribution{myOfferings.length !== 1 ? 's' : ''} recorded</p>
+            </div>
+            {myOfferings.length > 0 && (
+              <div className="recent-offerings">
+                {myOfferings.slice(0, 3).map(offering => (
+                  <div key={offering.id} className="offering-item">
+                    <span className="offering-type">{offering.offering_type}</span>
+                    <span className="offering-amount">{formatCurrency(offering.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="giving-footer">
+              <span className="view-link"><i className="fas fa-eye"></i> Click to view all offerings</span>
+            </div>
           </div>
 
           <div className="card">
