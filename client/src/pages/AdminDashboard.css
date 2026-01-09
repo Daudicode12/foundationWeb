@@ -824,3 +824,259 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Prayer Requests Section Styles */
+.prayer-stats {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.stat-badge.unread {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.stat-badge.pending {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.stat-badge.praying {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.stat-badge.answered {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.unread-row {
+  background-color: #fffde7 !important;
+  font-weight: 500;
+}
+
+.unread-row:hover {
+  background-color: #fff9c4 !important;
+}
+
+/* Status badges for prayer requests */
+.badge.status-pending {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge.status-praying {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.badge.status-answered {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* View button */
+.view-btn {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: all 0.3s;
+}
+
+.view-btn:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+/* Prayer Detail Modal Content */
+.prayer-detail-content {
+  padding: 20px 0;
+}
+
+.prayer-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.prayer-meta p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.prayer-meta strong {
+  color: #333;
+}
+
+.prayer-status-badge {
+  padding: 5px 15px;
+}
+
+.prayer-detail-body {
+  padding: 20px 0;
+}
+
+.prayer-detail-body h4 {
+  color: #1a1a2e;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+.prayer-request-text {
+  color: #444;
+  line-height: 1.7;
+  font-size: 1rem;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.prayer-status-actions {
+  padding: 20px 0;
+  border-top: 1px solid #eee;
+}
+
+.prayer-status-actions p {
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-btn {
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.status-btn.pending {
+  background: #e3f2fd;
+  color: #1565c0;
+  border-color: #bbdefb;
+}
+
+.status-btn.pending:hover,
+.status-btn.pending.active {
+  background: #1565c0;
+  color: #fff;
+  border-color: #1565c0;
+}
+
+.status-btn.praying {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border-color: #e1bee7;
+}
+
+.status-btn.praying:hover,
+.status-btn.praying.active {
+  background: #7b1fa2;
+  color: #fff;
+  border-color: #7b1fa2;
+}
+
+.status-btn.answered {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-color: #c8e6c9;
+}
+
+.status-btn.answered:hover,
+.status-btn.answered.active {
+  background: #2e7d32;
+  color: #fff;
+  border-color: #2e7d32;
+}
+
+.prayer-detail-content .modal-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.prayer-detail-content .delete-btn {
+  background: #e94560;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.prayer-detail-content .delete-btn:hover {
+  background: #d63031;
+}
+
+/* Responsive for prayer requests */
+@media (max-width: 768px) {
+  .prayer-stats {
+    gap: 10px;
+  }
+
+  .stat-badge {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .prayer-detail-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .status-buttons {
+    flex-direction: column;
+  }
+
+  .status-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .prayer-detail-content .modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .prayer-detail-content .delete-btn,
+  .prayer-detail-content .cancel-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

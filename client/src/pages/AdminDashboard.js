@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService, adminOfferingsService } from '../services/api';
+import { adminMembersService, eventsService, adminEventsService, adminRsvpsService, adminAnnouncementsService, adminSermonsService, adminOfferingsService, adminPrayerRequestService } from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -20,6 +20,9 @@ const AdminDashboard = () => {
   const [offerings, setOfferings] = useState([]);
   const [offeringsSummary, setOfferingsSummary] = useState([]);
   const [totalOfferings, setTotalOfferings] = useState(0);
+  const [prayerRequests, setPrayerRequests] = useState([]);
+  const [selectedPrayerRequest, setSelectedPrayerRequest] = useState(null);
+  const [showPrayerDetailModal, setShowPrayerDetailModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
@@ -125,6 +128,12 @@ const AdminDashboard = () => {
       const totalData = await adminOfferingsService.getTotal();
       if (totalData.success) {
         setTotalOfferings(totalData.total || 0);
+      }
+
+      // Load Prayer Requests
+      const prayerData = await adminPrayerRequestService.getAll();
+      if (prayerData.success) {
+        setPrayerRequests(prayerData.prayerRequests || []);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -320,6 +329,50 @@ const AdminDashboard = () => {
         loadDashboardData();
       } catch (error) {
         console.error('Error deleting offering:', error);
+      }
+    }
+  };
+
+  // Prayer Request handlers
+  const handleViewPrayerRequest = async (prayerRequest) => {
+    setSelectedPrayerRequest(prayerRequest);
+    setShowPrayerDetailModal(true);
+    // Mark as read if not already read
+    if (!prayerRequest.is_read) {
+      try {
+        await adminPrayerRequestService.markAsRead(prayerRequest.id);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error marking prayer request as read:', error);
+      }
+    }
+  };
+
+  const handleUpdatePrayerStatus = async (prayerId, status) => {
+    try {
+      await adminPrayerRequestService.updateStatus(prayerId, status);
+      setSuccessMessage(`Prayer request marked as ${status}!`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+      loadDashboardData();
+      if (selectedPrayerRequest && selectedPrayerRequest.id === prayerId) {
+        setSelectedPrayerRequest({ ...selectedPrayerRequest, status });
+      }
+    } catch (error) {
+      console.error('Error updating prayer request status:', error);
+    }
+  };
+
+  const handleDeletePrayerRequest = async (prayerId) => {
+    if (window.confirm('Are you sure you want to delete this prayer request?')) {
+      try {
+        await adminPrayerRequestService.delete(prayerId);
+        setSuccessMessage('Prayer request deleted successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        setShowPrayerDetailModal(false);
+        setSelectedPrayerRequest(null);
+        loadDashboardData();
+      } catch (error) {
+        console.error('Error deleting prayer request:', error);
       }
     }
   };
@@ -739,6 +792,87 @@ const AdminDashboard = () => {
           </section>
         )}
 
+        {/* Prayer Requests Section */}
+        {activeSection === 'prayer-requests' && (
+          <section className="content-section">
+            <div className="section-header">
+              <h2>Prayer Requests</h2>
+              <div className="prayer-stats">
+                <span className="stat-badge unread">
+                  <i className="fas fa-envelope"></i> {prayerRequests.filter(p => !p.is_read).length} Unread
+                </span>
+                <span className="stat-badge pending">
+                  <i className="fas fa-clock"></i> {prayerRequests.filter(p => p.status === 'pending').length} Pending
+                </span>
+                <span className="stat-badge praying">
+                  <i className="fas fa-pray"></i> {prayerRequests.filter(p => p.status === 'praying').length} Praying
+                </span>
+                <span className="stat-badge answered">
+                  <i className="fas fa-check-circle"></i> {prayerRequests.filter(p => p.status === 'answered').length} Answered
+                </span>
+              </div>
+            </div>
+            
+            <div className="data-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Member</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Read</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {prayerRequests.length > 0 ? (
+                    prayerRequests.map(prayer => (
+                      <tr key={prayer.id} className={!prayer.is_read ? 'unread-row' : ''}>
+                        <td>{formatDate(prayer.created_at)}</td>
+                        <td>{prayer.is_anonymous ? 'Anonymous' : prayer.user_name}</td>
+                        <td>{prayer.title}</td>
+                        <td>
+                          <span className={`badge status-${prayer.status}`}>
+                            {prayer.status}
+                          </span>
+                        </td>
+                        <td>
+                          {prayer.is_read ? (
+                            <i className="fas fa-envelope-open" title="Read"></i>
+                          ) : (
+                            <i className="fas fa-envelope" title="Unread"></i>
+                          )}
+                        </td>
+                        <td>
+                          <button 
+                            className="view-btn"
+                            onClick={() => handleViewPrayerRequest(prayer)}
+                            title="View Details"
+                          >
+                            <i className="fas fa-eye"></i>
+                          </button>
+                          <button 
+                            className="delete-btn"
+                            onClick={() => handleDeletePrayerRequest(prayer.id)}
+                            title="Delete"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="no-data">No prayer requests yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
         {/* Navigation Tabs */}
         <div className="admin-tabs">
           <button 
@@ -782,6 +916,12 @@ const AdminDashboard = () => {
             onClick={() => showSection('sermons')}
           >
             sermons
+          </button>
+          <button 
+            className={activeSection === 'prayer-requests' ? 'active' : ''}
+            onClick={() => showSection('prayer-requests')}
+          >
+            Prayer Requests
           </button>
         </div>
       </main>
@@ -1234,6 +1374,80 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Prayer Request Detail Modal */}
+      {showPrayerDetailModal && selectedPrayerRequest && (
+        <div className="modal-overlay">
+          <div className="modal modal-large">
+            <div className="modal-header">
+              <h3>Prayer Request Details</h3>
+              <button className="close-btn" onClick={() => { setShowPrayerDetailModal(false); setSelectedPrayerRequest(null); }}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="prayer-detail-content">
+              <div className="prayer-detail-header">
+                <div className="prayer-meta">
+                  <p><strong>From:</strong> {selectedPrayerRequest.is_anonymous ? 'Anonymous' : selectedPrayerRequest.user_name}</p>
+                  {!selectedPrayerRequest.is_anonymous && (
+                    <p><strong>Email:</strong> {selectedPrayerRequest.user_email}</p>
+                  )}
+                  <p><strong>Submitted:</strong> {formatDate(selectedPrayerRequest.created_at)}</p>
+                </div>
+                <div className="prayer-status-badge">
+                  <span className={`badge status-${selectedPrayerRequest.status}`}>
+                    {selectedPrayerRequest.status}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="prayer-detail-body">
+                <h4>{selectedPrayerRequest.title}</h4>
+                <p className="prayer-request-text">{selectedPrayerRequest.request}</p>
+              </div>
+
+              <div className="prayer-status-actions">
+                <p><strong>Update Status:</strong></p>
+                <div className="status-buttons">
+                  <button 
+                    className={`status-btn pending ${selectedPrayerRequest.status === 'pending' ? 'active' : ''}`}
+                    onClick={() => handleUpdatePrayerStatus(selectedPrayerRequest.id, 'pending')}
+                  >
+                    <i className="fas fa-clock"></i> Pending
+                  </button>
+                  <button 
+                    className={`status-btn praying ${selectedPrayerRequest.status === 'praying' ? 'active' : ''}`}
+                    onClick={() => handleUpdatePrayerStatus(selectedPrayerRequest.id, 'praying')}
+                  >
+                    <i className="fas fa-pray"></i> Praying
+                  </button>
+                  <button 
+                    className={`status-btn answered ${selectedPrayerRequest.status === 'answered' ? 'active' : ''}`}
+                    onClick={() => handleUpdatePrayerStatus(selectedPrayerRequest.id, 'answered')}
+                  >
+                    <i className="fas fa-check-circle"></i> Answered
+                  </button>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button 
+                  className="delete-btn"
+                  onClick={() => handleDeletePrayerRequest(selectedPrayerRequest.id)}
+                >
+                  <i className="fas fa-trash"></i> Delete Request
+                </button>
+                <button 
+                  className="cancel-btn"
+                  onClick={() => { setShowPrayerDetailModal(false); setSelectedPrayerRequest(null); }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

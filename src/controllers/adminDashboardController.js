@@ -22,7 +22,7 @@ exports.getDashboardStats = (req, res) => {
 
   let stats = {};
   let completed = 0;
-  const total = Object.keys(queries).length;
+  const total = Object.keys(queries).length; //this line counts the number of queries to be executed. The object.keys() method returns an array of the keys in the queries object, and .length gives the number of keys.
 
   Object.entries(queries).forEach(([key, sql]) => {
     db.query(sql, (err, results) => {
