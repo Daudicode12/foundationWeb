@@ -18,6 +18,8 @@ const prayerRouter = require("./routes/prayerRouter");
 const eventsRouter = require("./routes/eventsRouter");
 const sermonsRouter = require("./routes/sermonsRouter");
 const announcementsRouter = require("./routes/announcementsRouter");
+const offeringsRouter = require("./routes/offeringsRouter");
+const resourcesRouter = require("./routes/resourcesRouter");
 
 // Import auth controller for admin login
 const authController = require("./controllers/authController");
@@ -56,6 +58,8 @@ app.use("/api/prayer-requests", prayerRouter);  // /api/prayer-requests
 app.use("/api/events", eventsRouter);           // /api/events
 app.use("/api/sermons", sermonsRouter);         // /api/sermons
 app.use("/api/announcements", announcementsRouter); // /api/announcements
+app.use("/api/my-offerings", offeringsRouter);  // /api/my-offerings (member's own offerings)
+app.use("/api/resources", resourcesRouter);     // /api/resources (public resources for members)
 
 // Admin routes
 app.use("/api/admin", apiLimiter, adminRouter);

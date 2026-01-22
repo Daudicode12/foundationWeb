@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
+const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick, onResourcesClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,11 +44,10 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '/profile', label: 'My Profile', icon: 'fas fa-user' },
     { path: '/events', label: 'Events', icon: 'fas fa-calendar' },
     { path: '/sermons', label: 'Sermons', icon: 'fas fa-book' },
-    { path: '#giving', label: 'Giving', icon: 'fas fa-heart' },
-    { path: '#prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { action: 'giving', label: 'My Giving', icon: 'fas fa-heart' },
+    { action: 'prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { action: 'resources', label: 'Resources', icon: 'fas fa-book-open' },
     { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },
-    { path: '#resources', label: 'Resources', icon: 'fas fa-folder' },
-    { path: '#offerings', label: 'offerings', icon: 'fas fa-hands'},
   ];
 
   const adminLinks = [
@@ -59,6 +58,8 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
     { path: '/admin/dashboard', section: 'rsvps', label: 'Event RSVPs', icon: 'fas fa-clipboard-list' },
     { path: '/admin/dashboard', section: 'offerings', label: 'Manage Offerings', icon: 'fas fa-hands' },
     { path: '/admin/dashboard', section: 'sermons', label: 'Manage Sermons', icon: 'fas fa-book' },
+    { path: '/admin/dashboard', section: 'prayer-requests', label: 'Prayer Requests', icon: 'fas fa-pray' },
+    { path: '/admin/dashboard', section: 'resources', label: 'Manage Resources', icon: 'fas fa-book-open' },
   ];
 
   const links = isAdmin ? adminLinks : memberLinks;
@@ -81,11 +82,27 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection }) => {
 
         <ul className="nav-menu">
           {links.map((link, index) => (
-            <li key={`${link.path}-${index}`}>
+            <li key={`${link.path || link.action}-${index}`}>
               {link.section ? (
                 <button
                   className={`nav-link-btn ${activeSection === link.section ? 'active' : ''}`}
                   onClick={() => handleLinkClick(link)}
+                >
+                  <i className={link.icon}></i> {link.label}
+                </button>
+              ) : link.action ? (
+                <button
+                  className="nav-link-btn"
+                  onClick={() => {
+                    closeSidebar();
+                    if (link.action === 'giving' && onGivingClick) {
+                      onGivingClick();
+                    } else if (link.action === 'prayer' && onPrayerClick) {
+                      onPrayerClick();
+                    } else if (link.action === 'resources' && onResourcesClick) {
+                      onResourcesClick();
+                    }
+                  }}
                 >
                   <i className={link.icon}></i> {link.label}
                 </button>
