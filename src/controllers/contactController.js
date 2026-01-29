@@ -1,7 +1,7 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Submit contact message (public)
-const submitContact = (req, res) => {
+const submitContact = async (req, res) => {
   const { name, email, phone, subject, message } = req.body;
 
   if (!name || !email || !subject || !message) {
@@ -10,10 +10,14 @@ const submitContact = (req, res) => {
 
   console.log("Contact form submission:", { name, email, phone, subject, message });
 
-  const sql = 'INSERT INTO contacts(name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)';
-  db.query(sql, [name, email, phone || null, subject, message], (err, result) => {
-    if (err) {
-      console.error("Error saving contact message:", err);
+  try {
+    const { data, error } = await supabase
+      .from('contact')
+      .insert([{ name, email, phone: phone || null, subject, message }])
+      .select();
+
+    if (error) {
+      console.error("Error saving contact message:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to save your message. Please try again later."
@@ -23,81 +27,128 @@ const submitContact = (req, res) => {
     res.json({
       success: true,
       message: "Thank you for contacting us! We will get back to you soon.",
-      contactId: result.insertId
+      contactId: data[0]?.id
     });
-  });
+  } catch (err) {
+    console.error("Error saving contact message:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to save your message. Please try again later."
+    });
+  }
 };
 
 // Get all contact messages (admin)
-const listContacts = (req, res) => {
-  const sql = 'SELECT * FROM contacts ORDER BY created_at DESC';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error fetching contact messages:', err);
+const listContacts = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('contact')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching contact messages:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
-    res.json({ success: true, contacts: results });
-  });
+    res.json({ success: true, contacts: data });
+  } catch (err) {
+    console.error('Error fetching contact messages:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
 // Get single contact message (admin)
-const getContact = (req, res) => {
+const getContact = async (req, res) => {
   const { id } = req.params;
-  const sql = 'SELECT * FROM contacts WHERE id = ?';
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error('Error fetching contact message:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('contact')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching contact message:', error);
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: 'Contact message not found' });
+      }
       return res.status(500).json({ success: false, message: 'Server error' });
     }
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: 'Contact message not found' });
-    }
-    res.json({ success: true, contact: results[0] });
-  });
+    res.json({ success: true, contact: data });
+  } catch (err) {
+    console.error('Error fetching contact message:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
 // Mark contact message as read (admin)
-const markAsRead = (req, res) => {
+const markAsRead = async (req, res) => {
   const { id } = req.params;
-  const sql = 'UPDATE contacts SET is_read = TRUE WHERE id = ?';
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error('Error updating contact message:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('contact')
+      .update({ is_read: true })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error updating contact message:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Contact message not found' });
     }
     res.json({ success: true, message: 'Message marked as read' });
-  });
+  } catch (err) {
+    console.error('Error updating contact message:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
 // Delete contact message (admin)
-const deleteContact = (req, res) => {
+const deleteContact = async (req, res) => {
   const { id } = req.params;
-  const sql = 'DELETE FROM contacts WHERE id = ?';
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error('Error deleting contact message:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('contact')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error deleting contact message:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Contact message not found' });
     }
     res.json({ success: true, message: 'Contact message deleted successfully' });
-  });
+  } catch (err) {
+    console.error('Error deleting contact message:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
 // Count unread messages (admin)
-const countUnread = (req, res) => {
-  const sql = 'SELECT COUNT(*) as count FROM contacts WHERE is_read = FALSE';
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error counting unread messages:', err);
+const countUnread = async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('contact')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_read', false);
+
+    if (error) {
+      console.error('Error counting unread messages:', error);
       return res.status(500).json({ success: false, message: 'Server error' });
     }
-    res.json({ success: true, count: results[0].count });
-  });
+    res.json({ success: true, count: count || 0 });
+  } catch (err) {
+    console.error('Error counting unread messages:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 };
 
 module.exports = {

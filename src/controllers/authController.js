@@ -1,144 +1,154 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+const supabase = require('../db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
 const JWT_EXPIRES_IN = '24h';
 
 // Signup
-const signup = (req, res) => {
+const signup = async (req, res) => {
   const { userName, email, phone, password } = req.body;
 
   if (!userName || !email || !phone || !password) {
     return res.status(400).send("All fields are required");
   }
 
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) {
-      console.error("Error hashing password:", err);
-      return res.status(500).send("Server error");
+  try {
+    const hash = await bcrypt.hash(password, 10);
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ username: userName, email, phone, password: hash }])
+      .select();
+
+    if (error) {
+      console.error("Error inserting user:", error);
+      return res.status(500).json({ success: false, message: "Database error: " + error.message });
     }
 
-    const sql = "INSERT INTO users (userName, email, phone, password) VALUES(?,?,?,?)";
-    db.query(sql, [userName, email, phone, hash], (err, result) => {
-      if (err) {
-        console.error("Error inserting user:", err);
-        return res.status(500).json({ success: false, message: "Database error: " + err.message });
-      }
-      res.status(201).json({
-        success: true,
-        message: "User registered successfully!",
-        redirect: "/logins/login.html"
-      });
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully!",
+      redirect: "/logins/login.html"
     });
-  });
+  } catch (err) {
+    console.error("Error hashing password:", err);
+    return res.status(500).send("Server error");
+  }
 };
 
 // Login
-const login = (req, res) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).send("Email and password are required");
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], (err, results) => {
-    if (err) {
-      console.error("Error fetching user:", err);
+  try {
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email);
+
+    if (error) {
+      console.error("Error fetching user:", error);
       return res.status(500).send("Server error");
     }
-    if (results.length === 0) {
+
+    if (!users || users.length === 0) {
       return res.status(401).json({ success: false, message: "Invalid email or password" });
     }
 
-    const user = results[0];
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords:", err);
-        return res.status(500).send("Server error");
-      }
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: "Invalid email or password" });
-      }
+    const user = users[0];
+    const isMatch = await bcrypt.compare(password, user.password);
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          userName: user.userName,
-          role: user.role || 'member'
-        },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
 
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        redirect: "/dashboard/dashboard.html",
-        token: token,
-        userName: user.userName,
+    const token = jwt.sign(
+      {
+        id: user.id,
         email: user.email,
-        phone: user.phone,
-        role: user.role || 'member',
-        expiresIn: JWT_EXPIRES_IN
-      });
+        userName: user.username,
+        role: user.role || 'member'
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      redirect: "/dashboard/dashboard.html",
+      token: token,
+      userName: user.username,
+      email: user.email,
+      phone: user.phone,
+      role: user.role || 'member',
+      expiresIn: JWT_EXPIRES_IN
     });
-  });
+  } catch (err) {
+    console.error("Error during login:", err);
+    return res.status(500).send("Server error");
+  }
 };
 
 // Admin Login
-const adminLogin = (req, res) => {
+const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ success: false, message: "Email and password are required" });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ? AND role = 'admin'";
-  db.query(sql, [email], (err, results) => {
-    if (err) {
-      console.error("Error fetching admin:", err);
+  try {
+    const { data: admins, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .eq('role', 'admin');
+
+    if (error) {
+      console.error("Error fetching admin:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
 
-    if (results.length === 0) {
+    if (!admins || admins.length === 0) {
       return res.status(401).json({ success: false, message: "Invalid admin credentials" });
     }
 
-    const admin = results[0];
-    bcrypt.compare(password, admin.password, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords:", err);
-        return res.status(500).json({ success: false, message: "Server error" });
-      }
+    const admin = admins[0];
+    const isMatch = await bcrypt.compare(password, admin.password);
 
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: "Invalid admin credentials" });
-      }
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid admin credentials" });
+    }
 
-      const token = jwt.sign(
-        {
-          id: admin.id,
-          email: admin.email,
-          userName: admin.userName,
-          role: 'admin'
-        },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
-
-      res.json({
-        success: true,
-        message: "Admin login successful",
-        token: token,
+    const token = jwt.sign(
+      {
+        id: admin.id,
         email: admin.email,
-        userName: admin.userName,
-        role: admin.role,
-        expiresIn: JWT_EXPIRES_IN
-      });
+        userName: admin.username,
+        role: 'admin'
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    res.json({
+      success: true,
+      message: "Admin login successful",
+      token: token,
+      email: admin.email,
+      userName: admin.username,
+      role: admin.role,
+      expiresIn: JWT_EXPIRES_IN
     });
-  });
+  } catch (err) {
+    console.error("Error during admin login:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Verify Token

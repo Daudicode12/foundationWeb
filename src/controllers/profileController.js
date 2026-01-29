@@ -1,33 +1,40 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Get user profile
-const getProfile = (req, res) => {
+const getProfile = async (req, res) => {
   const { email } = req.query;
 
   if (!email) {
     return res.status(400).json({ success: false, message: "Email is required" });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
-  db.query(sql, [email], (err, results) => {
-    if (err) {
-      console.error("Error fetching profile:", err);
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
       return res.status(500).json({ success: false, message: "Server error" });
     }
 
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    const user = results[0];
+    const user = { ...data };
     delete user.password;
 
     res.json({ success: true, profile: user });
-  });
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Update user profile
-const updateProfile = (req, res) => {
+const updateProfile = async (req, res) => {
   const {
     email, userName, phone, dateOfBirth, gender, maritalStatus,
     address, city, state, zipCode, country, memberSince, ministry, notes
@@ -37,40 +44,41 @@ const updateProfile = (req, res) => {
     return res.status(400).json({ success: false, message: "Email is required" });
   }
 
-  const sql = `
-    UPDATE users SET 
-      userName = ?,
-      phone = ?,
-      dateOfBirth = ?,
-      gender = ?,
-      maritalStatus = ?,
-      address = ?,
-      city = ?,
-      state = ?,
-      zipCode = ?,
-      country = ?,
-      memberSince = ?,
-      ministry = ?,
-      notes = ?
-    WHERE email = ?
-  `;
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        username: userName,
+        phone,
+        dateofbirth: dateOfBirth,
+        gender,
+        maritalstatus: maritalStatus,
+        address,
+        city,
+        state,
+        zipcode: zipCode,
+        country,
+        membersince: memberSince,
+        ministry,
+        notes
+      })
+      .eq('email', email)
+      .select();
 
-  db.query(sql, [
-    userName, phone, dateOfBirth, gender, maritalStatus,
-    address, city, state, zipCode, country, memberSince, ministry, notes,
-    email
-  ], (err, result) => {
-    if (err) {
-      console.error("Error updating profile:", err);
-      return res.status(500).json({ success: false, message: "Database error: " + err.message });
+    if (error) {
+      console.error("Error updating profile:", error);
+      return res.status(500).json({ success: false, message: "Database error: " + error.message });
     }
 
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
     res.json({ success: true, message: "Profile updated successfully" });
-  });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 module.exports = {

@@ -1,142 +1,200 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Get all events
-const getAllEvents = (req, res) => {
-  const sql = `SELECT * FROM events ORDER BY date DESC, time DESC`;
+const getAllEvents = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('time', { ascending: false });
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching events:", err);
+    if (error) {
+      console.error("Error fetching events:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json({ success: true, events: results });
-  });
+    res.json({ success: true, events: data });
+  } catch (err) {
+    console.error("Error fetching events:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Get upcoming events
-const getUpcomingEvents = (req, res) => {
-  const sql = `
-    SELECT * FROM events 
-    WHERE date >= CURDATE() 
-    ORDER BY date ASC, time ASC
-  `;
+const getUpcomingEvents = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .gte('date', today)
+      .order('date', { ascending: true })
+      .order('time', { ascending: true });
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching events:", err);
+    if (error) {
+      console.error("Error fetching events:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json({ success: true, events: results });
-  });
+    res.json({ success: true, events: data });
+  } catch (err) {
+    console.error("Error fetching events:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Get past events
-const getPastEvents = (req, res) => {
-  const sql = `
-    SELECT * FROM events 
-    WHERE date < CURDATE() 
-    ORDER BY date DESC, time DESC
-    LIMIT 20
-  `;
+const getPastEvents = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .lt('date', today)
+      .order('date', { ascending: false })
+      .order('time', { ascending: false })
+      .limit(20);
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching past events:", err);
+    if (error) {
+      console.error("Error fetching past events:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json({ success: true, events: results });
-  });
+    res.json({ success: true, events: data });
+  } catch (err) {
+    console.error("Error fetching past events:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Get single event
-const getEventById = (req, res) => {
+const getEventById = async (req, res) => {
   const { id } = req.params;
 
-  const sql = "SELECT * FROM events WHERE id = ?";
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error("Error fetching event:", err);
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching event:", error);
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: "Event not found" });
+      }
       return res.status(500).json({ success: false, message: "Server error" });
     }
-
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: "Event not found" });
-    }
-
-    res.json(results[0]);
-  });
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching event:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // RSVP for event
-const rsvpEvent = (req, res) => {
+const rsvpEvent = async (req, res) => {
   const { eventId, email, userName } = req.body;
 
   if (!eventId || !email) {
     return res.status(400).json({ success: false, message: "Event ID and email are required" });
   }
 
-  // Check if already registered
-  const checkSql = "SELECT * FROM event_rsvps WHERE eventId = ? AND email = ?";
-  db.query(checkSql, [eventId, email], (err, results) => {
-    if (err) {
-      console.error("Error checking RSVP:", err);
+  try {
+    // Check if already registered
+    const { data: existing, error: checkError } = await supabase
+      .from('event_rsvps')
+      .select('*')
+      .eq('eventid', eventId)
+      .eq('email', email);
+
+    if (checkError) {
+      console.error("Error checking RSVP:", checkError);
       return res.status(500).json({ success: false, message: "Server error" });
     }
 
-    if (results.length > 0) {
+    if (existing && existing.length > 0) {
       return res.status(400).json({ success: false, message: "Already registered for this event" });
     }
 
     // Insert RSVP
-    const insertSql = "INSERT INTO event_rsvps (eventId, email, userName, rsvp_date) VALUES (?, ?, ?, NOW())";
-    db.query(insertSql, [eventId, email, userName], (err, result) => {
-      if (err) {
-        console.error("Error creating RSVP:", err);
-        return res.status(500).json({ success: false, message: "Server error" });
-      }
+    const { error: insertError } = await supabase
+      .from('event_rsvps')
+      .insert([{
+        eventid: eventId,
+        email,
+        username: userName,
+        rsvp_date: new Date().toISOString()
+      }]);
 
-      // Update attendee count
-      const updateSql = "UPDATE events SET attendees = attendees + 1 WHERE id = ?";
-      db.query(updateSql, [eventId], (err) => {
-        if (err) {
-          console.error("Error updating attendee count:", err);
-        }
-      });
+    if (insertError) {
+      console.error("Error creating RSVP:", insertError);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
 
-      res.json({ success: true, message: "RSVP successful" });
-    });
-  });
+    // Update attendee count
+    const { data: event } = await supabase
+      .from('events')
+      .select('attendees')
+      .eq('id', eventId)
+      .single();
+
+    if (event) {
+      await supabase
+        .from('events')
+        .update({ attendees: (event.attendees || 0) + 1 })
+        .eq('id', eventId);
+    }
+
+    res.json({ success: true, message: "RSVP successful" });
+  } catch (err) {
+    console.error("Error in RSVP:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 // Cancel RSVP
-const cancelRsvp = (req, res) => {
+const cancelRsvp = async (req, res) => {
   const { eventId, email } = req.body;
 
   if (!eventId || !email) {
     return res.status(400).json({ success: false, message: "Event ID and email are required" });
   }
 
-  const deleteSql = "DELETE FROM event_rsvps WHERE eventId = ? AND email = ?";
-  db.query(deleteSql, [eventId, email], (err, result) => {
-    if (err) {
-      console.error("Error cancelling RSVP:", err);
+  try {
+    const { data, error } = await supabase
+      .from('event_rsvps')
+      .delete()
+      .eq('eventid', eventId)
+      .eq('email', email)
+      .select();
+
+    if (error) {
+      console.error("Error cancelling RSVP:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
 
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: "RSVP not found" });
     }
 
     // Update attendee count
-    const updateSql = "UPDATE events SET attendees = GREATEST(attendees - 1, 0) WHERE id = ?";
-    db.query(updateSql, [eventId], (err) => {
-      if (err) {
-        console.error("Error updating attendee count:", err);
-      }
-    });
+    const { data: event } = await supabase
+      .from('events')
+      .select('attendees')
+      .eq('id', eventId)
+      .single();
+
+    if (event) {
+      await supabase
+        .from('events')
+        .update({ attendees: Math.max((event.attendees || 0) - 1, 0) })
+        .eq('id', eventId);
+    }
 
     res.json({ success: true, message: "RSVP cancelled" });
-  });
+  } catch (err) {
+    console.error("Error cancelling RSVP:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 module.exports = {

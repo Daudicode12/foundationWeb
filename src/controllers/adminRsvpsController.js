@@ -1,4 +1,4 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Helper function for error handling
 function handleError(res, err, message = 'Server error') {
@@ -7,51 +7,77 @@ function handleError(res, err, message = 'Server error') {
 }
 
 // List all RSVPs with event details
-exports.listRSVPs = (req, res) => {
-  const sql = `
-    SELECT 
-      er.eventId,
-      er.email,
-      er.userName,
-      er.rsvp_date,
-      e.title as eventTitle,
-      e.date as eventDate,
-      e.time as eventTime
-    FROM event_rsvps er
-    LEFT JOIN events e ON er.eventId = e.id
-    ORDER BY er.rsvp_date DESC
-  `;
-  
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching RSVPs');
-    res.json({ success: true, data: results });
-  });
+exports.listRSVPs = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('event_rsvps')
+      .select(`
+        eventid,
+        email,
+        username,
+        rsvp_date,
+        events (
+          title,
+          date,
+          time
+        )
+      `)
+      .order('rsvp_date', { ascending: false });
+
+    if (error) return handleError(res, error, 'Error fetching RSVPs');
+    
+    // Transform data to match expected format
+    const rsvps = data.map(rsvp => ({
+      eventId: rsvp.eventid,
+      email: rsvp.email,
+      userName: rsvp.username,
+      rsvp_date: rsvp.rsvp_date,
+      eventTitle: rsvp.events?.title,
+      eventDate: rsvp.events?.date,
+      eventTime: rsvp.events?.time
+    }));
+    
+    res.json({ success: true, data: rsvps });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching RSVPs');
+  }
 };
 
 // Count RSVPs
-exports.countRSVPs = (req, res) => {
-  const sql = 'SELECT COUNT(*) as count FROM event_rsvps';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error counting RSVPs');
-    res.json({ count: results[0].count });
-  });
+exports.countRSVPs = async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('event_rsvps')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) return handleError(res, error, 'Error counting RSVPs');
+    res.json({ count: count || 0 });
+  } catch (err) {
+    return handleError(res, err, 'Error counting RSVPs');
+  }
 };
 
 // Get RSVPs for a specific event
-exports.getEventRSVPs = (req, res) => {
-  const sql = `
-    SELECT 
-      er.eventId,
-      er.email,
-      er.userName,
-      er.rsvp_date
-    FROM event_rsvps er
-    WHERE er.eventId = ?
-    ORDER BY er.rsvp_date DESC
-  `;
-  
-  db.query(sql, [req.params.eventId], (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching event RSVPs');
-    res.json({ success: true, data: results });
-  });
+exports.getEventRSVPs = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('event_rsvps')
+      .select('eventid, email, username, rsvp_date')
+      .eq('eventid', req.params.eventId)
+      .order('rsvp_date', { ascending: false });
+
+    if (error) return handleError(res, error, 'Error fetching event RSVPs');
+    
+    // Transform data to match expected format
+    const rsvps = data.map(rsvp => ({
+      eventId: rsvp.eventid,
+      email: rsvp.email,
+      userName: rsvp.username,
+      rsvp_date: rsvp.rsvp_date
+    }));
+    
+    res.json({ success: true, data: rsvps });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching event RSVPs');
+  }
 };

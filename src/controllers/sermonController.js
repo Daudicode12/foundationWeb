@@ -1,52 +1,75 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // List all sermons
-const listSermons = (req, res) => {
-  const sql = 'SELECT * FROM sermons ORDER BY date DESC, time DESC';
-  
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error listing sermons:', err);
+const listSermons = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('time', { ascending: false });
+
+    if (error) {
+      console.error('Error listing sermons:', error);
       return res.status(500).json({ success: false, message: 'Failed to fetch sermons' });
     }
-    res.json({ success: true, data: results });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('Error listing sermons:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch sermons' });
+  }
 };
 
 // Get upcoming sermons
-const getUpcomingSermons = (req, res) => {
-  const sql = 'SELECT * FROM sermons WHERE date >= CURDATE() ORDER BY date ASC, time ASC LIMIT 10';
-  
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error('Error fetching upcoming sermons:', err);
+const getUpcomingSermons = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('sermons')
+      .select('*')
+      .gte('date', today)
+      .order('date', { ascending: true })
+      .order('time', { ascending: true })
+      .limit(10);
+
+    if (error) {
+      console.error('Error fetching upcoming sermons:', error);
       return res.status(500).json({ success: false, message: 'Failed to fetch upcoming sermons' });
     }
-    res.json({ success: true, data: results });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('Error fetching upcoming sermons:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch upcoming sermons' });
+  }
 };
 
 // Get sermon by ID
-const getSermon = (req, res) => {
+const getSermon = async (req, res) => {
   const { id } = req.params;
-  const sql = 'SELECT * FROM sermons WHERE id = ?';
-  
-  db.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error('Error fetching sermon:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching sermon:', error);
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: 'Sermon not found' });
+      }
       return res.status(500).json({ success: false, message: 'Failed to fetch sermon' });
     }
-    
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: 'Sermon not found' });
-    }
-    
-    res.json({ success: true, data: results[0] });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('Error fetching sermon:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch sermon' });
+  }
 };
 
 // Create new sermon
-const createSermon = (req, res) => {
+const createSermon = async (req, res) => {
   const {
     title,
     preacher,
@@ -67,25 +90,41 @@ const createSermon = (req, res) => {
     });
   }
 
-  const sql = `INSERT INTO sermons (title, preacher, description, scripture_reference, date, time, day_type, series_name, video_url, audio_url, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`;
-  
-  db.query(sql, [title, preacher, description, scripture_reference, date, time, day_type || 'sunday', series_name, video_url, audio_url], (err, result) => {
-    if (err) {
-      console.error('Error creating sermon:', err);
-      return res.status(500).json({ success: false, message: 'Failed to create sermon: ' + err.message });
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .insert([{
+        title,
+        preacher,
+        description,
+        scripture_reference,
+        date,
+        time,
+        day_type: day_type || 'sunday',
+        series_name,
+        video_url,
+        audio_url
+      }])
+      .select();
+
+    if (error) {
+      console.error('Error creating sermon:', error);
+      return res.status(500).json({ success: false, message: 'Failed to create sermon: ' + error.message });
     }
 
     res.status(201).json({ 
       success: true, 
       message: 'Sermon created successfully',
-      data: { id: result.insertId }
+      data: { id: data[0]?.id }
     });
-  });
+  } catch (err) {
+    console.error('Error creating sermon:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create sermon' });
+  }
 };
 
 // Update sermon
-const updateSermon = (req, res) => {
+const updateSermon = async (req, res) => {
   const { id } = req.params;
   const {
     title,
@@ -100,65 +139,88 @@ const updateSermon = (req, res) => {
     audio_url
   } = req.body;
 
-  const sql = `UPDATE sermons SET 
-      title = ?, 
-      preacher = ?, 
-      description = ?, 
-      scripture_reference = ?,
-      date = ?, 
-      time = ?, 
-      day_type = ?,
-      series_name = ?,
-      video_url = ?,
-      audio_url = ?,
-      updated_at = NOW()
-     WHERE id = ?`;
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .update({
+        title,
+        preacher,
+        description,
+        scripture_reference,
+        date,
+        time,
+        day_type,
+        series_name,
+        video_url,
+        audio_url
+      })
+      .eq('id', id)
+      .select();
 
-  db.query(sql, [title, preacher, description, scripture_reference, date, time, day_type, series_name, video_url, audio_url, id], (err, result) => {
-    if (err) {
-      console.error('Error updating sermon:', err);
+    if (error) {
+      console.error('Error updating sermon:', error);
       return res.status(500).json({ success: false, message: 'Failed to update sermon' });
     }
 
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Sermon not found' });
     }
 
     res.json({ success: true, message: 'Sermon updated successfully' });
-  });
+  } catch (err) {
+    console.error('Error updating sermon:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update sermon' });
+  }
 };
 
 // Delete sermon
-const deleteSermon = (req, res) => {
+const deleteSermon = async (req, res) => {
   const { id } = req.params;
-  const sql = 'DELETE FROM sermons WHERE id = ?';
-  
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error('Error deleting sermon:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error deleting sermon:', error);
       return res.status(500).json({ success: false, message: 'Failed to delete sermon' });
     }
 
-    if (result.affectedRows === 0) {
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Sermon not found' });
     }
 
     res.json({ success: true, message: 'Sermon deleted successfully' });
-  });
+  } catch (err) {
+    console.error('Error deleting sermon:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete sermon' });
+  }
 };
 
 // Get sermons by day type
-const getSermonsByDayType = (req, res) => {
+const getSermonsByDayType = async (req, res) => {
   const { dayType } = req.params;
-  const sql = 'SELECT * FROM sermons WHERE day_type = ? ORDER BY date DESC, time DESC';
-  
-  db.query(sql, [dayType], (err, results) => {
-    if (err) {
-      console.error('Error fetching sermons by day type:', err);
+
+  try {
+    const { data, error } = await supabase
+      .from('sermons')
+      .select('*')
+      .eq('day_type', dayType)
+      .order('date', { ascending: false })
+      .order('time', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching sermons by day type:', error);
       return res.status(500).json({ success: false, message: 'Failed to fetch sermons' });
     }
-    res.json({ success: true, data: results });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('Error fetching sermons by day type:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch sermons' });
+  }
 };
 
 module.exports = {

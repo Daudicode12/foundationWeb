@@ -1,20 +1,24 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Get all announcements (public)
-const getAllAnnouncements = (req, res) => {
-  const sql = `
-    SELECT * FROM announcements 
-    ORDER BY date DESC, created_at DESC
-    LIMIT 50
-  `;
+const getAllAnnouncements = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error fetching announcements:", err);
+    if (error) {
+      console.error("Error fetching announcements:", error);
       return res.status(500).json({ success: false, message: "Server error" });
     }
-    res.json(results);
-  });
+    res.json(data);
+  } catch (err) {
+    console.error("Error fetching announcements:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 module.exports = {

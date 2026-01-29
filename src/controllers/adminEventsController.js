@@ -1,4 +1,4 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Helper function for error handling
 function handleError(res, err, message = 'Server error') {
@@ -7,81 +7,132 @@ function handleError(res, err, message = 'Server error') {
 }
 
 // List all events
-exports.listEvents = (req, res) => {
-  const sql = 'SELECT * FROM events ORDER BY date ASC, time ASC';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching events');
-    res.json({ success: true, data: results });
-  });
+exports.listEvents = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true })
+      .order('time', { ascending: true });
+
+    if (error) return handleError(res, error, 'Error fetching events');
+    res.json({ success: true, data });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching events');
+  }
 };
 
 // Count events
-exports.countEvents = (req, res) => {
-  const sql = 'SELECT COUNT(*) as count FROM events';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error counting events');
-    res.json({ count: results[0].count });
-  });
+exports.countEvents = async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('events')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) return handleError(res, error, 'Error counting events');
+    res.json({ count: count || 0 });
+  } catch (err) {
+    return handleError(res, err, 'Error counting events');
+  }
 };
 
 // Create new event
-exports.createEvent = (req, res) => {
+exports.createEvent = async (req, res) => {
   const { title, description, additionalInfo, category, date, time, location, image } = req.body;
   
   if (!title || !description || !category || !date || !time || !location) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
-  const sql = `
-    INSERT INTO events (title, description, additionalInfo, category, date, time, location, image, attendees) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
-  `;
-  
-  db.query(sql, [title, description, additionalInfo || null, category, date, time, location, image || null], (err, result) => {
-    if (err) return handleError(res, err, 'Error creating event');
-    res.status(201).json({ success: true, message: 'Event created successfully', id: result.insertId });
-  });
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .insert([{
+        title,
+        description,
+        additionalinfo: additionalInfo || null,
+        category,
+        date,
+        time,
+        location,
+        image: image || null,
+        attendees: 0
+      }])
+      .select();
+
+    if (error) return handleError(res, error, 'Error creating event');
+    res.status(201).json({ success: true, message: 'Event created successfully', id: data[0]?.id });
+  } catch (err) {
+    return handleError(res, err, 'Error creating event');
+  }
 };
 
 // Get single event
-exports.getEvent = (req, res) => {
-  const sql = 'SELECT * FROM events WHERE id = ?';
-  db.query(sql, [req.params.id], (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching event');
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: 'Event not found' });
+exports.getEvent = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: 'Event not found' });
+      }
+      return handleError(res, error, 'Error fetching event');
     }
-    res.json({ success: true, data: results[0] });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching event');
+  }
 };
 
 // Update event
-exports.updateEvent = (req, res) => {
+exports.updateEvent = async (req, res) => {
   const { title, description, additionalInfo, category, date, time, location, image } = req.body;
-  
-  const sql = `
-    UPDATE events 
-    SET title = ?, description = ?, additionalInfo = ?, category = ?, date = ?, time = ?, location = ?, image = ?
-    WHERE id = ?
-  `;
-  
-  db.query(sql, [title, description, additionalInfo, category, date, time, location, image, req.params.id], (err, result) => {
-    if (err) return handleError(res, err, 'Error updating event');
-    if (result.affectedRows === 0) {
+
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .update({
+        title,
+        description,
+        additionalinfo: additionalInfo,
+        category,
+        date,
+        time,
+        location,
+        image
+      })
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) return handleError(res, error, 'Error updating event');
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
     res.json({ success: true, message: 'Event updated successfully' });
-  });
+  } catch (err) {
+    return handleError(res, err, 'Error updating event');
+  }
 };
 
 // Delete event
-exports.deleteEvent = (req, res) => {
-  const sql = 'DELETE FROM events WHERE id = ?';
-  db.query(sql, [req.params.id], (err, result) => {
-    if (err) return handleError(res, err, 'Error deleting event');
-    if (result.affectedRows === 0) {
+exports.deleteEvent = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .delete()
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) return handleError(res, error, 'Error deleting event');
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
     res.json({ success: true, message: 'Event deleted successfully' });
-  });
+  } catch (err) {
+    return handleError(res, err, 'Error deleting event');
+  }
 };

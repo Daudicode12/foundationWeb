@@ -1,4 +1,4 @@
-const db = require('../db');
+const supabase = require('../db');
 
 // Helper function for error handling
 function handleError(res, err, message = 'Server error') {
@@ -7,70 +7,103 @@ function handleError(res, err, message = 'Server error') {
 }
 
 // List all offerings
-exports.listOfferings = (req, res) => {
-  const sql = 'SELECT * FROM offerings ORDER BY date DESC, created_at DESC';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching offerings');
-    res.json({ success: true, data: results });
-  });
+exports.listOfferings = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('*')
+      .order('date', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) return handleError(res, error, 'Error fetching offerings');
+    res.json({ success: true, data });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching offerings');
+  }
 };
 
 // Count offerings
-exports.countOfferings = (req, res) => {
-  const sql = 'SELECT COUNT(*) as count FROM offerings';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error counting offerings');
-    res.json({ count: results[0].count });
-  });
+exports.countOfferings = async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from('offerings')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) return handleError(res, error, 'Error counting offerings');
+    res.json({ count: count || 0 });
+  } catch (err) {
+    return handleError(res, err, 'Error counting offerings');
+  }
 };
 
 // Get total offerings amount
-exports.getTotalAmount = (req, res) => {
-  const sql = 'SELECT SUM(amount) as total FROM offerings';
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error calculating total offerings');
-    res.json({ success: true, total: results[0].total || 0 });
-  });
+exports.getTotalAmount = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('amount');
+
+    if (error) return handleError(res, error, 'Error calculating total offerings');
+    
+    const total = data.reduce((sum, offering) => sum + parseFloat(offering.amount || 0), 0);
+    res.json({ success: true, total });
+  } catch (err) {
+    return handleError(res, err, 'Error calculating total offerings');
+  }
 };
 
 // Get offerings summary by type
-exports.getOfferingsSummary = (req, res) => {
-  const sql = `
-    SELECT 
-      offering_type,
-      COUNT(*) as count,
-      SUM(amount) as total
-    FROM offerings
-    GROUP BY offering_type
-    ORDER BY total DESC
-  `;
-  db.query(sql, (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching offerings summary');
-    res.json({ success: true, data: results });
-  });
+exports.getOfferingsSummary = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('offering_type, amount');
+
+    if (error) return handleError(res, error, 'Error fetching offerings summary');
+    
+    // Group by offering_type manually
+    const summary = data.reduce((acc, offering) => {
+      const type = offering.offering_type;
+      if (!acc[type]) {
+        acc[type] = { offering_type: type, count: 0, total: 0 };
+      }
+      acc[type].count++;
+      acc[type].total += parseFloat(offering.amount || 0);
+      return acc;
+    }, {});
+    
+    const result = Object.values(summary).sort((a, b) => b.total - a.total);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching offerings summary');
+  }
 };
 
 // Get offerings by date range
-exports.getOfferingsByDateRange = (req, res) => {
+exports.getOfferingsByDateRange = async (req, res) => {
   const { startDate, endDate } = req.query;
   
   if (!startDate || !endDate) {
     return res.status(400).json({ success: false, message: 'Start date and end date are required' });
   }
 
-  const sql = `
-    SELECT * FROM offerings 
-    WHERE date BETWEEN ? AND ?
-    ORDER BY date DESC
-  `;
-  db.query(sql, [startDate, endDate], (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching offerings by date range');
-    res.json({ success: true, data: results });
-  });
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('*')
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false });
+
+    if (error) return handleError(res, error, 'Error fetching offerings by date range');
+    res.json({ success: true, data });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching offerings by date range');
+  }
 };
 
 // Create new offering
-exports.createOffering = (req, res) => {
+exports.createOffering = async (req, res) => {
   const { 
     member_name, 
     email, 
@@ -88,42 +121,53 @@ exports.createOffering = (req, res) => {
     return res.status(400).json({ success: false, message: 'Member name, amount, and date are required' });
   }
 
-  const sql = `
-    INSERT INTO offerings (member_name, email, phone, amount, offering_type, payment_method, reference_number, date, notes, is_anonymous) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  
-  db.query(sql, [
-    member_name, 
-    email || null, 
-    phone || null, 
-    amount, 
-    offering_type || 'offering', 
-    payment_method || 'cash', 
-    reference_number || null, 
-    date, 
-    notes || null,
-    is_anonymous || false
-  ], (err, result) => {
-    if (err) return handleError(res, err, 'Error creating offering');
-    res.status(201).json({ success: true, message: 'Offering recorded successfully', id: result.insertId });
-  });
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .insert([{
+        member_name,
+        email: email || null,
+        phone: phone || null,
+        amount,
+        offering_type: offering_type || 'offering',
+        payment_method: payment_method || 'cash',
+        reference_number: reference_number || null,
+        date,
+        notes: notes || null,
+        is_anonymous: is_anonymous || false
+      }])
+      .select();
+
+    if (error) return handleError(res, error, 'Error creating offering');
+    res.status(201).json({ success: true, message: 'Offering recorded successfully', id: data[0]?.id });
+  } catch (err) {
+    return handleError(res, err, 'Error creating offering');
+  }
 };
 
 // Get single offering
-exports.getOffering = (req, res) => {
-  const sql = 'SELECT * FROM offerings WHERE id = ?';
-  db.query(sql, [req.params.id], (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching offering');
-    if (results.length === 0) {
-      return res.status(404).json({ success: false, message: 'Offering not found' });
+exports.getOffering = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ success: false, message: 'Offering not found' });
+      }
+      return handleError(res, error, 'Error fetching offering');
     }
-    res.json({ success: true, data: results[0] });
-  });
+    res.json({ success: true, data });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching offering');
+  }
 };
 
 // Update offering
-exports.updateOffering = (req, res) => {
+exports.updateOffering = async (req, res) => {
   const { 
     member_name, 
     email, 
@@ -140,65 +184,85 @@ exports.updateOffering = (req, res) => {
   if (!member_name || !amount || !date) {
     return res.status(400).json({ success: false, message: 'Member name, amount, and date are required' });
   }
-  
-  const sql = `
-    UPDATE offerings 
-    SET member_name = ?, email = ?, phone = ?, amount = ?, offering_type = ?, 
-        payment_method = ?, reference_number = ?, date = ?, notes = ?, is_anonymous = ?
-    WHERE id = ?
-  `;
-  
-  db.query(sql, [
-    member_name, 
-    email || null, 
-    phone || null, 
-    amount, 
-    offering_type || 'offering', 
-    payment_method || 'cash', 
-    reference_number || null, 
-    date, 
-    notes || null,
-    is_anonymous || false,
-    req.params.id
-  ], (err, result) => {
-    if (err) return handleError(res, err, 'Error updating offering');
-    if (result.affectedRows === 0) {
+
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .update({
+        member_name,
+        email: email || null,
+        phone: phone || null,
+        amount,
+        offering_type: offering_type || 'offering',
+        payment_method: payment_method || 'cash',
+        reference_number: reference_number || null,
+        date,
+        notes: notes || null,
+        is_anonymous: is_anonymous || false
+      })
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) return handleError(res, error, 'Error updating offering');
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Offering not found' });
     }
     res.json({ success: true, message: 'Offering updated successfully' });
-  });
+  } catch (err) {
+    return handleError(res, err, 'Error updating offering');
+  }
 };
 
 // Delete offering
-exports.deleteOffering = (req, res) => {
-  const sql = 'DELETE FROM offerings WHERE id = ?';
-  db.query(sql, [req.params.id], (err, result) => {
-    if (err) return handleError(res, err, 'Error deleting offering');
-    if (result.affectedRows === 0) {
+exports.deleteOffering = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('offerings')
+      .delete()
+      .eq('id', req.params.id)
+      .select();
+
+    if (error) return handleError(res, error, 'Error deleting offering');
+    if (!data || data.length === 0) {
       return res.status(404).json({ success: false, message: 'Offering not found' });
     }
     res.json({ success: true, message: 'Offering deleted successfully' });
-  });
+  } catch (err) {
+    return handleError(res, err, 'Error deleting offering');
+  }
 };
 
 // Get monthly report
-exports.getMonthlyReport = (req, res) => {
+exports.getMonthlyReport = async (req, res) => {
   const { year, month } = req.params;
   
-  const sql = `
-    SELECT 
-      DATE(date) as offering_date,
-      offering_type,
-      COUNT(*) as count,
-      SUM(amount) as total
-    FROM offerings
-    WHERE YEAR(date) = ? AND MONTH(date) = ?
-    GROUP BY DATE(date), offering_type
-    ORDER BY offering_date DESC
-  `;
-  
-  db.query(sql, [year, month], (err, results) => {
-    if (err) return handleError(res, err, 'Error fetching monthly report');
-    res.json({ success: true, data: results });
-  });
+  try {
+    // Calculate date range for the month
+    const startDate = `${year}-${month.padStart(2, '0')}-01`;
+    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('offerings')
+      .select('date, offering_type, amount')
+      .gte('date', startDate)
+      .lte('date', endDate);
+
+    if (error) return handleError(res, error, 'Error fetching monthly report');
+    
+    // Group by date and offering_type
+    const grouped = data.reduce((acc, offering) => {
+      const key = `${offering.date}_${offering.offering_type}`;
+      if (!acc[key]) {
+        acc[key] = { offering_date: offering.date, offering_type: offering.offering_type, count: 0, total: 0 };
+      }
+      acc[key].count++;
+      acc[key].total += parseFloat(offering.amount || 0);
+      return acc;
+    }, {});
+    
+    const result = Object.values(grouped).sort((a, b) => new Date(b.offering_date) - new Date(a.offering_date));
+    res.json({ success: true, data: result });
+  } catch (err) {
+    return handleError(res, err, 'Error fetching monthly report');
+  }
 };
