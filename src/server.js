@@ -1,6 +1,7 @@
 // importing required modules
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 const path = require("path");
@@ -30,9 +31,10 @@ const port = 8000;
 // Middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
+app.use(cookieParser()); // Parse cookies for httpOnly token authentication
 app.use(cors({
-  origin: '*',
-  credentials: true
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true  // Required for cookies to be sent/received
 }));
 
 // Rate limiting

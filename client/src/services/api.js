@@ -8,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required for sending/receiving httpOnly cookies
 });
 
 // Create separate instance for admin API calls
@@ -16,25 +17,11 @@ const adminApi = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Required for sending/receiving httpOnly cookies
 });
 
-// Add member token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('memberToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add admin token to admin API requests
-adminApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Note: Tokens are now stored in httpOnly cookies (set by server)
+// No need for Authorization headers - browser sends cookies automatically
 
 // Auth Services
 export const authService = {
@@ -48,13 +35,18 @@ export const authService = {
     return response.data;
   },
   
-  verifyToken: async (token) => {
-    const response = await api.post('/api/verify-token', { token });
+  verifyToken: async () => {
+    const response = await api.post('/api/verify-token');
     return response.data;
   },
   
-  refreshToken: async (token) => {
-    const response = await api.post('/api/refresh-token', { token });
+  refreshToken: async () => {
+    const response = await api.post('/api/refresh-token');
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await api.post('/api/logout');
     return response.data;
   },
 };
@@ -66,8 +58,13 @@ export const adminAuthService = {
     return response.data;
   },
   
-  verifyToken: async (token) => {
-    const response = await api.post('/api/admin/verify', { token });
+  verifyToken: async () => {
+    const response = await api.post('/api/admin/verify');
+    return response.data;
+  },
+
+  logout: async () => {
+    const response = await api.post('/api/logout');
     return response.data;
   },
 };

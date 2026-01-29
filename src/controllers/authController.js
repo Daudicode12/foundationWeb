@@ -4,6 +4,16 @@ const supabase = require('../db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
 const JWT_EXPIRES_IN = '24h';
+const COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+// Cookie options for security
+const getCookieOptions = (isProduction = process.env.NODE_ENV === 'production') => ({
+  httpOnly: true,        // Prevents JavaScript access (XSS protection)
+  secure: isProduction,  // HTTPS only in production
+  sameSite: 'strict',    // CSRF protection
+  maxAge: COOKIE_MAX_AGE,
+  path: '/'
+});
 
 // Signup
 const signup = async (req, res) => {
@@ -77,16 +87,17 @@ const login = async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+    // Set token in httpOnly cookie (secure, not accessible by JavaScript)
+    res.cookie('memberToken', token, getCookieOptions());
+
     res.status(200).json({
       success: true,
       message: "Login successful",
       redirect: "/dashboard/dashboard.html",
-      token: token,
       userName: user.username,
       email: user.email,
       phone: user.phone,
-      role: user.role || 'member',
-      expiresIn: JWT_EXPIRES_IN
+      role: user.role || 'member'
     });
   } catch (err) {
     console.error("Error during login:", err);
@@ -136,14 +147,15 @@ const adminLogin = async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+    // Set token in httpOnly cookie (secure, not accessible by JavaScript)
+    res.cookie('adminToken', token, getCookieOptions());
+
     res.json({
       success: true,
       message: "Admin login successful",
-      token: token,
       email: admin.email,
       userName: admin.username,
-      role: admin.role,
-      expiresIn: JWT_EXPIRES_IN
+      role: admin.role
     });
   } catch (err) {
     console.error("Error during admin login:", err);
@@ -153,7 +165,8 @@ const adminLogin = async (req, res) => {
 
 // Verify Token
 const verifyToken = (req, res) => {
-  let token = req.body.token;
+  // First check cookies, then fallback to body/header for backwards compatibility
+  let token = req.cookies?.memberToken || req.cookies?.adminToken || req.body.token;
 
   if (!token) {
     const authHeader = req.headers.authorization;
@@ -185,7 +198,10 @@ const verifyToken = (req, res) => {
 
 // Refresh Token
 const refreshToken = (req, res) => {
-  let token = req.body.token;
+  // Determine which token type to refresh based on cookie or body
+  const isMember = !!req.cookies?.memberToken;
+  const isAdmin = !!req.cookies?.adminToken;
+  let token = req.cookies?.memberToken || req.cookies?.adminToken || req.body.token;
 
   if (!token) {
     const authHeader = req.headers.authorization;
@@ -217,14 +233,24 @@ const refreshToken = (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+    // Set new token in the appropriate cookie
+    const cookieName = decoded.role === 'admin' ? 'adminToken' : 'memberToken';
+    res.cookie(cookieName, newToken, getCookieOptions());
+
     res.json({
       success: true,
-      token: newToken,
-      expiresIn: JWT_EXPIRES_IN
+      message: "Token refreshed"
     });
   } catch (err) {
     res.status(401).json({ success: false, message: "Invalid token" });
   }
+};
+
+// Logout - Clear cookies
+const logout = (req, res) => {
+  res.clearCookie('memberToken', { path: '/' });
+  res.clearCookie('adminToken', { path: '/' });
+  res.json({ success: true, message: "Logged out successfully" });
 };
 
 module.exports = {
@@ -232,5 +258,6 @@ module.exports = {
   login,
   adminLogin,
   verifyToken,
-  refreshToken
+  refreshToken,
+  logout
 };
