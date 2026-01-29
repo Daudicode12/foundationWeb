@@ -1,11 +1,11 @@
 {
-  "name": "my-node-server",
+  "name": "foundation-web",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Foundation of Christ Ministries Web Application",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/scripts.js",
-    "dev": "nodemon src/Server.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "practice": "node practice.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
