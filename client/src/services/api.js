@@ -234,6 +234,34 @@ export const prayerRequestService = {
   },
 };
 
+// Member Offerings Services (view own offerings)
+export const myOfferingsService = {
+  create: async (offeringData) => {
+    const response = await api.post('/api/my-offerings', offeringData);
+    return response.data;
+  },
+
+  getMyOfferings: async (email) => {
+    const response = await api.get(`/api/my-offerings?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+  
+  getMyOfferingsByPhone: async (phone) => {
+    const response = await api.get(`/api/my-offerings/by-phone?phone=${encodeURIComponent(phone)}`);
+    return response.data;
+  },
+  
+  getMyTotal: async (email) => {
+    const response = await api.get(`/api/my-offerings/total?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+  
+  getMySummary: async (email) => {
+    const response = await api.get(`/api/my-offerings/summary?email=${encodeURIComponent(email)}`);
+    return response.data;
+  },
+};
+
 // Admin Contact Services
 export const adminContactService = {
   getAll: async () => {
@@ -291,6 +319,120 @@ export const adminPrayerRequestService = {
   
   getUnreadCount: async () => {
     const response = await adminApi.get('/api/admin/prayer-requests/count');
+    return response.data;
+  },
+};
+
+// Admin Offerings Services
+export const adminOfferingsService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/offerings');
+    return response.data;
+  },
+  
+  getById: async (offeringId) => {
+    const response = await adminApi.get(`/api/admin/offerings/${offeringId}`);
+    return response.data;
+  },
+  
+  create: async (offeringData) => {
+    const response = await adminApi.post('/api/admin/offerings', offeringData);
+    return response.data;
+  },
+  
+  update: async (offeringId, offeringData) => {
+    const response = await adminApi.put(`/api/admin/offerings/${offeringId}`, offeringData);
+    return response.data;
+  },
+  
+  delete: async (offeringId) => {
+    const response = await adminApi.delete(`/api/admin/offerings/${offeringId}`);
+    return response.data;
+  },
+  
+  getCount: async () => {
+    const response = await adminApi.get('/api/admin/offerings/count');
+    return response.data;
+  },
+  
+  getTotal: async () => {
+    const response = await adminApi.get('/api/admin/offerings/total');
+    return response.data;
+  },
+  
+  getSummary: async () => {
+    const response = await adminApi.get('/api/admin/offerings/summary');
+    return response.data;
+  },
+  
+  getByDateRange: async (startDate, endDate) => {
+    const response = await adminApi.get(`/api/admin/offerings/date-range?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
+  },
+  
+  getMonthlyReport: async (year, month) => {
+    const response = await adminApi.get(`/api/admin/offerings/report/${year}/${month}`);
+    return response.data;
+  },
+};
+
+// Resource Services (for members - public)
+export const resourceService = {
+  getAll: async (category = null, featured = null) => {
+    let url = '/api/resources';
+    const params = [];
+    if (category) params.push(`category=${category}`);
+    if (featured) params.push(`featured=${featured}`);
+    if (params.length > 0) url += '?' + params.join('&');
+    const response = await api.get(url);
+    return response.data;
+  },
+  
+  getById: async (resourceId) => {
+    const response = await api.get(`/api/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  getFeatured: async () => {
+    const response = await api.get('/api/resources?featured=true');
+    return response.data;
+  },
+};
+
+// Admin Resource Services
+export const adminResourceService = {
+  getAll: async () => {
+    const response = await adminApi.get('/api/admin/resources');
+    return response.data;
+  },
+  
+  getById: async (resourceId) => {
+    const response = await adminApi.get(`/api/admin/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  create: async (resourceData) => {
+    const response = await adminApi.post('/api/admin/resources', resourceData);
+    return response.data;
+  },
+  
+  update: async (resourceId, resourceData) => {
+    const response = await adminApi.put(`/api/admin/resources/${resourceId}`, resourceData);
+    return response.data;
+  },
+  
+  delete: async (resourceId) => {
+    const response = await adminApi.delete(`/api/admin/resources/${resourceId}`);
+    return response.data;
+  },
+  
+  getCount: async () => {
+    const response = await adminApi.get('/api/admin/resources/count');
+    return response.data;
+  },
+  
+  toggleFeatured: async (resourceId) => {
+    const response = await adminApi.put(`/api/admin/resources/${resourceId}/toggle-featured`);
     return response.data;
   },
 };
