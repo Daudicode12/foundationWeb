@@ -10,20 +10,17 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in
-    const token = localStorage.getItem('memberToken');
-    if (token) {
-      authService.verifyToken(token)
-        .then(data => {
-          if (data.valid) {
-            navigate('/dashboard');
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem('memberToken');
-          localStorage.removeItem('userData');
-        });
-    }
+    // Check if already logged in (token is in httpOnly cookie)
+    authService.verifyToken()
+      .then(data => {
+        if (data.valid) {
+          navigate('/dashboard');
+        }
+      })
+      .catch(() => {
+        // Not logged in or token expired - clear any stale userData
+        localStorage.removeItem('userData');
+      });
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -52,14 +49,14 @@ const Login = () => {
       if (data.success) {
         setMessage({ text: data.message, isError: false });
         
-        // Store token and user data
-        localStorage.setItem('memberToken', data.token);
+        // Store user data only (token is in httpOnly cookie, handled by browser)
         localStorage.setItem('userData', JSON.stringify({
           userName: data.userName || email.split('@')[0],
           email: email,
           phone: data.phone,
           role: data.role || 'member'
         }));
+        localStorage.setItem('isLoggedIn', 'true');
         
         // Redirect to dashboard after short delay
         setTimeout(() => {

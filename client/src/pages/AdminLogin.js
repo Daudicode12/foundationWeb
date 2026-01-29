@@ -10,20 +10,17 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in as admin
-    const token = localStorage.getItem('adminToken');
-    if (token) {
-      adminAuthService.verifyToken(token)
-        .then(data => {
-          if (data.valid) {
-            navigate('/admin/dashboard');
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem('adminToken');
-          localStorage.removeItem('adminData');
-        });
-    }
+    // Check if already logged in as admin (token is in httpOnly cookie)
+    adminAuthService.verifyToken()
+      .then(data => {
+        if (data.valid) {
+          navigate('/admin/dashboard');
+        }
+      })
+      .catch(() => {
+        // Not logged in or token expired
+        localStorage.removeItem('adminData');
+      });
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -52,12 +49,12 @@ const AdminLogin = () => {
       if (data.success) {
         setMessage({ text: 'Login successful!', isError: false });
         
-        // Store admin token and data
-        localStorage.setItem('adminToken', data.token);
+        // Store admin data only (token is in httpOnly cookie, handled by browser)
         localStorage.setItem('adminData', JSON.stringify({
           email: email,
-          name: data.adminName || 'Admin'
+          userName: data.userName || 'Admin'
         }));
+        localStorage.setItem('isAdminLoggedIn', 'true');
         
         // Redirect to admin dashboard
         setTimeout(() => {

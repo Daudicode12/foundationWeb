@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { authService, adminAuthService } from '../services/api';
 import './Sidebar.css';
 
 const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick, onResourcesClick }) => {
@@ -18,15 +19,25 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClic
     setIsOpen(false);
   };
 
-  const handleLogout = () => {
-    if (isAdmin) {
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminData');
-      navigate('/admin/login');
-    } else {
-      localStorage.removeItem('memberToken');
-      localStorage.removeItem('userData');
-      navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear httpOnly cookies on server
+      if (isAdmin) {
+        await adminAuthService.logout();
+        localStorage.removeItem('adminData');
+        localStorage.removeItem('isAdminLoggedIn');
+        navigate('/admin/login');
+      } else {
+        await authService.logout();
+        localStorage.removeItem('userData');
+        localStorage.removeItem('isLoggedIn');
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local data and redirect even if API fails
+      localStorage.clear();
+      navigate(isAdmin ? '/admin/login' : '/login');
     }
   };
 

@@ -3,20 +3,26 @@
 
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_here';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
 
 module.exports = function adminAuth(req, res, next) {
-  // Get token from Authorization header
-  const authHeader = req.headers.authorization;
+  // First try to get token from httpOnly cookie, then fallback to Authorization header
+  let token = req.cookies?.adminToken;
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // Fallback to Authorization header for backwards compatibility
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+
+  if (!token) {
     return res.status(401).json({ 
       success: false, 
       message: 'Admin authentication required' 
     });
   }
-
-  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
   
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -42,24 +48,3 @@ module.exports = function adminAuth(req, res, next) {
     });
   }
 };
-// const jwt = require('jsonwebtoken');
-// const secret = process.env.JWT_SECRET;
-// 
-// module.exports = function adminAuth(req, res, next) {
-//   const authHeader = req.headers.authorization;
-//   if (!authHeader) {
-//     return res.status(401).json({ success: false, message: 'No token provided' });
-//   }
-// 
-//   const token = authHeader.split(' ')[1]; // Bearer <token>
-//   try {
-//     const decoded = jwt.verify(token, secret);
-//     if (decoded.role !== 'admin') {
-//       return res.status(403).json({ success: false, message: 'Admin access required' });
-//     }
-//     req.user = decoded;
-//     next();
-//   } catch (err) {
-//     return res.status(401).json({ success: false, message: 'Invalid token' });
-//   }
-// };

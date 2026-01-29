@@ -69,6 +69,9 @@ app.use("/api/admin", apiLimiter, adminRouter);
 // Admin login route (special - not part of protected admin routes)
 app.post("/api/admin/login", authController.adminLogin);
 
+// Admin verify token route
+app.post("/api/admin/verify", authController.verifyToken);
+
 // Catch-all route - serve React app for all non-API routes
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));

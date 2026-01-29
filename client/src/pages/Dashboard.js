@@ -36,8 +36,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const handleSessionExpired = useCallback(() => {
-    localStorage.removeItem('memberToken');
     localStorage.removeItem('userData');
+    localStorage.removeItem('isLoggedIn');
     sessionStorage.clear();
     alert('Your session has expired. Please log in again.');
     navigate('/login');
@@ -45,21 +45,17 @@ const Dashboard = () => {
 
   useEffect(() => {
     const verifySession = async () => {
-      const token = localStorage.getItem('memberToken');
-      
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
       try {
-        const data = await authService.verifyToken(token);
+        // Verify session via API (token is in httpOnly cookie)
+        const data = await authService.verifyToken();
         if (!data.valid) {
           handleSessionExpired();
           return;
         }
       } catch (error) {
         console.error('Session verification error:', error);
+        handleSessionExpired();
+        return;
       }
 
       // Load user data
@@ -123,18 +119,12 @@ const Dashboard = () => {
 
     verifySession();
 
-    // Set up token refresh interval
+    // Set up token refresh interval (cookies are refreshed automatically via API)
     const refreshInterval = setInterval(async () => {
-      const token = localStorage.getItem('memberToken');
-      if (token) {
-        try {
-          const data = await authService.refreshToken(token);
-          if (data.success && data.token) {
-            localStorage.setItem('memberToken', data.token);
-          }
-        } catch (error) {
-          console.error('Token refresh error:', error);
-        }
+      try {
+        await authService.refreshToken();
+      } catch (error) {
+        console.error('Token refresh error:', error);
       }
     }, 20 * 60 * 1000);
 
