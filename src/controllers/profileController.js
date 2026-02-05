@@ -23,7 +23,7 @@ const getProfile = async (req, res) => {
       return res.status(500).json({ success: false, message: "Server error" });
     }
 
-    const user = { ...data };
+    const user = { ...data }; // this is a spread operator to create a shallow copy of data
     delete user.password;
 
     res.json({ success: true, profile: user });

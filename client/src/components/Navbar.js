@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
+// Navbar component
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
@@ -14,7 +15,7 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname === path; 
 
   return (
     <nav className="navbar">
