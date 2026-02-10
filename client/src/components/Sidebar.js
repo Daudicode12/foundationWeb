@@ -3,13 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authService, adminAuthService } from '../services/api';
 import './Sidebar.css';
 
-const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick, onResourcesClick }) => {
+const Sidebar = ({ isAdmin = false, isSuperAdmin = false, onSectionChange, activeSection, onGivingClick, onPrayerClick, onResourcesClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   // eslint-disable-next-line no-unused-vars
   const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+  const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -134,6 +135,16 @@ const Sidebar = ({ isAdmin = false, onSectionChange, activeSection, onGivingClic
           {!isAdmin && (
             <Link to="/admin/login" className="admin-link">
               Admin Panel
+            </Link>
+          )}
+          {isAdmin && adminData.role === 'super_admin' && location.pathname !== '/super-admin/dashboard' && (
+            <Link to="/super-admin/dashboard" className="super-admin-link">
+              <i className="fas fa-crown"></i> Super Admin Dashboard
+            </Link>
+          )}
+          {isAdmin && adminData.role === 'super_admin' && location.pathname === '/super-admin/dashboard' && (
+            <Link to="/admin/dashboard" className="admin-link">
+              <i className="fas fa-arrow-left"></i> Regular Admin Dashboard
             </Link>
           )}
           <button className="logout-btn" onClick={handleLogout}>

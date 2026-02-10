@@ -14,7 +14,12 @@ const AdminLogin = () => {
     adminAuthService.verifyToken()
       .then(data => {
         if (data.valid) {
-          navigate('/admin/dashboard');
+          // Redirect based on role
+          if (data.user?.role === 'super_admin') {
+            navigate('/super-admin/dashboard');
+          } else {
+            navigate('/admin/dashboard');
+          }
         }
       })
       .catch(() => {
@@ -52,13 +57,18 @@ const AdminLogin = () => {
         // Store admin data only (token is in httpOnly cookie, handled by browser)
         localStorage.setItem('adminData', JSON.stringify({
           email: email,
-          userName: data.userName || 'Admin'
+          userName: data.userName || 'Admin',
+          role: data.role
         }));
         localStorage.setItem('isAdminLoggedIn', 'true');
         
-        // Redirect to admin dashboard
+        // Redirect based on role
         setTimeout(() => {
-          navigate('/admin/dashboard');
+          if (data.role === 'super_admin') {
+            navigate('/super-admin/dashboard');
+          } else {
+            navigate('/admin/dashboard');
+          }
         }, 1000);
       } else {
         setMessage({ text: data.message || 'Login failed', isError: true });

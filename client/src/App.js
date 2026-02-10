@@ -13,10 +13,12 @@ import Events from './pages/Events';
 import Sermons from './pages/Sermons';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
+import SuperAdminProtectedRoute from './components/SuperAdminProtectedRoute';
 
 function App() {
   return (
@@ -57,6 +59,13 @@ function App() {
           <AdminProtectedRoute>
             <AdminDashboard />
           </AdminProtectedRoute>
+        } />
+        
+        {/* Super Admin Routes */}
+        <Route path="/super-admin/dashboard" element={
+          <SuperAdminProtectedRoute>
+            <SuperAdminDashboard />
+          </SuperAdminProtectedRoute>
         } />
       </Routes>
     </div>

@@ -21,6 +21,7 @@ const sermonsRouter = require("./routes/sermonsRouter");
 const announcementsRouter = require("./routes/announcementsRouter");
 const offeringsRouter = require("./routes/offeringsRouter");
 const resourcesRouter = require("./routes/resourcesRouter");
+const churchRouter = require("./routes/churchRouter");
 
 // Import auth controller for admin login
 const authController = require("./controllers/authController");
@@ -65,6 +66,9 @@ app.use("/api/resources", resourcesRouter);     // /api/resources (public resour
 
 // Admin routes
 app.use("/api/admin", apiLimiter, adminRouter);
+
+// Church/Super Admin routes
+app.use("/api/super-admin", apiLimiter, churchRouter);
 
 // Admin login route (special - not part of protected admin routes)
 app.post("/api/admin/login", authController.adminLogin);

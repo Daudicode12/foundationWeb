@@ -434,4 +434,135 @@ export const adminResourceService = {
   },
 };
 
+// ============================================
+// SUPER ADMIN SERVICES - Church Management
+// ============================================
+
+// Create separate instance for super admin API calls
+const superAdminApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+// Super Admin Dashboard Service
+export const superAdminDashboardService = {
+  getStats: async () => {
+    const response = await superAdminApi.get('/api/super-admin/stats');
+    return response.data;
+  },
+};
+
+// Church Management Service
+export const churchService = {
+  getAll: async () => {
+    const response = await superAdminApi.get('/api/super-admin/churches');
+    return response.data;
+  },
+  
+  getActive: async () => {
+    const response = await superAdminApi.get('/api/super-admin/active-churches');
+    return response.data;
+  },
+  
+  getById: async (churchId) => {
+    const response = await superAdminApi.get(`/api/super-admin/churches/${churchId}`);
+    return response.data;
+  },
+  
+  create: async (churchData) => {
+    const response = await superAdminApi.post('/api/super-admin/churches', churchData);
+    return response.data;
+  },
+  
+  update: async (churchId, churchData) => {
+    const response = await superAdminApi.put(`/api/super-admin/churches/${churchId}`, churchData);
+    return response.data;
+  },
+  
+  delete: async (churchId) => {
+    const response = await superAdminApi.delete(`/api/super-admin/churches/${churchId}`);
+    return response.data;
+  },
+  
+  getCount: async () => {
+    const response = await superAdminApi.get('/api/super-admin/churches/count');
+    return response.data;
+  },
+};
+
+// Contribution Targets Service
+export const contributionTargetService = {
+  setTarget: async (targetData) => {
+    const response = await superAdminApi.post('/api/super-admin/targets', targetData);
+    return response.data;
+  },
+  
+  getByYear: async (year) => {
+    const response = await superAdminApi.get(`/api/super-admin/targets/year/${year}`);
+    return response.data;
+  },
+  
+  getChurchTarget: async (churchId, year) => {
+    const response = await superAdminApi.get(`/api/super-admin/targets/church/${churchId}/year/${year}`);
+    return response.data;
+  },
+  
+  delete: async (targetId) => {
+    const response = await superAdminApi.delete(`/api/super-admin/targets/${targetId}`);
+    return response.data;
+  },
+};
+
+// Church Contributions Service
+export const churchContributionService = {
+  getAll: async (filters = {}) => {
+    let url = '/api/super-admin/contributions';
+    const params = [];
+    if (filters.church_id) params.push(`church_id=${filters.church_id}`);
+    if (filters.year) params.push(`year=${filters.year}`);
+    if (filters.startDate) params.push(`startDate=${filters.startDate}`);
+    if (filters.endDate) params.push(`endDate=${filters.endDate}`);
+    if (params.length > 0) url += '?' + params.join('&');
+    
+    const response = await superAdminApi.get(url);
+    return response.data;
+  },
+  
+  getById: async (contributionId) => {
+    const response = await superAdminApi.get(`/api/super-admin/contributions/${contributionId}`);
+    return response.data;
+  },
+  
+  record: async (contributionData) => {
+    const response = await superAdminApi.post('/api/super-admin/contributions', contributionData);
+    return response.data;
+  },
+  
+  update: async (contributionId, contributionData) => {
+    const response = await superAdminApi.put(`/api/super-admin/contributions/${contributionId}`, contributionData);
+    return response.data;
+  },
+  
+  delete: async (contributionId) => {
+    const response = await superAdminApi.delete(`/api/super-admin/contributions/${contributionId}`);
+    return response.data;
+  },
+};
+
+// Contribution Progress Service
+export const contributionProgressService = {
+  getAllProgress: async (year) => {
+    const response = await superAdminApi.get(`/api/super-admin/progress/${year}`);
+    return response.data;
+  },
+  
+  getChurchProgress: async (churchId, year) => {
+    const response = await superAdminApi.get(`/api/super-admin/progress/church/${churchId}/year/${year}`);
+    return response.data;
+  },
+};
+
 export default api;

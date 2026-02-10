@@ -1,11 +1,11 @@
-// Admin authentication middleware
-// Checks if user has a valid JWT token and has admin role
+// Super Admin authentication middleware
+// Checks if user has a valid JWT token and has super_admin role
 
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
 
-module.exports = function adminAuth(req, res, next) {
+module.exports = function superAdminAuth(req, res, next) {
   // First try to get token from httpOnly cookie, then fallback to Authorization header
   let token = req.cookies?.adminToken;
   
@@ -20,22 +20,22 @@ module.exports = function adminAuth(req, res, next) {
   if (!token) {
     return res.status(401).json({ 
       success: false, 
-      message: 'Admin authentication required' 
+      message: 'Authentication required' 
     });
   }
   
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    // Check if user has admin or super_admin role
-    if (decoded.role !== 'admin' && decoded.role !== 'super_admin') {
+    // Check if user has super_admin role
+    if (decoded.role !== 'super_admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Admin access required' 
+        message: 'Super Admin access required' 
       });
     }
 
-    // User is authenticated admin or super_admin, proceed
+    // User is authenticated super admin, proceed
     req.adminEmail = decoded.email;
     req.adminId = decoded.id;
     req.adminRole = decoded.role;

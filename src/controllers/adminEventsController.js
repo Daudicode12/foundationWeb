@@ -1,6 +1,6 @@
 const supabase = require('../db');
 
-// Helper function for error handling
+// Helper function for error handling there are alot of errors in this file especially when fetching data from the dta
 function handleError(res, err, message = 'Server error') {
   console.error(message + ':', err);
   return res.status(500).json({ success: false, message });
@@ -22,7 +22,7 @@ exports.listEvents = async (req, res) => {
   }
 };
 
-// Count events
+// Count events - the count is used to display the number of events on the admin dashboard, so we can display it in the admin dashboard without fetching all events. 
 exports.countEvents = async (req, res) => {
   try {
     const { count, error } = await supabase

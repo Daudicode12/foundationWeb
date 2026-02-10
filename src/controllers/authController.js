@@ -105,7 +105,7 @@ const login = async (req, res) => {
   }
 };
 
-// Admin Login
+// Admin Login (also handles super_admin)
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -118,7 +118,7 @@ const adminLogin = async (req, res) => {
       .from('users')
       .select('*')
       .eq('email', email)
-      .eq('role', 'admin');
+      .in('role', ['admin', 'super_admin']);
 
     if (error) {
       console.error("Error fetching admin:", error);
@@ -141,7 +141,8 @@ const adminLogin = async (req, res) => {
         id: admin.id,
         email: admin.email,
         userName: admin.username,
-        role: 'admin'
+        role: admin.role,
+        church_id: admin.church_id
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
@@ -152,10 +153,11 @@ const adminLogin = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Admin login successful",
+      message: admin.role === 'super_admin' ? "Super Admin login successful" : "Admin login successful",
       email: admin.email,
       userName: admin.username,
-      role: admin.role
+      role: admin.role,
+      church_id: admin.church_id
     });
   } catch (err) {
     console.error("Error during admin login:", err);
@@ -188,7 +190,8 @@ const verifyToken = (req, res) => {
         id: decoded.id,
         email: decoded.email,
         userName: decoded.userName,
-        role: decoded.role
+        role: decoded.role,
+        church_id: decoded.church_id
       }
     });
   } catch (err) {
@@ -227,14 +230,15 @@ const refreshToken = (req, res) => {
         id: decoded.id,
         email: decoded.email,
         userName: decoded.userName,
-        role: decoded.role
+        role: decoded.role,
+        church_id: decoded.church_id
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
 
     // Set new token in the appropriate cookie
-    const cookieName = decoded.role === 'admin' ? 'adminToken' : 'memberToken';
+    const cookieName = (decoded.role === 'admin' || decoded.role === 'super_admin') ? 'adminToken' : 'memberToken';
     res.cookie(cookieName, newToken, getCookieOptions());
 
     res.json({
