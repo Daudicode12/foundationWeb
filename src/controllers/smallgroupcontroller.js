@@ -151,3 +151,32 @@ exports.leavingSmallGroup = async(req, res) => {
         });
     }
 }
+
+// get all small groups
+exports.getAllSmallGroups = async(req, res) =>{
+    try {
+        const {data, error} = await supabase
+        .from('small_groups')
+        .select('*');
+
+        if(error){
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching groups',
+                error: error.message
+            })
+        }
+        return res.status(200).json({
+            success:true,
+            message: 'small groups fetched successfully',
+            data: data
+        });
+
+    }catch(error){
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching groups',
+            error: error.message
+        });
+    }
+}
