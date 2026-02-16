@@ -121,4 +121,33 @@ exports.leavingSmallGroup = async(req, res) => {
             message: "Please provide all the required fields: group_id and user_id"
         })
     }
+
+    try {
+        const{data, error } = await supabase
+        .from('small_groups')
+        .update({
+            members: supabase.raw('array_remove(members, ?)', [user_id] )
+        })
+        .eq('id', group_id)
+        .select();
+
+        if(error){
+            return res.status(500).json({
+                success: false,
+                message: 'Error leaving small group',
+                error : error.message
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'User left small group successfully',
+            data: data
+        });
+    } catch (error){
+        return res.status(500).json({
+            success: false,
+            message: 'Error leaving small group',
+            error: error.message
+        });
+    }
 }
