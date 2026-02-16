@@ -22,6 +22,7 @@ const announcementsRouter = require("./routes/announcementsRouter");
 const offeringsRouter = require("./routes/offeringsRouter");
 const resourcesRouter = require("./routes/resourcesRouter");
 const churchRouter = require("./routes/churchRouter");
+const smallGroupsRouter = require("./routes/smallgroups");
 
 // Import auth controller for admin login
 const authController = require("./controllers/authController");
@@ -63,7 +64,7 @@ app.use("/api/sermons", sermonsRouter);         // /api/sermons
 app.use("/api/announcements", announcementsRouter); // /api/announcements
 app.use("/api/my-offerings", offeringsRouter);  // /api/my-offerings (member's own offerings)
 app.use("/api/resources", resourcesRouter);     // /api/resources (public resources for members)
-
+app.use("/api/small-groups", smallGroupsRouter); // /api/small-groups (small groups management)
 // Admin routes
 app.use("/api/admin", apiLimiter, adminRouter);
 

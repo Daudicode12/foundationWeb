@@ -206,3 +206,7 @@ exports.getSingleSmallGroup = async (req, res) => {
     });
   }
 };
+
+// grouping the memebers to the small groups
+// exports.getMembersOfSmallGroup = syn (req, res) => {
+// }
