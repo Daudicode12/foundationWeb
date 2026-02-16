@@ -1,6 +1,6 @@
-const supabase = require("../db")(
+const supabase = require("../db")
   // creating small group
-  (exports.createSmallGroup = async (req, res) => {
+  exports.createSmallGroup = async (req, res) => {
     const { name, description, leader, meeting_time } = req.body;
 
     // validation for missing fields
@@ -39,8 +39,7 @@ const supabase = require("../db")(
         error: error.message,
       });
     }
-  }),
-);
+  };
 
 // joining small group
 exports.joinSmallGroup = async (req, res) => {
