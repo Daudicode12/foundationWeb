@@ -8,5 +8,6 @@ router.post('/join', smallGroupController.joinSmallGroup);
 router.post('/leave', smallGroupController.leavingSmallGroup);
 router.get('/all', smallGroupController.getAllSmallGroups);
 router.get('/:id', smallGroupController.getSingleSmallGroup);
+router.get('/:id/members', smallGroupController.getMembersOfSmallGroup);
 
 module.exports = router;

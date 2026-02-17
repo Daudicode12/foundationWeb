@@ -30,7 +30,7 @@ const supabase = require("../db")
       return res.status(201).json({
         success: true,
         message: "Small group created successfully",
-        data: data,
+        // data: data,
       });
     } catch (error) {
       return res.status(500).json({
@@ -53,13 +53,13 @@ exports.joinSmallGroup = async (req, res) => {
     });
   }
 
-  // check if the user is already a member of the group
   try {
+    // check if the user is already a member of the group
     const { data: existingMembership, error: membershipError } = await supabase
-      .from("small_groups")
+      .from("small_group_members")
       .select("*")
-      .eq("id", group_id)
-      .contains("members", [user_id])
+      .eq("group_id", group_id)
+      .eq("user_id", user_id)
       .single();
 
     // if there's an error other than no rows found, return it
@@ -77,13 +77,10 @@ exports.joinSmallGroup = async (req, res) => {
       });
     }
 
-    // add user to the group
+    // add user to the group by inserting into the join table
     const { data, error } = await supabase
-      .from("small_groups")
-      .update({
-        members: supabase.raw("array_append(members, ?)", [user_id]),
-      })
-      .eq("id", group_id)
+      .from("small_group_members")
+      .insert([{ group_id: group_id, user_id: user_id }])
       .select();
 
     if (error) {
@@ -121,11 +118,10 @@ exports.leavingSmallGroup = async (req, res) => {
 
   try {
     const { data, error } = await supabase
-      .from("small_groups")
-      .update({
-        members: supabase.raw("array_remove(members, ?)", [user_id]),
-      })
-      .eq("id", group_id)
+      .from("small_group_members")
+      .delete()
+      .eq("group_id", group_id)
+      .eq("user_id", user_id)
       .select();
 
     if (error) {
@@ -149,10 +145,21 @@ exports.leavingSmallGroup = async (req, res) => {
   }
 };
 
-// get all small groups
+// get all small groups (with member count)
 exports.getAllSmallGroups = async (req, res) => {
   try {
-    const { data, error } = await supabase.from("small_groups").select("*");
+    // Join small_groups with small_group_members and users to get member details
+    const { data, error } = await supabase
+      .from("small_groups")
+      .select(`
+        *,
+        small_group_members (
+          id,
+          user_id,
+          joined_at,
+          users ( id, userName, email )
+        )
+      `);
 
     if (error) {
       return res.status(500).json({
@@ -161,10 +168,17 @@ exports.getAllSmallGroups = async (req, res) => {
         error: error.message,
       });
     }
+
+    // Add a member_count field to each group for convenience
+    const groupsWithCount = data.map((group) => ({
+      ...group,
+      member_count: group.small_group_members ? group.small_group_members.length : 0,
+    }));
+
     return res.status(200).json({
       success: true,
       message: "small groups fetched successfully",
-      data: data,
+      data: groupsWithCount,
     });
   } catch (error) {
     return res.status(500).json({
@@ -175,14 +189,23 @@ exports.getAllSmallGroups = async (req, res) => {
   }
 };
 
-// getting single small group
+// getting single small group (with its members)
 exports.getSingleSmallGroup = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Join with small_group_members and users to get full member details
     const { data, error } = await supabase
       .from("small_groups")
-      .select("*")
+      .select(`
+        *,
+        small_group_members (
+          id,
+          user_id,
+          joined_at,
+          users ( id, userName, email )
+        )
+      `)
       .eq("id", id)
       .single();
 
@@ -190,12 +213,16 @@ exports.getSingleSmallGroup = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Error fetching group",
+        error: error.message,
       });
     }
     return res.status(200).json({
       success: true,
       message: "small group fetched successfully",
-      data: data,
+      data: {
+        ...data,
+        member_count: data.small_group_members ? data.small_group_members.length : 0,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -206,6 +233,37 @@ exports.getSingleSmallGroup = async (req, res) => {
   }
 };
 
-// grouping the memebers to the small groups
-// exports.getMembersOfSmallGroup = syn (req, res) => {
-// }
+// get members of a specific small group
+exports.getMembersOfSmallGroup = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { data, error } = await supabase
+      .from("small_group_members")
+      .select(`
+        id,
+        joined_at,
+        users ( id, userName, email )
+      `)
+      .eq("group_id", id);
+
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching group members",
+        error: error.message,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Group members fetched successfully",
+      data: data,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching group members",
+      error: error.message,
+    });
+  }
+};
