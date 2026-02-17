@@ -67,7 +67,7 @@ exports.joinSmallGroup = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Error checking group membership",
-        error: membershipError.message,
+        // error: membershipError.message,
       });
     }
     if (existingMembership) {
@@ -87,7 +87,7 @@ exports.joinSmallGroup = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: "Error joining small group",
-        error: error.message,
+        // error: error.message,
       });
     }
     return res.status(200).json({
@@ -99,7 +99,7 @@ exports.joinSmallGroup = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Error joining small group",
-      error: error.message,
+      // error: error.message,
     });
   }
 };
@@ -157,7 +157,7 @@ exports.getAllSmallGroups = async (req, res) => {
           id,
           user_id,
           joined_at,
-          users ( id, userName, email )
+          users ( id, username, email )
         )
       `);
 
@@ -203,7 +203,7 @@ exports.getSingleSmallGroup = async (req, res) => {
           id,
           user_id,
           joined_at,
-          users ( id, userName, email )
+          users ( id, username, email )
         )
       `)
       .eq("id", id)
@@ -243,7 +243,7 @@ exports.getMembersOfSmallGroup = async (req, res) => {
       .select(`
         id,
         joined_at,
-        users ( id, userName, email )
+        users ( id, username, email )
       `)
       .eq("group_id", id);
 
