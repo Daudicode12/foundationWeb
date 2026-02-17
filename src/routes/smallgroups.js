@@ -9,5 +9,6 @@ router.post('/leave', smallGroupController.leavingSmallGroup);
 router.get('/all', smallGroupController.getAllSmallGroups);
 router.get('/:id', smallGroupController.getSingleSmallGroup);
 router.get('/:id/members', smallGroupController.getMembersOfSmallGroup);
+router.get("/user/:userId/groups", smallGroupController.getSmallGroupsForUser);
 
 module.exports = router;

@@ -233,7 +233,7 @@ exports.getSingleSmallGroup = async (req, res) => {
   }
 };
 
-// get members of a specific small group
+// get members of a specific small group: this is a separate endpoint in case we want to fetch just the members without the group details
 exports.getMembersOfSmallGroup = async (req, res) => {
   const { id } = req.params;
 
@@ -267,3 +267,38 @@ exports.getMembersOfSmallGroup = async (req, res) => {
     });
   }
 };
+
+// getting small groups for a specific user
+exports.getSmallGroupsForUser = async (req, res) =>{
+  const {user_id} = req.params;
+
+  try{
+    const{data, error} = await supabase
+      .from("small_group_members")
+      .select('*, small_groups(*)')
+      .eq("user_id", user_id);
+
+      if(error){
+        return res.status(500).json({
+          success: false,
+          message: "Error fetching user's groups",
+          error: error.message
+        });
+
+      }
+
+      // const groups = data.map((membership) => membership.small_groups);
+
+      return res.status(200).json({
+        success: true,
+        message: "User's small groups fetched successfully",
+        data: groups
+      })
+  }catch(error){
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching user's groups",
+      error: error.message
+    });
+  }
+}
