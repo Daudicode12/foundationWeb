@@ -269,36 +269,36 @@ exports.getMembersOfSmallGroup = async (req, res) => {
 };
 
 // getting small groups for a specific user
-exports.getSmallGroupsForUser = async (req, res) =>{
-  const {user_id} = req.params;
+exports.getSmallGroupsForUser = async (req, res) => {
+  const { userId } = req.params;
 
-  try{
-    const{data, error} = await supabase
+  try {
+    const { data, error } = await supabase
       .from("small_group_members")
-      .select('*, small_groups(*)')
-      .eq("user_id", user_id);
+      .select(`
+        *,
+        small_groups ( id, name, description, leader, meeting_time )
+      `)
+      .eq("user_id", userId);
 
-      if(error){
-        return res.status(500).json({
-          success: false,
-          message: "Error fetching user's groups",
-          error: error.message
-        });
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching user's groups",
+        error: error.message,
+      });
+    }
 
-      }
-
-      // const groups = data.map((membership) => membership.small_groups);
-
-      return res.status(200).json({
-        success: true,
-        message: "User's small groups fetched successfully",
-        data: groups
-      })
-  }catch(error){
+    return res.status(200).json({
+      success: true,
+      message: "User's small groups fetched successfully",
+      data: data,
+    });
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Error fetching user's groups",
-      error: error.message
+      error: error.message,
     });
   }
-}
+};
