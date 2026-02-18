@@ -48,13 +48,7 @@ const apiLimiter = rateLimit({
   }
 });
 
-// Serve static files from React build directory
-app.use(express.static(path.join(__dirname, "../client/build")));
-
-// Also serve images from public/eduford_img for backward compatibility
-app.use('/eduford_img', express.static(path.join(__dirname, "../public/eduford_img")));
-
-// Mount routes
+// ===== API ROUTES (must come BEFORE static files and catch-all) =====
 app.use("/api", authRouter);                    // /api/signup, /api/login, /api/verify-token, /api/refresh-token
 app.use("/api/profile", profileRouter);         // /api/profile
 app.use("/api/contact", contactRouter);         // /api/contact
@@ -76,6 +70,18 @@ app.post("/api/admin/login", authController.adminLogin);
 
 // Admin verify token route
 app.post("/api/admin/verify", authController.verifyToken);
+
+// Return 404 for any unmatched /api routes (prevents catch-all from serving HTML for API calls)
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: 'API endpoint not found' });
+});
+
+// ===== STATIC FILES & CATCH-ALL (must come AFTER API routes) =====
+// Serve static files from React build directory
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// Also serve images from public/eduford_img for backward compatibility
+app.use('/eduford_img', express.static(path.join(__dirname, "../public/eduford_img")));
 
 // Catch-all route - serve React app for all non-API routes
 app.get('/{*path}', (req, res) => {
