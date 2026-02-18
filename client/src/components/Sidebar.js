@@ -59,7 +59,7 @@ const Sidebar = ({ isAdmin = false, isSuperAdmin = false, onSectionChange, activ
     { action: 'giving', label: 'My Giving', icon: 'fas fa-heart' },
     { action: 'prayer', label: 'Prayer Requests', icon: 'fas fa-pray' },
     { action: 'resources', label: 'Resources', icon: 'fas fa-book-open' },
-    { path: '#groups', label: 'Small Groups', icon: 'fas fa-users' },
+    { path: '/small-groups', label: 'Small Groups', icon: 'fas fa-users' },
   ];
 
   const adminLinks = [

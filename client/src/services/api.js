@@ -565,4 +565,37 @@ export const contributionProgressService = {
   },
 };
 
+// Small Groups Service
+export const smallGroupsService = {
+  getAll: async () => {
+    const response = await api.get('/api/small-groups/all');
+    return response.data;
+  },
+
+  getById: async (groupId) => {
+    const response = await api.get(`/api/small-groups/${groupId}`);
+    return response.data;
+  },
+
+  getMyGroups: async (userId) => {
+    const response = await api.get(`/api/small-groups/user/${userId}/groups`);
+    return response.data;
+  },
+
+  getMembers: async (groupId) => {
+    const response = await api.get(`/api/small-groups/${groupId}/members`);
+    return response.data;
+  },
+
+  join: async (groupId, userId) => {
+    const response = await api.post('/api/small-groups/join', { group_id: groupId, user_id: userId });
+    return response.data;
+  },
+
+  leave: async (groupId, userId) => {
+    const response = await api.post('/api/small-groups/leave', { group_id: groupId, user_id: userId });
+    return response.data;
+  },
+};
+
 export default api;

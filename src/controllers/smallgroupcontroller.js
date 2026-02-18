@@ -57,7 +57,7 @@ exports.joinSmallGroup = async (req, res) => {
     // check if the user is already a member of the group
     const { data: existingMembership, error: membershipError } = await supabase
       .from("small_group_members")
-      .select("*")
+      .insert("user_id")
       .eq("group_id", group_id)
       .eq("user_id", user_id)
       .single();

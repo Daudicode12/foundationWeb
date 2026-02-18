@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Events from './pages/Events';
 import Sermons from './pages/Sermons';
+import SmallGroups from './pages/SmallGroups';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
@@ -50,6 +51,11 @@ function App() {
         <Route path="/sermons" element={
           <ProtectedRoute>
             <Sermons />
+          </ProtectedRoute>
+        } />
+        <Route path="/small-groups" element={
+          <ProtectedRoute>
+            <SmallGroups />
           </ProtectedRoute>
         } />
         
