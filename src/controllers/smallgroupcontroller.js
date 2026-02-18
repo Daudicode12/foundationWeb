@@ -46,18 +46,18 @@ exports.joinSmallGroup = async (req, res) => {
   const { group_id, user_id } = req.body;
 
   // validation of missing fields
-  if (!group_id || !user_id) {
-    return res.status(400).json({
-      success: false,
-      message: "Please provide all the required fields: group_id and user_id",
-    });
-  }
+  // if (!group_id || !user_id) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     message: "Please provide all the required fields: group_id and user_id",
+  //   });
+  // }
 
   try {
     // check if the user is already a member of the group
     const { data: existingMembership, error: membershipError } = await supabase
       .from("small_group_members")
-      .insert("user_id")
+      .select("*")
       .eq("group_id", group_id)
       .eq("user_id", user_id)
       .single();

@@ -94,6 +94,7 @@ const login = async (req, res) => {
       success: true,
       message: "Login successful",
       redirect: "/dashboard/dashboard.html",
+      id: user.id,
       userName: user.username,
       email: user.email,
       phone: user.phone,

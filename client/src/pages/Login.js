@@ -51,6 +51,7 @@ const Login = () => {
         
         // Store user data only (token is in httpOnly cookie, handled by browser)
         localStorage.setItem('userData', JSON.stringify({
+          id: data.id,
           userName: data.userName || email.split('@')[0],
           email: email,
           phone: data.phone,
