@@ -3,79 +3,124 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 20px;
+  background: var(--dark-bg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(76,175,80,0.12) 0%, transparent 70%);
+  top: -150px;
+  right: -150px;
+  border-radius: 50%;
+}
+
+.login-page::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  border-radius: 50%;
 }
 
 .login-form {
   background: #fff;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 44px 40px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
 }
 
 .login-form h2 {
   text-align: center;
-  color: #1a1a2e;
-  margin-bottom: 10px;
-  font-size: 2rem;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .back-link {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .back-link a {
-  color: #4CAF50;
+  color: var(--primary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: var(--transition);
 }
 
 .back-link a:hover {
-  text-decoration: underline;
+  color: var(--primary-dark);
 }
 
 .input-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: 14px 16px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  color: var(--gray-900);
+  background: var(--gray-50);
+  transition: var(--transition);
+}
+
+.input-group input::placeholder {
+  color: var(--gray-400);
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
 }
 
 .login-form button {
   width: 100%;
-  padding: 15px;
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  padding: 14px;
+  background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
   font-weight: 600;
+  font-family: var(--font-sans);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition);
 }
 
 .login-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.login-form button:active {
+  transform: translateY(0);
 }
 
 .login-form button:disabled {
-  background: #ccc;
+  background: var(--gray-300);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -83,36 +128,42 @@
 
 .signup-link {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .signup-link p {
-  color: #666;
+  color: var(--gray-500);
+  font-size: 0.9rem;
 }
 
 .signup-link a {
-  color: #4CAF50;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
+  transition: var(--transition);
 }
 
 .signup-link a:hover {
-  text-decoration: underline;
+  color: var(--primary-dark);
 }
 
 .message {
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 10px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
   text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .message.success {
-  background: #d4edda;
-  color: #155724;
+  background: var(--primary-50);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary-200);
 }
 
 .message.error {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }

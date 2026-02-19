@@ -1,6 +1,10 @@
+/* ============================================
+   CONTACT PAGE — Modern Design System
+   ============================================ */
+
 .contact-page {
   min-height: 100vh;
-  background: #f8f9fa;
+  background: var(--gray-50);
 }
 
 .contact-section {
@@ -14,19 +18,20 @@
 }
 
 .contact-container > h1 {
-  font-size: 2.5rem;
-  color: #1a1a2e;
-  margin-bottom: 15px;
+  font-size: 2.2rem;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+  font-weight: 800;
 }
 
 .contact-container > p {
-  color: #666;
-  margin-bottom: 50px;
+  color: var(--gray-500);
+  margin-bottom: 44px;
 }
 
 .contact-content {
   display: flex;
-  gap: 40px;
+  gap: 28px;
   text-align: left;
   flex-wrap: wrap;
 }
@@ -35,39 +40,41 @@
 .contact-info {
   flex: 1;
   min-width: 300px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  padding: 40px;
-  border-radius: 20px;
+  background: var(--dark-bg);
+  padding: 36px;
+  border-radius: var(--radius-lg);
   color: #fff;
 }
 
 .contact-info h2 {
-  color: #4CAF50;
-  margin-bottom: 30px;
-  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 28px;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .info-item {
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 .info-item h3 {
   color: #fff;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 .info-item h3 i {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .info-item p {
-  color: #ccc;
+  color: var(--gray-400);
   line-height: 1.7;
   padding-left: 30px;
+  font-size: 0.92rem;
 }
 
 /* Contact Form */
@@ -75,89 +82,94 @@
   flex: 1;
   min-width: 300px;
   background: #fff;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
 }
 
 .contact-form h2 {
-  color: #1a1a2e;
-  margin-bottom: 30px;
-  font-size: 1.5rem;
+  color: var(--gray-900);
+  margin-bottom: 28px;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
-.form-group {
-  margin-bottom: 20px;
+.contact-form .form-group {
+  margin-bottom: 18px;
 }
 
-.form-group label {
+.contact-form .form-group label {
   display: block;
-  color: #333;
-  margin-bottom: 8px;
-  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
 }
 
-.form-group input,
-.form-group textarea {
+.contact-form .form-group input,
+.contact-form .form-group textarea {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  transition: var(--transition);
+  background: var(--gray-50);
+  color: var(--gray-900);
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+.contact-form .form-group input:focus,
+.contact-form .form-group textarea:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: #fff;
 }
 
-.form-group textarea {
+.contact-form .form-group textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 110px;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 15px;
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  padding: 13px;
+  background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 1rem;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: var(--transition);
 }
 
 .submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+  background: var(--primary-dark);
 }
 
 .submit-btn:disabled {
-  background: #ccc;
+  background: var(--gray-300);
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .form-message {
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--radius);
   text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .form-message.success {
-  background: #d4edda;
-  color: #155724;
+  background: var(--primary-100);
+  color: var(--primary-dark);
 }
 
 .form-message.error {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fef2f2;
+  color: #dc2626;
 }
 
 /* Responsive */
@@ -168,6 +180,6 @@
 
   .contact-info,
   .contact-form {
-    padding: 30px 20px;
+    padding: 28px 20px;
   }
 }

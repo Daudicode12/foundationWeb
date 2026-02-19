@@ -1,106 +1,118 @@
+/* ============================================
+   PROFILE PAGE — Modern Design System
+   ============================================ */
+
 .profile-container {
   max-width: 600px;
 }
 
 .profile-card {
   background: #fff;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
 }
 
 .profile-avatar {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .profile-avatar i {
-  font-size: 100px;
-  color: #4CAF50;
+  font-size: 80px;
+  color: var(--primary);
 }
 
 .profile-info .info-row {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .profile-info .info-row:last-of-type {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .profile-info label {
   display: block;
-  color: #888;
-  font-size: 0.85rem;
-  margin-bottom: 5px;
+  color: var(--gray-400);
+  font-size: 0.78rem;
+  margin-bottom: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .profile-info p {
-  color: #1a1a2e;
-  font-size: 1.1rem;
+  color: var(--gray-900);
+  font-size: 1rem;
 }
 
 .role-badge {
   display: inline-block;
-  background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50 !important;
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem !important;
+  background: var(--primary-100);
+  color: var(--primary-dark) !important;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem !important;
   text-transform: capitalize;
+  font-weight: 600;
 }
 
 /* Form */
 .profile-form .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .profile-form label {
   display: block;
-  color: #333;
-  margin-bottom: 8px;
-  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
 }
 
 .profile-form input {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  transition: var(--transition);
+  background: var(--gray-50);
+  color: var(--gray-900);
 }
 
 .profile-form input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: #fff;
 }
 
 .profile-form input:disabled {
-  background: #f5f5f5;
-  color: #999;
+  background: var(--gray-50);
+  color: var(--gray-400);
 }
 
 .form-buttons {
   display: flex;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 28px;
 }
 
-.btn-secondary {
-  background: #f0f0f0;
-  color: #666;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
+.profile-form .btn-secondary {
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  padding: 11px 22px;
+  border-radius: var(--radius);
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
+  font-weight: 600;
+  transition: var(--transition);
+  font-size: 0.88rem;
 }
 
-.btn-secondary:hover {
-  background: #e0e0e0;
+.profile-form .btn-secondary:hover {
+  background: var(--gray-200);
 }

@@ -4,58 +4,72 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .nav-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 5%;
+  padding: 12px 5%;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 .logo {
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  transition: var(--transition);
+}
+
+.logo:hover {
+  border-color: var(--primary);
 }
 
 .nav-links ul {
   display: flex;
   list-style: none;
-  gap: 30px;
+  gap: 8px;
   margin: 0;
   padding: 0;
 }
 
 .nav-links ul li a {
   text-decoration: none;
-  color: #fff;
-  font-size: 14px;
+  color: var(--gray-300);
+  font-size: 0.82rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: color 0.3s ease;
-  padding: 10px 0;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+  padding: 8px 14px;
+  border-radius: var(--radius);
 }
 
-.nav-links ul li a:hover,
+.nav-links ul li a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .nav-links ul li a.active {
-  color: #4CAF50;
+  color: var(--primary);
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .menu-bar,
 .times-bar {
   display: none;
-  width: 30px;
+  width: 28px;
   cursor: pointer;
 }
 
-/* Mobile Styles */
+/* Mobile */
 @media (max-width: 768px) {
   .menu-bar {
     display: block;
@@ -66,15 +80,16 @@
     position: fixed;
     top: 0;
     right: -100%;
-    width: 250px;
+    width: 260px;
     height: 100vh;
-    background: #1a1a2e;
+    background: var(--dark-bg);
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 80px 30px;
-    transition: right 0.3s ease;
+    padding: 80px 28px;
+    transition: right var(--transition-slow);
     z-index: 1001;
+    border-left: 1px solid var(--dark-border);
   }
 
   .nav-links.active {
@@ -83,7 +98,14 @@
 
   .nav-links ul {
     flex-direction: column;
-    gap: 20px;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .nav-links ul li a {
+    display: block;
+    padding: 12px 14px;
+    width: 100%;
   }
 
   .times-bar {

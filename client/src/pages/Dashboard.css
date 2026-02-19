@@ -1,13 +1,4 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-  background: #f5f6fa;
-}
+/* ===== Dashboard ===== */
 
 .dashboard-loading {
   min-height: 100vh;
@@ -15,16 +6,16 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f5f6fa;
+  background: var(--gray-50);
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e0e0e0;
-  border-top-color: #4CAF50;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
@@ -39,71 +30,87 @@ body {
 .main-content {
   flex: 1;
   margin-left: 260px;
-  padding: 30px;
-  background: #f5f6fa;
+  padding: 32px;
+  background: var(--gray-50);
+  min-height: 100vh;
 }
 
 .dashboard-header {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .dashboard-header h1 {
-  font-size: 2rem;
-  color: #1a1a2e;
+  font-size: 1.75rem;
+  color: var(--gray-900);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .dashboard-header h1 span {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .dashboard-header .date {
-  color: #666;
-  margin-top: 5px;
+  color: var(--gray-500);
+  margin-top: 4px;
+  font-size: 0.9rem;
 }
 
 /* Dashboard Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
+  gap: 20px;
 }
 
 .card {
   background: #fff;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-xs);
+  transition: var(--transition);
+}
+
+.card:hover {
+  box-shadow: var(--shadow);
 }
 
 .card h3 {
-  color: #1a1a2e;
-  margin-bottom: 20px;
-  font-size: 1.2rem;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+  font-size: 1.05rem;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-weight: 600;
 }
 
 .card h3 i {
-  color: #4CAF50;
+  color: var(--primary);
+  font-size: 1rem;
 }
 
 .card p {
-  color: #666;
+  color: var(--gray-500);
   line-height: 1.6;
+  font-size: 0.9rem;
 }
 
 .card-link {
-  display: inline-block;
-  margin-top: 15px;
-  color: #4CAF50;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  color: var(--primary);
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: var(--transition);
 }
 
 .card-link:hover {
-  color: #45a049;
+  color: var(--primary-dark);
 }
 
 /* Event List */
@@ -112,8 +119,8 @@ body {
 }
 
 .event-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .event-item:last-child {
@@ -121,19 +128,21 @@ body {
 }
 
 .event-title {
-  color: #1a1a2e;
-  font-weight: 500;
+  color: var(--gray-800);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .event-date {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 3px;
+  color: var(--gray-400);
+  font-size: 0.82rem;
+  margin-top: 2px;
 }
 
 .no-events {
-  color: #888;
+  color: var(--gray-400);
   font-style: italic;
+  font-size: 0.9rem;
 }
 
 /* Sermon List */
@@ -142,8 +151,8 @@ body {
 }
 
 .sermon-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .sermon-item:last-child {
@@ -151,14 +160,15 @@ body {
 }
 
 .sermon-title {
-  color: #1a1a2e;
-  font-weight: 500;
+  color: var(--gray-800);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .sermon-date {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 3px;
+  color: var(--gray-400);
+  font-size: 0.82rem;
+  margin-top: 2px;
 }
 
 /* Announcement List */
@@ -167,18 +177,24 @@ body {
 }
 
 .announcement-list li {
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
-  color: #666;
-  padding-left: 20px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-600);
+  padding-left: 18px;
   position: relative;
+  font-size: 0.9rem;
 }
 
 .announcement-list li::before {
-  content: '•';
+  content: '';
   position: absolute;
   left: 0;
-  color: #4CAF50;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
 }
 
 .announcement-list li:last-child {
@@ -187,29 +203,40 @@ body {
 
 /* Giving */
 .giving-total {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
+  font-size: 1rem;
+  margin-bottom: 14px;
 }
 
 .giving-total strong {
-  color: #4CAF50;
+  color: var(--primary);
+  font-weight: 700;
 }
 
 /* Buttons */
 .btn-primary {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: var(--primary);
   color: #fff;
   border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
+  padding: 11px 22px;
+  border-radius: var(--radius);
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
+  font-weight: 600;
+  font-size: 0.88rem;
+  font-family: var(--font-sans);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+  background: var(--primary-dark);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
@@ -235,7 +262,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,91 +274,109 @@ body {
 
 .modal-content {
   background: #fff;
-  border-radius: 20px;
-  padding: 40px;
+  border-radius: var(--radius-lg);
+  padding: 36px;
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--gray-200);
+  animation: modalSlideIn 0.25s var(--ease);
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-12px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
 .modal-close {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
+  top: 14px;
+  right: 14px;
+  background: var(--gray-100);
   border: none;
-  font-size: 1.5rem;
-  color: #999;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  color: var(--gray-500);
   cursor: pointer;
-  transition: color 0.3s;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
-  color: #333;
+  background: var(--gray-200);
+  color: var(--gray-700);
 }
 
 .modal-content h2 {
-  color: #1a1a2e;
-  margin-bottom: 10px;
+  color: var(--gray-900);
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .modal-content h2 i {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .modal-subtitle {
-  color: #666;
-  margin-bottom: 25px;
+  color: var(--gray-500);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
 }
 
 .modal-content .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .modal-content label {
   display: block;
-  margin-bottom: 8px;
-  color: #333;
-  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--gray-700);
+  font-weight: 600;
+  font-size: 0.88rem;
 }
 
 .modal-content input[type="text"],
 .modal-content textarea {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  font-family: var(--font-sans);
+  color: var(--gray-900);
+  background: var(--gray-50);
+  transition: var(--transition);
 }
 
 .modal-content input[type="text"]:focus,
 .modal-content textarea:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .modal-content textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 110px;
 }
 
 .checkbox-group {
@@ -347,7 +394,7 @@ body {
 .checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #4CAF50;
+  accent-color: var(--primary);
 }
 
 .btn-full {
@@ -355,26 +402,31 @@ body {
 }
 
 .btn-primary:disabled {
-  background: #ccc;
+  background: var(--gray-300);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .status-message {
-  margin-top: 20px;
-  padding: 12px 15px;
-  border-radius: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
   text-align: center;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .status-message.success {
-  background: #d4edda;
-  color: #155724;
+  background: var(--primary-50);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary-200);
 }
 
 .status-message.error {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
 }
 
 /* My Offerings Modal Styles */
@@ -387,39 +439,42 @@ body {
 .offerings-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 25px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
 .summary-item {
-  background: #f8f9fa;
-  border-radius: 10px;
-  padding: 15px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  padding: 14px;
   text-align: center;
 }
 
 .summary-item.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--dark-bg);
+  border-color: transparent;
   color: #fff;
 }
 
 .summary-label {
   display: block;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: var(--gray-500);
   text-transform: capitalize;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  font-weight: 500;
 }
 
 .summary-item.total .summary-label {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--gray-400);
 }
 
 .summary-value {
   display: block;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--gray-900);
 }
 
 .summary-item.total .summary-value {
@@ -428,9 +483,9 @@ body {
 
 .summary-count {
   display: block;
-  font-size: 0.75rem;
-  color: #888;
-  margin-top: 3px;
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  margin-top: 2px;
 }
 
 .offerings-list {
@@ -438,9 +493,10 @@ body {
 }
 
 .offerings-list h4 {
-  color: #1a1a2e;
-  margin-bottom: 15px;
-  font-size: 1.1rem;
+  color: var(--gray-900);
+  margin-bottom: 14px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .offerings-table {
@@ -450,32 +506,36 @@ body {
 
 .offerings-table th,
 .offerings-table td {
-  padding: 12px;
+  padding: 11px 12px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .offerings-table th {
-  background: #f8f9fa;
-  color: #666;
+  background: var(--gray-50);
+  color: var(--gray-500);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .offerings-table td {
-  color: #333;
+  color: var(--gray-700);
+  font-size: 0.88rem;
 }
 
 .offerings-table .amount {
-  font-weight: 600;
-  color: #27ae60;
+  font-weight: 700;
+  color: var(--primary-dark);
 }
 
 .offerings-table .badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 15px;
-  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
   text-transform: capitalize;
 }
 
@@ -511,55 +571,55 @@ body {
 
 .no-offerings {
   text-align: center;
-  color: #888;
-  padding: 30px;
-  background: #f8f9fa;
-  border-radius: 10px;
+  color: var(--gray-400);
+  padding: 28px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
 }
 
 .giving-count {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 15px;
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  margin-bottom: 14px;
 }
 
 /* Giving Card Styles */
 .giving-card {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   display: flex;
   flex-direction: column;
 }
 
 .giving-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.2);
-  border: 2px solid #4CAF50;
+  border-color: var(--primary-200);
 }
 
 .giving-summary {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .giving-total-box {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  padding: 20px;
-  border-radius: 12px;
+  background: var(--primary);
+  padding: 18px;
+  border-radius: var(--radius);
   text-align: center;
   margin-bottom: 10px;
 }
 
 .total-label {
   display: block;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.9rem;
-  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+  font-weight: 500;
 }
 
 .total-amount {
   display: block;
   color: #fff;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
@@ -569,19 +629,19 @@ body {
 }
 
 .recent-offerings {
-  margin: 15px 0;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
+  margin: 14px 0;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 14px;
 }
 
 .offering-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  padding: 7px 10px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
 }
 
 .offering-item:last-child {
@@ -589,43 +649,44 @@ body {
 }
 
 .offering-type {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.8rem;
   text-transform: capitalize;
-  background: #e8f5e9;
-  padding: 3px 10px;
-  border-radius: 10px;
-  color: #2e7d32;
+  background: var(--primary-100);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  color: var(--primary-dark);
+  font-weight: 600;
 }
 
 .offering-amount {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  font-size: 0.88rem;
 }
 
 .giving-footer {
   margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  padding-top: 14px;
+  border-top: 1px solid var(--gray-100);
   text-align: center;
 }
 
 .view-link {
-  color: #4CAF50;
-  font-size: 0.9rem;
+  color: var(--primary);
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  font-weight: 500;
 }
 
 .view-link i {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .giving-card:hover .view-link {
-  color: #2e7d32;
+  color: var(--primary-dark);
 }
 
 /* Responsive for offerings modal */
@@ -656,69 +717,69 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .prayer-count {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #666;
-  font-size: 0.95rem;
+  color: var(--gray-500);
+  font-size: 0.9rem;
 }
 
 .prayer-count i {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .prayer-status-summary {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .status-count {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.85rem;
-  padding: 4px 8px;
-  border-radius: 12px;
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
 }
 
 .status-count.pending {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 .status-count.praying {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
 .status-count.answered {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--primary-100);
+  color: var(--primary-dark);
 }
 
 .recent-prayers {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .prayer-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  padding: 9px 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
 }
 
 .prayer-item:hover {
-  background: #e9ecef;
-  transform: translateX(5px);
+  background: var(--gray-100);
 }
 
 .prayer-item:last-child {
@@ -726,8 +787,8 @@ body {
 }
 
 .prayer-title {
-  font-size: 0.9rem;
-  color: #333;
+  font-size: 0.86rem;
+  color: var(--gray-800);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -736,26 +797,26 @@ body {
 }
 
 .prayer-status {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
   text-transform: capitalize;
 }
 
 .prayer-status.status-pending {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 .prayer-status.status-praying {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
 .prayer-status.status-answered {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--primary-100);
+  color: var(--primary-dark);
 }
 
 .prayer-actions {
@@ -774,18 +835,19 @@ body {
 }
 
 .btn-secondary {
-  background: #fff;
-  border: 2px solid #4CAF50;
-  color: #4CAF50;
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: var(--transition);
 }
 
 .btn-secondary:hover {
-  background: #4CAF50;
+  background: var(--primary);
   color: #fff;
 }
 
@@ -793,42 +855,44 @@ body {
 .prayers-status-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
 .status-card {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 12px;
+  background: var(--gray-50);
+  padding: 14px;
+  border-radius: var(--radius);
   text-align: center;
+  border: 1px solid var(--gray-200);
 }
 
 .status-card.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--dark-bg);
+  border-color: transparent;
   color: #fff;
 }
 
 .status-card.pending {
-  background: #e3f2fd;
-  border-left: 4px solid #1565c0;
+  background: #eff6ff;
+  border-left: 3px solid #2563eb;
 }
 
 .status-card.praying {
-  background: #f3e5f5;
-  border-left: 4px solid #7b1fa2;
+  background: #faf5ff;
+  border-left: 3px solid #7c3aed;
 }
 
 .status-card.answered {
-  background: #e8f5e9;
-  border-left: 4px solid #2e7d32;
+  background: var(--primary-50);
+  border-left: 3px solid var(--primary);
 }
 
 .status-number {
   display: block;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .status-card.total .status-number {
@@ -836,24 +900,25 @@ body {
 }
 
 .status-card.pending .status-number {
-  color: #1565c0;
+  color: #2563eb;
 }
 
 .status-card.praying .status-number {
-  color: #7b1fa2;
+  color: #7c3aed;
 }
 
 .status-card.answered .status-number {
-  color: #2e7d32;
+  color: var(--primary-dark);
 }
 
 .status-label {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  font-weight: 500;
 }
 
 .status-card.total .status-label {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--gray-400);
 }
 
 .prayers-list {
@@ -861,15 +926,16 @@ body {
 }
 
 .prayers-list h4 {
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 1.1rem;
+  margin-bottom: 14px;
+  color: var(--gray-900);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .prayer-requests-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   max-height: 400px;
   overflow-y: auto;
   padding-right: 5px;
@@ -877,69 +943,69 @@ body {
 
 .prayer-request-card {
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 15px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
 }
 
 .prayer-request-card:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  border-color: var(--gray-300);
+  box-shadow: var(--shadow);
 }
 
 .prayer-request-card.status-pending {
-  border-left: 4px solid #1565c0;
+  border-left: 3px solid #2563eb;
 }
 
 .prayer-request-card.status-praying {
-  border-left: 4px solid #7b1fa2;
+  border-left: 3px solid #7c3aed;
 }
 
 .prayer-request-card.status-answered {
-  border-left: 4px solid #2e7d32;
+  border-left: 3px solid var(--primary);
 }
 
 .prayer-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .prayer-card-header h5 {
   margin: 0;
-  font-size: 1rem;
-  color: #333;
+  font-size: 0.95rem;
+  color: var(--gray-900);
 }
 
 .status-badge {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
   text-transform: capitalize;
 }
 
 .status-badge.status-pending {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 .status-badge.status-praying {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
 .status-badge.status-answered {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--primary-100);
+  color: var(--primary-dark);
 }
 
 .prayer-excerpt {
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--gray-500);
+  font-size: 0.88rem;
   line-height: 1.5;
   margin-bottom: 10px;
 }
@@ -951,8 +1017,8 @@ body {
 }
 
 .prayer-date-small {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.78rem;
+  color: var(--gray-400);
 }
 
 .prayer-date-small i {
@@ -960,29 +1026,29 @@ body {
 }
 
 .anonymous-badge {
-  font-size: 0.75rem;
-  color: #888;
-  background: #f0f0f0;
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  background: var(--gray-100);
   padding: 3px 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-full);
 }
 
 .no-prayers {
   text-align: center;
-  padding: 40px 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
+  padding: 36px 20px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
 }
 
 .no-prayers i {
-  font-size: 3rem;
-  color: #ddd;
-  margin-bottom: 15px;
+  font-size: 2.5rem;
+  color: var(--gray-300);
+  margin-bottom: 12px;
 }
 
 .no-prayers p {
-  color: #888;
-  margin-bottom: 20px;
+  color: var(--gray-500);
+  margin-bottom: 16px;
 }
 
 /* Prayer Detail View */
@@ -994,46 +1060,46 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
-  gap: 15px;
+  margin-bottom: 14px;
+  gap: 14px;
 }
 
 .prayer-detail-header h3 {
   margin: 0;
-  font-size: 1.4rem;
-  color: #333;
+  font-size: 1.3rem;
+  color: var(--gray-900);
 }
 
 .prayer-status-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .prayer-status-badge.status-pending {
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
 .prayer-status-badge.status-praying {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
 .prayer-status-badge.status-answered {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--primary-100);
+  color: var(--primary-dark);
 }
 
 .prayer-date {
-  color: #888;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
+  color: var(--gray-400);
+  font-size: 0.88rem;
+  margin-bottom: 18px;
 }
 
 .prayer-date i {
@@ -1041,48 +1107,49 @@ body {
 }
 
 .prayer-content {
-  background: #f8f9fa;
+  background: var(--gray-50);
   padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border-left: 4px solid #4CAF50;
+  border-radius: var(--radius);
+  margin-bottom: 18px;
+  border-left: 3px solid var(--primary);
 }
 
 .prayer-content p {
-  color: #444;
+  color: var(--gray-700);
   line-height: 1.7;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .anonymous-note {
-  color: #888;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  padding: 10px 15px;
-  background: #fff3e0;
-  border-radius: 8px;
+  color: var(--gray-600);
+  font-size: 0.88rem;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: #fffbeb;
+  border-radius: var(--radius-sm);
+  border: 1px solid #fde68a;
 }
 
 .anonymous-note i {
   margin-right: 8px;
-  color: #e65100;
+  color: #d97706;
 }
 
 .prayer-status-info {
-  background: #f5f5f5;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  background: var(--gray-50);
+  padding: 18px;
+  border-radius: var(--radius);
+  margin-bottom: 18px;
 }
 
 .prayer-status-info h4 {
-  margin: 0 0 10px 0;
-  font-size: 1rem;
-  color: #333;
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  color: var(--gray-900);
 }
 
 .status-description {
-  color: #666;
+  color: var(--gray-500);
   line-height: 1.6;
 }
 
@@ -1131,10 +1198,10 @@ body {
 
 /* Resources Card */
 .resources-card {
-  background: linear-gradient(135deg, #667eea 0%, #43e05e 100%);
+  background: var(--dark-bg);
   color: #fff;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
@@ -1146,13 +1213,12 @@ body {
   right: -50%;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
   transform: rotate(30deg);
 }
 
 .resources-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+  border-color: var(--primary);
 }
 
 .resources-card h3 {
@@ -1160,11 +1226,12 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .resources-card h3 i {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  color: var(--primary);
 }
 
 .resources-summary {
@@ -1172,14 +1239,14 @@ body {
 }
 
 .resources-count {
-  font-size: 1rem;
-  opacity: 0.9;
+  font-size: 0.95rem;
+  opacity: 0.85;
   margin-bottom: 10px;
 }
 
 .resources-type-summary {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -1187,42 +1254,43 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 15px;
-  font-size: 0.85rem;
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
 }
 
 .type-count i {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* Featured Resources in Card */
 .featured-resources {
-  background: rgba(255,255,255,0.15);
-  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: var(--radius);
   padding: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .featured-label {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 10px;
-  color: #ffd700;
+  color: var(--primary-light);
+  font-weight: 600;
 }
 
 .featured-item {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
   padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--transition);
 }
 
 .featured-item:last-child {
@@ -1230,7 +1298,7 @@ body {
 }
 
 .featured-item:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.12);
 }
 
 .featured-item .resource-title {
@@ -1248,7 +1316,7 @@ body {
 
 .resources-footer {
   margin-top: auto;
-  padding-top: 15px;
+  padding-top: 14px;
 }
 
 .resources-footer .view-link {
@@ -1257,32 +1325,33 @@ body {
   justify-content: center;
   gap: 6px;
   font-size: 0.85rem;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 /* Resources Modal */
 .resources-modal-content {
   background: #fff;
-  border-radius: 20px;
-  padding: 30px;
+  border-radius: var(--radius-lg);
+  padding: 28px;
   max-width: 900px;
   width: 95%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   animation: slideUp 0.3s ease;
+  border: 1px solid var(--gray-200);
 }
 
 .resources-modal-content h2 {
-  color: #2c3e50;
-  margin-bottom: 10px;
+  color: var(--gray-900);
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 .resources-modal-content h2 i {
-  color: #667eea;
+  color: var(--primary);
 }
 
 /* Resources List */
@@ -1292,73 +1361,73 @@ body {
 
 .featured-section,
 .all-resources-section {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .featured-section h4,
 .all-resources-section h4 {
-  color: #2c3e50;
-  margin-bottom: 15px;
+  color: var(--gray-900);
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .featured-section h4 i {
-  color: #ffd700;
+  color: #eab308;
 }
 
 .all-resources-section h4 i {
-  color: #667eea;
+  color: var(--primary);
 }
 
 .resources-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 16px;
 }
 
 /* Resource Card */
 .resource-card {
   background: #fff;
-  border-radius: 15px;
-  padding: 20px;
+  border-radius: var(--radius);
+  padding: 18px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid #f0f0f0;
+  transition: var(--transition);
+  border: 1px solid var(--gray-200);
   position: relative;
   overflow: hidden;
 }
 
 .resource-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  border-color: #667eea;
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
 }
 
 .resource-card.bible_verse {
-  border-left: 4px solid #667eea;
+  border-left: 3px solid #6366f1;
 }
 
 .resource-card.teaching {
-  border-left: 4px solid #11998e;
+  border-left: 3px solid #10b981;
 }
 
 .resource-card.devotional {
-  border-left: 4px solid #f093fb;
+  border-left: 3px solid #ec4899;
 }
 
 .resource-card.sermon_notes {
-  border-left: 4px solid #4facfe;
+  border-left: 3px solid #3b82f6;
 }
 
 .resource-card.testimony {
-  border-left: 4px solid #ff9a9e;
+  border-left: 3px solid #f43f5e;
 }
 
 .resource-card.announcement {
-  border-left: 4px solid #fcb69f;
+  border-left: 3px solid #f97316;
 }
 
 .resource-card-header {
@@ -1369,69 +1438,69 @@ body {
 }
 
 .category-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .category-icon.bible_verse {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  background: #eef2ff;
+  color: #6366f1;
 }
 
 .category-icon.teaching {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #fff;
+  background: #ecfdf5;
+  color: #10b981;
 }
 
 .category-icon.devotional {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: #fff;
+  background: #fdf2f8;
+  color: #ec4899;
 }
 
 .category-icon.sermon_notes {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: #fff;
+  background: #eff6ff;
+  color: #3b82f6;
 }
 
 .category-icon.testimony {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  color: #d63031;
+  background: #fff1f2;
+  color: #f43f5e;
 }
 
 .category-icon.announcement {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-  color: #e17055;
+  background: #fff7ed;
+  color: #f97316;
 }
 
 .featured-star {
-  color: #ffd700;
-  font-size: 1rem;
+  color: #eab308;
+  font-size: 0.95rem;
 }
 
 .resource-card-title {
-  color: #2c3e50;
-  font-size: 1rem;
-  margin-bottom: 8px;
+  color: var(--gray-900);
+  font-size: 0.95rem;
+  margin-bottom: 6px;
   font-weight: 600;
   line-height: 1.3;
 }
 
 .resource-ref {
   display: block;
-  color: #667eea;
-  font-size: 0.8rem;
+  color: #6366f1;
+  font-size: 0.78rem;
   font-style: italic;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .resource-preview {
-  color: #666;
-  font-size: 0.85rem;
+  color: var(--gray-500);
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -1441,23 +1510,24 @@ body {
 }
 
 .back-to-list {
-  background: #f5f6fa;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  padding: 9px 16px;
+  border-radius: var(--radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #666;
+  color: var(--gray-600);
   font-weight: 500;
-  transition: all 0.2s;
-  margin-bottom: 20px;
+  transition: var(--transition);
+  margin-bottom: 18px;
+  font-size: 0.88rem;
 }
 
 .back-to-list:hover {
-  background: #e8e8e8;
-  color: #333;
+  background: var(--gray-100);
+  color: var(--gray-900);
 }
 
 .resource-detail-header {
@@ -1470,58 +1540,58 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
 .category-tag.bible_verse {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+  background: #eef2ff;
+  color: #6366f1;
 }
 
 .category-tag.teaching {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #fff;
+  background: #ecfdf5;
+  color: #10b981;
 }
 
 .category-tag.devotional {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: #fff;
+  background: #fdf2f8;
+  color: #ec4899;
 }
 
 .category-tag.sermon_notes {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: #fff;
+  background: #eff6ff;
+  color: #3b82f6;
 }
 
 .category-tag.testimony {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-  color: #d63031;
+  background: #fff1f2;
+  color: #f43f5e;
 }
 
 .category-tag.announcement {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-  color: #e17055;
+  background: #fff7ed;
+  color: #f97316;
 }
 
 .featured-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%);
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  background: #fef9c3;
+  color: #a16207;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
 .resource-detail-title {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 15px;
+  font-size: 1.6rem;
+  color: var(--gray-900);
+  margin-bottom: 14px;
   line-height: 1.3;
 }
 
@@ -1529,94 +1599,95 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--dark-bg);
   color: #fff;
   padding: 10px 18px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 18px;
   font-style: italic;
+  font-size: 0.9rem;
 }
 
 .resource-scripture-box i {
-  opacity: 0.9;
+  opacity: 0.7;
 }
 
 .resource-content-box {
-  background: #f8f9fa;
-  border-radius: 15px;
-  padding: 25px;
-  margin-bottom: 20px;
-  border-left: 4px solid #667eea;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 22px;
+  margin-bottom: 18px;
+  border-left: 3px solid var(--primary);
 }
 
 .resource-content-box p {
-  color: #2c3e50;
-  font-size: 1.1rem;
+  color: var(--gray-800);
+  font-size: 1rem;
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
 .resource-meta {
   display: flex;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--gray-500);
+  font-size: 0.85rem;
 }
 
 .meta-item i {
-  color: #667eea;
+  color: var(--primary);
 }
 
 .resource-tags {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .resource-tag {
-  background: #e8f4f8;
-  color: #0984e3;
-  padding: 5px 12px;
-  border-radius: 15px;
-  font-size: 0.8rem;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
 /* No Resources State */
 .no-resources {
   text-align: center;
-  padding: 50px 20px;
-  color: #666;
+  padding: 40px 20px;
+  color: var(--gray-500);
 }
 
 .no-resources i {
-  font-size: 4rem;
-  color: #ddd;
-  margin-bottom: 20px;
+  font-size: 3rem;
+  color: var(--gray-300);
+  margin-bottom: 16px;
 }
 
 .no-resources p {
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: 1rem;
+  margin-bottom: 8px;
 }
 
 .no-resources-sub {
-  font-size: 0.9rem;
-  color: #999;
+  font-size: 0.85rem;
+  color: var(--gray-400);
 }
 
 /* Responsive Resources */
 @media (max-width: 768px) {
   .resources-modal-content {
-    padding: 20px;
+    padding: 18px;
     max-height: 95vh;
   }
 
@@ -1625,24 +1696,24 @@ body {
   }
 
   .resource-detail-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
   .resource-content-box {
-    padding: 18px;
+    padding: 16px;
   }
 
   .resource-content-box p {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .resources-type-summary {
-    gap: 8px;
+    gap: 6px;
   }
 
   .type-count {
     padding: 3px 8px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
 }
 
@@ -1669,25 +1740,23 @@ body {
 
 /* Make Offering Button */
 .btn-make-offering {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  background: var(--primary);
   color: #fff;
   border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
+  padding: 11px 20px;
+  border-radius: var(--radius);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   white-space: nowrap;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
 .btn-make-offering:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+  background: var(--primary-dark);
 }
 
 .btn-make-offering i {
@@ -1703,32 +1772,32 @@ body {
 
 /* Offering Scripture Quote */
 .offering-scripture {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  padding: 20px;
-  margin-top: 20px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-top: 18px;
   text-align: center;
-  border-left: 4px solid #4CAF50;
+  border-left: 3px solid var(--primary);
 }
 
 .offering-scripture i {
-  color: #4CAF50;
-  font-size: 1.2rem;
-  margin-bottom: 10px;
+  color: var(--primary);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   display: block;
 }
 
 .offering-scripture p {
-  color: #2c3e50;
+  color: var(--gray-700);
   font-style: italic;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.6;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .offering-scripture span {
-  color: #666;
-  font-size: 0.85rem;
+  color: var(--gray-500);
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
@@ -1758,12 +1827,11 @@ body {
 /* ===== Small Groups Dashboard Card ===== */
 .small-group-card {
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: var(--transition);
 }
 
 .small-group-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-200);
 }
 
 .sg-dashboard-summary {
@@ -1774,22 +1842,22 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #e8f5e9;
-  color: #2e7d32;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  background: var(--primary-100);
+  color: var(--primary-dark);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
 .sg-member-badge i {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .sg-dashboard-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 12px;
 }
 
@@ -1797,21 +1865,21 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 3px solid #4CAF50;
+  padding: 9px 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary);
 }
 
 .sg-dashboard-name {
   font-weight: 600;
-  color: #1a1a2e;
-  font-size: 0.9rem;
+  color: var(--gray-900);
+  font-size: 0.88rem;
 }
 
 .sg-dashboard-time {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.78rem;
+  color: var(--gray-400);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1820,24 +1888,24 @@ body {
 .sg-dashboard-empty {
   text-align: center;
   padding: 15px 0;
-  color: #999;
+  color: var(--gray-400);
 }
 
 .sg-dashboard-empty i {
   font-size: 2rem;
   margin-bottom: 8px;
-  color: #ccc;
+  color: var(--gray-300);
 }
 
 .sg-dashboard-empty p {
-  color: #888;
-  font-size: 0.9rem;
+  color: var(--gray-400);
+  font-size: 0.88rem;
 }
 
 .sg-dashboard-footer {
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--gray-100);
 }
 
 /* ===== Small Groups Modal ===== */
@@ -1852,71 +1920,72 @@ body {
 }
 
 .sg-modal-section-title {
-  font-size: 1rem;
-  color: #1a1a2e;
+  font-size: 0.95rem;
+  color: var(--gray-900);
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #4CAF50;
+  border-bottom: 2px solid var(--primary);
+  font-weight: 600;
 }
 
 .sg-modal-section-title i {
-  color: #4CAF50;
+  color: var(--primary);
 }
 
 .sg-modal-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
   position: relative;
-  border: 1px solid #e9ecef;
-  transition: box-shadow 0.2s;
+  border: 1px solid var(--gray-200);
+  transition: var(--transition);
 }
 
 .sg-modal-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--gray-300);
 }
 
 .sg-modal-card-joined {
-  border-left: 4px solid #4CAF50;
-  background: #f1faf1;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-50);
 }
 
 .sg-modal-card-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #4CAF50;
+  background: var(--primary);
   color: white;
   padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
 .sg-modal-card h5 {
-  font-size: 1.05rem;
-  color: #1a1a2e;
-  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: var(--gray-900);
+  margin: 0 0 6px 0;
 }
 
 .sg-modal-desc {
-  font-size: 0.88rem;
-  color: #666;
-  margin-bottom: 12px;
+  font-size: 0.86rem;
+  color: var(--gray-500);
+  margin-bottom: 10px;
   line-height: 1.5;
 }
 
 .sg-modal-details {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 14px;
   margin-bottom: 12px;
-  font-size: 0.82rem;
-  color: #777;
+  font-size: 0.8rem;
+  color: var(--gray-500);
 }
 
 .sg-modal-details span {
@@ -1926,65 +1995,60 @@ body {
 }
 
 .sg-modal-details i {
-  color: #4CAF50;
-  font-size: 0.85rem;
+  color: var(--primary);
+  font-size: 0.82rem;
 }
 
 .sg-modal-btn {
-  padding: 8px 20px;
+  padding: 8px 18px;
   border: none;
-  border-radius: 8px;
-  font-size: 0.88rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.sg-modal-btn:hover {
-  transform: translateY(-1px);
+  transition: var(--transition);
 }
 
 .sg-modal-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 .sg-modal-btn-join {
-  background: #4CAF50;
+  background: var(--primary);
   color: white;
 }
 
 .sg-modal-btn-join:hover:not(:disabled) {
-  background: #43a047;
+  background: var(--primary-dark);
 }
 
 .sg-modal-btn-leave {
-  background: #fff;
-  color: #e53935;
-  border: 1px solid #e53935;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
 }
 
 .sg-modal-btn-leave:hover:not(:disabled) {
-  background: #ffebee;
+  background: #fef2f2;
 }
 
 .sg-modal-empty {
   text-align: center;
-  padding: 30px;
-  color: #999;
+  padding: 28px;
+  color: var(--gray-400);
 }
 
 .sg-modal-empty i {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 10px;
-  color: #ccc;
+  color: var(--gray-300);
 }
 
 .sg-modal-footer {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--gray-100);
   text-align: center;
 }
 
