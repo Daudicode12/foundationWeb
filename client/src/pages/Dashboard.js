@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { authService, eventsService, prayerRequestService, myOfferingsService, resourceService } from '../services/api';
+import { authService, eventsService, prayerRequestService, myOfferingsService, resourceService, smallGroupsService } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -33,6 +33,10 @@ const Dashboard = () => {
   const [resources, setResources] = useState([]);
   const [showResourcesModal, setShowResourcesModal] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
+  const [smallGroups, setSmallGroups] = useState([]);
+  const [myGroupIds, setMyGroupIds] = useState(new Set());
+  const [showSmallGroupsModal, setShowSmallGroupsModal] = useState(false);
+  const [sgActionLoading, setSgActionLoading] = useState({});
   const navigate = useNavigate();
 
   const handleSessionExpired = useCallback(() => {
@@ -114,6 +118,23 @@ const Dashboard = () => {
         console.error('Error loading resources:', error);
       }
 
+      // Load small groups
+      try {
+        const allRes = await smallGroupsService.getAll();
+        if (allRes.success) {
+          setSmallGroups(allRes.data || []);
+        }
+        if (storedUserData.id) {
+          const myRes = await smallGroupsService.getMyGroups(storedUserData.id);
+          if (myRes.success) {
+            const ids = new Set((myRes.data || []).map(m => m.small_groups?.id).filter(Boolean));
+            setMyGroupIds(ids);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading small groups:', error);
+      }
+
       setIsLoading(false);
     };
 
@@ -149,6 +170,56 @@ const Dashboard = () => {
       style: 'currency',
       currency: 'KES'
     }).format(amount);
+  };
+
+  // Small group handlers
+  const handleJoinGroup = async (groupId) => {
+    const userId = userData.id;
+    if (!userId) {
+      alert('Please log in again to join a group.');
+      return;
+    }
+    if (sgActionLoading[groupId]) return;
+    setSgActionLoading(prev => ({ ...prev, [groupId]: true }));
+    try {
+      const res = await smallGroupsService.join(groupId, userId);
+      if (res.success) {
+        setMyGroupIds(prev => new Set([...prev, groupId]));
+        // Refresh groups to get updated member counts
+        const allRes = await smallGroupsService.getAll();
+        if (allRes.success) setSmallGroups(allRes.data || []);
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || 'Failed to join group';
+      alert(msg);
+    } finally {
+      setSgActionLoading(prev => ({ ...prev, [groupId]: false }));
+    }
+  };
+
+  const handleLeaveGroup = async (groupId) => {
+    const userId = userData.id;
+    if (!userId) return;
+    if (!window.confirm('Are you sure you want to leave this group?')) return;
+    if (sgActionLoading[groupId]) return;
+    setSgActionLoading(prev => ({ ...prev, [groupId]: true }));
+    try {
+      const res = await smallGroupsService.leave(groupId, userId);
+      if (res.success) {
+        setMyGroupIds(prev => {
+          const updated = new Set(prev);
+          updated.delete(groupId);
+          return updated;
+        });
+        const allRes = await smallGroupsService.getAll();
+        if (allRes.success) setSmallGroups(allRes.data || []);
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || 'Failed to leave group';
+      alert(msg);
+    } finally {
+      setSgActionLoading(prev => ({ ...prev, [groupId]: false }));
+    }
   };
 
   // Offering handlers
@@ -437,10 +508,33 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="card">
-            <h3><i className="fas fa-users"></i> My Small Group</h3>
-            <p>You're not part of a small group yet.</p>
-            <button className="btn-primary">Join a Group</button>
+          <div className="card small-group-card" onClick={() => setShowSmallGroupsModal(true)}>
+            <h3><i className="fas fa-users"></i> Small Groups</h3>
+            {smallGroups.filter(g => myGroupIds.has(g.id)).length > 0 ? (
+              <>
+                <div className="sg-dashboard-summary">
+                  <span className="sg-member-badge">
+                    <i className="fas fa-check-circle"></i> Member of {smallGroups.filter(g => myGroupIds.has(g.id)).length} group{smallGroups.filter(g => myGroupIds.has(g.id)).length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="sg-dashboard-list">
+                  {smallGroups.filter(g => myGroupIds.has(g.id)).slice(0, 2).map(group => (
+                    <div key={group.id} className="sg-dashboard-item">
+                      <span className="sg-dashboard-name">{group.name}</span>
+                      <span className="sg-dashboard-time"><i className="fas fa-clock"></i> {group.meeting_time}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="sg-dashboard-empty">
+                <i className="fas fa-user-friends"></i>
+                <p>You haven't joined a small group yet.</p>
+              </div>
+            )}
+            <div className="sg-dashboard-footer">
+              <span className="view-link"><i className="fas fa-eye"></i> Click to browse &amp; join groups</span>
+            </div>
           </div>
 
           <div className="card">
@@ -987,6 +1081,85 @@ const Dashboard = () => {
                 )}
               </>
             )}
+          </div>
+        </div>
+      )}
+      {/* Small Groups Modal */}
+      {showSmallGroupsModal && (
+        <div className="modal-overlay" onClick={() => setShowSmallGroupsModal(false)}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowSmallGroupsModal(false)}>
+              <i className="fas fa-times"></i>
+            </button>
+            <h2><i className="fas fa-users"></i> Small Groups</h2>
+            <p className="modal-subtitle">Connect, grow, and fellowship with your church family</p>
+
+            {smallGroups.length > 0 ? (
+              <div className="sg-modal-grid">
+                {/* My Groups */}
+                {smallGroups.filter(g => myGroupIds.has(g.id)).length > 0 && (
+                  <div className="sg-modal-section">
+                    <h4 className="sg-modal-section-title"><i className="fas fa-user-check"></i> My Groups</h4>
+                    {smallGroups.filter(g => myGroupIds.has(g.id)).map(group => (
+                      <div key={group.id} className="sg-modal-card sg-modal-card-joined">
+                        <div className="sg-modal-card-badge">Member</div>
+                        <h5>{group.name}</h5>
+                        <p className="sg-modal-desc">{group.description}</p>
+                        <div className="sg-modal-details">
+                          <span><i className="fas fa-user-tie"></i> {group.leader}</span>
+                          <span><i className="fas fa-clock"></i> {group.meeting_time}</span>
+                          <span><i className="fas fa-users"></i> {group.member_count || 0} member{(group.member_count || 0) !== 1 ? 's' : ''}</span>
+                        </div>
+                        <button
+                          className="sg-modal-btn sg-modal-btn-leave"
+                          onClick={() => handleLeaveGroup(group.id)}
+                          disabled={sgActionLoading[group.id]}
+                        >
+                          {sgActionLoading[group.id] ? 'Leaving...' : 'Leave Group'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Available Groups */}
+                {smallGroups.filter(g => !myGroupIds.has(g.id)).length > 0 && (
+                  <div className="sg-modal-section">
+                    <h4 className="sg-modal-section-title"><i className="fas fa-plus-circle"></i> Available Groups</h4>
+                    {smallGroups.filter(g => !myGroupIds.has(g.id)).map(group => (
+                      <div key={group.id} className="sg-modal-card">
+                        <h5>{group.name}</h5>
+                        <p className="sg-modal-desc">{group.description}</p>
+                        <div className="sg-modal-details">
+                          <span><i className="fas fa-user-tie"></i> {group.leader}</span>
+                          <span><i className="fas fa-clock"></i> {group.meeting_time}</span>
+                          <span><i className="fas fa-users"></i> {group.member_count || 0} member{(group.member_count || 0) !== 1 ? 's' : ''}</span>
+                        </div>
+                        <button
+                          className="sg-modal-btn sg-modal-btn-join"
+                          onClick={() => handleJoinGroup(group.id)}
+                          disabled={sgActionLoading[group.id]}
+                        >
+                          {sgActionLoading[group.id] ? 'Joining...' : 'Join Group'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="sg-modal-empty">
+                <i className="fas fa-users"></i>
+                <p>No small groups available yet.</p>
+                <p>Check back soon!</p>
+              </div>
+            )}
+
+            <div className="sg-modal-footer">
+              <Link to="/small-groups" className="btn-primary" onClick={() => setShowSmallGroupsModal(false)}>
+                <i className="fas fa-arrow-right"></i> View Full Small Groups Page
+              </Link>
+            </div>
           </div>
         </div>
       )}

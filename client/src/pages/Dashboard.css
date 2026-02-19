@@ -1754,3 +1754,249 @@ body {
     gap: 0;
   }
 }
+
+/* ===== Small Groups Dashboard Card ===== */
+.small-group-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.small-group-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.sg-dashboard-summary {
+  margin-bottom: 12px;
+}
+
+.sg-member-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sg-member-badge i {
+  color: #4CAF50;
+}
+
+.sg-dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sg-dashboard-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #4CAF50;
+}
+
+.sg-dashboard-name {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 0.9rem;
+}
+
+.sg-dashboard-time {
+  font-size: 0.8rem;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sg-dashboard-empty {
+  text-align: center;
+  padding: 15px 0;
+  color: #999;
+}
+
+.sg-dashboard-empty i {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: #ccc;
+}
+
+.sg-dashboard-empty p {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.sg-dashboard-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* ===== Small Groups Modal ===== */
+.sg-modal-grid {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sg-modal-section {
+  margin-bottom: 20px;
+}
+
+.sg-modal-section-title {
+  font-size: 1rem;
+  color: #1a1a2e;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #4CAF50;
+}
+
+.sg-modal-section-title i {
+  color: #4CAF50;
+}
+
+.sg-modal-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 12px;
+  position: relative;
+  border: 1px solid #e9ecef;
+  transition: box-shadow 0.2s;
+}
+
+.sg-modal-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.sg-modal-card-joined {
+  border-left: 4px solid #4CAF50;
+  background: #f1faf1;
+}
+
+.sg-modal-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #4CAF50;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.sg-modal-card h5 {
+  font-size: 1.05rem;
+  color: #1a1a2e;
+  margin: 0 0 8px 0;
+}
+
+.sg-modal-desc {
+  font-size: 0.88rem;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.sg-modal-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  color: #777;
+}
+
+.sg-modal-details span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sg-modal-details i {
+  color: #4CAF50;
+  font-size: 0.85rem;
+}
+
+.sg-modal-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.sg-modal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.sg-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sg-modal-btn-join {
+  background: #4CAF50;
+  color: white;
+}
+
+.sg-modal-btn-join:hover:not(:disabled) {
+  background: #43a047;
+}
+
+.sg-modal-btn-leave {
+  background: #fff;
+  color: #e53935;
+  border: 1px solid #e53935;
+}
+
+.sg-modal-btn-leave:hover:not(:disabled) {
+  background: #ffebee;
+}
+
+.sg-modal-empty {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+}
+
+.sg-modal-empty i {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.sg-modal-footer {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.sg-modal-footer .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .sg-modal-details {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
