@@ -1,4 +1,20 @@
 const supabase = require("../db")
+const jwt = require("jsonwebtoken")
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
+
+// Helper to extract user_id from memberToken cookie
+function getUserIdFromToken(req) {
+  try {
+    const token = req.cookies?.memberToken;
+    if (!token) return null;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded.id || null;
+  } catch {
+    return null;
+  }
+}
+
   // creating small group
   exports.createSmallGroup = async (req, res) => {
     const { name, description, leader, meeting_time } = req.body;
@@ -43,15 +59,17 @@ const supabase = require("../db")
 
 // joining small group
 exports.joinSmallGroup = async (req, res) => {
-  const { group_id, user_id } = req.body;
+  const { group_id } = req.body;
+  // Get user_id from request body or from JWT token cookie
+  const user_id = req.body.user_id || getUserIdFromToken(req);
 
   // validation of missing fields
-  // if (!group_id || !user_id) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: "Please provide all the required fields: group_id and user_id",
-  //   });
-  // }
+  if (!group_id || !user_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide all the required fields: group_id and user_id",
+    });
+  }
 
   try {
     // check if the user is already a member of the group
@@ -60,14 +78,13 @@ exports.joinSmallGroup = async (req, res) => {
       .select("*")
       .eq("group_id", group_id)
       .eq("user_id", user_id)
-      .single();
+      .maybeSingle();
 
-    // if there's an error other than no rows found, return it
-    if (membershipError && membershipError.code !== "PGRST116") {
+    if (membershipError) {
       return res.status(500).json({
         success: false,
         message: "Error checking group membership",
-        // error: membershipError.message,
+        error: membershipError.message,
       });
     }
     if (existingMembership) {
@@ -106,7 +123,9 @@ exports.joinSmallGroup = async (req, res) => {
 
 // leaving small group
 exports.leavingSmallGroup = async (req, res) => {
-  const { group_id, user_id } = req.body;
+  const { group_id } = req.body;
+  // Get user_id from request body or from JWT token cookie
+  const user_id = req.body.user_id || getUserIdFromToken(req);
 
   // validation for the missing fields
   if (!group_id || !user_id) {

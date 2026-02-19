@@ -43,6 +43,10 @@ const SmallGroups = () => {
   };
 
   const handleJoin = async (groupId) => {
+    if (!userId) {
+      alert('Please log in again to join a group.');
+      return;
+    }
     if (actionLoading[groupId]) return;
     setActionLoading(prev => ({ ...prev, [groupId]: true }));
     try {
