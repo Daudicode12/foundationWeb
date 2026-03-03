@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const churchController = require('../controllers/churchController');
+const superAdminController = require('../controllers/superAdmin.controller');
 const superAdminAuth = require('../middleware/superAdminAuth');
 const adminAuth = require('../middleware/adminAuth');
 
@@ -11,6 +12,14 @@ const adminAuth = require('../middleware/adminAuth');
 
 // Dashboard stats for super admin
 router.get('/stats', superAdminAuth, churchController.getSuperAdminStats);
+
+// Admin approval management (Super Admin only)
+router.get('/admins', superAdminAuth, superAdminController.listAdmins);
+router.get('/admins/pending', superAdminAuth, superAdminController.listPendingAdmins);
+router.get('/admins/pending/count', superAdminAuth, superAdminController.countPendingAdmins);
+router.put('/admins/:id/approve', superAdminAuth, superAdminController.approveAdmin);
+router.put('/admins/:id/reject', superAdminAuth, superAdminController.rejectAdmin);
+router.put('/admins/:id/revoke', superAdminAuth, superAdminController.revokeAdmin);
 
 // Church management (Super Admin only)
 router.get('/churches', superAdminAuth, churchController.listChurches);

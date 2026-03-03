@@ -455,6 +455,39 @@ export const superAdminDashboardService = {
   },
 };
 
+// Admin Approval Service (Super Admin only)
+export const adminApprovalService = {
+  listAll: async () => {
+    const response = await superAdminApi.get('/api/super-admin/admins');
+    return response.data;
+  },
+
+  listPending: async () => {
+    const response = await superAdminApi.get('/api/super-admin/admins/pending');
+    return response.data;
+  },
+
+  countPending: async () => {
+    const response = await superAdminApi.get('/api/super-admin/admins/pending/count');
+    return response.data;
+  },
+
+  approve: async (adminId) => {
+    const response = await superAdminApi.put(`/api/super-admin/admins/${adminId}/approve`);
+    return response.data;
+  },
+
+  reject: async (adminId) => {
+    const response = await superAdminApi.put(`/api/super-admin/admins/${adminId}/reject`);
+    return response.data;
+  },
+
+  revoke: async (adminId) => {
+    const response = await superAdminApi.put(`/api/super-admin/admins/${adminId}/revoke`);
+    return response.data;
+  },
+};
+
 // Church Management Service
 export const churchService = {
   getAll: async () => {

@@ -137,6 +137,15 @@ const adminLogin = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid admin credentials" });
     }
 
+    // Check if admin account has been approved by super admin
+    // Super admins are always approved; regular admins need explicit approval
+    if (admin.role === 'admin' && !admin.is_approved) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Your admin account is pending approval. Please contact the Super Admin to get approved." 
+      });
+    }
+
     const token = jwt.sign(
       {
         id: admin.id,

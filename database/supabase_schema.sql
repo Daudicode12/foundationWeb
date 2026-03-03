@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(50),
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(32) DEFAULT 'member' CHECK (role IN ('member', 'admin')),
+    role VARCHAR(32) DEFAULT 'member' CHECK (role IN ('member', 'admin', 'super_admin')),
+    is_approved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Index for faster email lookups
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_is_approved ON users(is_approved);
 
 -- ===========================================
 -- 2. CONTACT MESSAGES TABLE

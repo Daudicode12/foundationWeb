@@ -6,7 +6,8 @@ import {
   churchService, 
   contributionTargetService, 
   churchContributionService,
-  contributionProgressService 
+  contributionProgressService,
+  adminApprovalService 
 } from '../services/api';
 import './SuperAdminDashboard.css';
 
@@ -25,6 +26,8 @@ const SuperAdminDashboard = () => {
   const [contributions, setContributions] = useState([]);
   const [progressData, setProgressData] = useState([]);
   const [progressTotals, setProgressTotals] = useState({});
+  const [allAdmins, setAllAdmins] = useState([]);
+  const [pendingAdminsCount, setPendingAdminsCount] = useState(0);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isLoading, setIsLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
@@ -102,6 +105,13 @@ const SuperAdminDashboard = () => {
       if (progressResponse.success) {
         setProgressData(progressResponse.data || []);
         setProgressTotals(progressResponse.totals || {});
+      }
+
+      // Load admin approval data
+      const adminsResponse = await adminApprovalService.listAll();
+      if (adminsResponse.success) {
+        setAllAdmins(adminsResponse.data || []);
+        setPendingAdminsCount((adminsResponse.data || []).filter(a => !a.is_approved).length);
       }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -408,6 +418,18 @@ const SuperAdminDashboard = () => {
             <p>Total Admins</p>
           </div>
         </div>
+
+        {pendingAdminsCount > 0 && (
+          <div className="stat-card" style={{ cursor: 'pointer', borderLeft: '4px solid #f59e0b' }} onClick={() => showSection('admin-approvals')}>
+            <div className="stat-icon" style={{ backgroundColor: '#fef3c7', color: '#f59e0b' }}>
+              <i className="fas fa-user-clock"></i>
+            </div>
+            <div className="stat-info">
+              <h3 style={{ color: '#f59e0b' }}>{pendingAdminsCount}</h3>
+              <p>Pending Approvals</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Progress Overview */}
@@ -757,6 +779,176 @@ const SuperAdminDashboard = () => {
     </div>
   );
 
+  // ============================================
+  // ADMIN APPROVAL HANDLERS
+  // ============================================
+  const handleApproveAdmin = async (adminId) => {
+    try {
+      const response = await adminApprovalService.approve(adminId);
+      if (response.success) {
+        setSuccessMessage(response.message);
+        setTimeout(() => setSuccessMessage(''), 3000);
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error approving admin:', error);
+      setErrorMessage(error.response?.data?.message || 'Failed to approve admin');
+      setTimeout(() => setErrorMessage(''), 3000);
+    }
+  };
+
+  const handleRejectAdmin = async (adminId, username) => {
+    if (window.confirm(`Are you sure you want to reject and demote "${username}" to a regular member?`)) {
+      try {
+        const response = await adminApprovalService.reject(adminId);
+        if (response.success) {
+          setSuccessMessage(response.message);
+          setTimeout(() => setSuccessMessage(''), 3000);
+          loadDashboardData();
+        }
+      } catch (error) {
+        console.error('Error rejecting admin:', error);
+        setErrorMessage(error.response?.data?.message || 'Failed to reject admin');
+        setTimeout(() => setErrorMessage(''), 3000);
+      }
+    }
+  };
+
+  const handleRevokeAdmin = async (adminId, username) => {
+    if (window.confirm(`Are you sure you want to revoke admin access for "${username}"? They will no longer be able to log into the admin dashboard.`)) {
+      try {
+        const response = await adminApprovalService.revoke(adminId);
+        if (response.success) {
+          setSuccessMessage(response.message);
+          setTimeout(() => setSuccessMessage(''), 3000);
+          loadDashboardData();
+        }
+      } catch (error) {
+        console.error('Error revoking admin:', error);
+        setErrorMessage(error.response?.data?.message || 'Failed to revoke admin access');
+        setTimeout(() => setErrorMessage(''), 3000);
+      }
+    }
+  };
+
+  const renderAdminApprovals = () => {
+    const pendingAdmins = allAdmins.filter(a => !a.is_approved);
+    const approvedAdmins = allAdmins.filter(a => a.is_approved);
+
+    return (
+      <div className="section-content">
+        <div className="section-header">
+          <h2>Admin Approvals</h2>
+        </div>
+
+        {/* Pending Admins */}
+        <div className="admin-approval-section">
+          <h3 style={{ marginBottom: '15px', color: '#f59e0b' }}>
+            <i className="fas fa-clock"></i> Pending Approval ({pendingAdmins.length})
+          </h3>
+          {pendingAdmins.length === 0 ? (
+            <div className="no-data-message" style={{ padding: '20px', textAlign: 'center', color: '#6b7280', background: '#f9fafb', borderRadius: '8px' }}>
+              <i className="fas fa-check-circle" style={{ fontSize: '2rem', color: '#10b981', marginBottom: '10px', display: 'block' }}></i>
+              No pending admin approvals
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Requested On</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingAdmins.map(admin => (
+                    <tr key={admin.id}>
+                      <td>{admin.username}</td>
+                      <td>{admin.email}</td>
+                      <td>{admin.phone || '-'}</td>
+                      <td>{new Date(admin.created_at).toLocaleDateString()}</td>
+                      <td className="actions">
+                        <button 
+                          className="edit-btn" 
+                          onClick={() => handleApproveAdmin(admin.id)} 
+                          title="Approve"
+                          style={{ backgroundColor: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}
+                        >
+                          <i className="fas fa-check"></i> Approve
+                        </button>
+                        <button 
+                          className="delete-btn" 
+                          onClick={() => handleRejectAdmin(admin.id, admin.username)} 
+                          title="Reject"
+                          style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          <i className="fas fa-times"></i> Reject
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Approved Admins */}
+        <div className="admin-approval-section" style={{ marginTop: '30px' }}>
+          <h3 style={{ marginBottom: '15px', color: '#10b981' }}>
+            <i className="fas fa-user-check"></i> Approved Admins ({approvedAdmins.length})
+          </h3>
+          {approvedAdmins.length === 0 ? (
+            <div className="no-data-message" style={{ padding: '20px', textAlign: 'center', color: '#6b7280', background: '#f9fafb', borderRadius: '8px' }}>
+              No approved admins yet
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {approvedAdmins.map(admin => (
+                    <tr key={admin.id}>
+                      <td>{admin.username}</td>
+                      <td>{admin.email}</td>
+                      <td>{admin.phone || '-'}</td>
+                      <td>
+                        <span className="status-badge active" style={{ backgroundColor: '#d1fae5', color: '#065f46', padding: '4px 8px', borderRadius: '12px', fontSize: '0.85rem' }}>
+                          Approved
+                        </span>
+                      </td>
+                      <td className="actions">
+                        <button 
+                          className="delete-btn" 
+                          onClick={() => handleRevokeAdmin(admin.id, admin.username)} 
+                          title="Revoke Access"
+                          style={{ backgroundColor: '#f59e0b', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          <i className="fas fa-ban"></i> Revoke
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'churches':
@@ -767,6 +959,8 @@ const SuperAdminDashboard = () => {
         return renderContributions();
       case 'progress':
         return renderProgress();
+      case 'admin-approvals':
+        return renderAdminApprovals();
       default:
         return renderDashboard();
     }
@@ -775,6 +969,7 @@ const SuperAdminDashboard = () => {
   // Super Admin sidebar links
   const superAdminLinks = [
     { section: 'dashboard', label: 'Dashboard', icon: 'fas fa-home' },
+    { section: 'admin-approvals', label: `Admin Approvals${pendingAdminsCount > 0 ? ` (${pendingAdminsCount})` : ''}`, icon: 'fas fa-user-shield' },
     { section: 'churches', label: 'Manage Churches', icon: 'fas fa-church' },
     { section: 'targets', label: 'Set Targets', icon: 'fas fa-bullseye' },
     { section: 'contributions', label: 'Contributions', icon: 'fas fa-hand-holding-usd' },
