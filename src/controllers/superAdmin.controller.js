@@ -15,12 +15,16 @@ function handleError (res, error, message = "server error"){
 // list all admins
 exports.listAdmins = async (req, res) => {
     try {
-        const {data, errpr} = await supabase
+        const {data, error} = await supabase
         .from('admins')
         .select('*')
         .order('created_at', {ascending: false});
 
         if(error) return handleError(res, error, "error fetching admins");
         res.json({success: true, data});
+
+        return res.status(200).json({success: true, data});
+    }catch (error) {
+        return handleError(res, error);
     }
 }
