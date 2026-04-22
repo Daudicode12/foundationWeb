@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'axios'; // Centralized API service using Axios for all HTTP requests
 
 // Use empty string for baseURL - the proxy in package.json will handle API calls
 const API_BASE_URL = '';
